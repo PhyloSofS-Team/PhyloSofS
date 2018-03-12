@@ -1,0 +1,198 @@
+strict digraph  {
+	graph [colorscheme=set15,
+		margin=0.0,
+		newrank=True,
+		outputorder=edgesfirst,
+		rankdir=TB,
+		splines=False
+	];
+	node [height=0.7,
+		label="\N",
+		shape=egg,
+		style=filled,
+		width=1
+	];
+	edge [dir=none,
+		minlen=4,
+		weight=1
+	];
+	subgraph cluster_1 {
+		graph [label="",
+			rank=same
+		];
+		"1_0"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"1_1"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"1_2"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+	}
+	subgraph cluster_2 {
+		graph [label="",
+			rank=same
+		];
+		"2_0"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"2_1"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+		"2_2"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+	}
+	subgraph cluster_3 {
+		graph [label="",
+			rank=same
+		];
+		"3_0"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"3_1"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"3_2"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+	}
+	subgraph cluster_4 {
+		graph [label="",
+			rank=sink
+		];
+		"4_0"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"4_0_death"		 [colorscheme=set15,
+			fillcolor=3,
+			label="",
+			shape=triangle,
+			width=0.3];
+		"4_1_death"		 [colorscheme=set15,
+			fillcolor=1,
+			label="",
+			shape=triangle,
+			width=0.3];
+	}
+	subgraph cluster_5 {
+		graph [label="",
+			rank=sink
+		];
+		"5_0"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+		"5_1"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"5_2"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+	}
+	subgraph cluster_6 {
+		graph [label="",
+			rank=sink
+		];
+		"6_0"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"6_1"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"6_0_death"		 [colorscheme=set15,
+			fillcolor=3,
+			label="",
+			shape=triangle,
+			width=0.3];
+	}
+	subgraph cluster_7 {
+		graph [label="",
+			rank=same
+		];
+		"7_0"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+		"7_1"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"7_2"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"7_3"		 [colorscheme=set15,
+			fillcolor=4,
+			label=""];
+		"7_4"		 [colorscheme=set15,
+			fillcolor=5,
+			label=""];
+	}
+	subgraph cluster_8 {
+		graph [label="",
+			rank=sink
+		];
+		"8_0"		 [colorscheme=set15,
+			fillcolor=5,
+			label=""];
+		"8_1"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+		"8_2"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"8_3"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+		"8_4"		 [colorscheme=set15,
+			fillcolor=4,
+			label=""];
+	}
+	subgraph cluster_9 {
+		graph [label="",
+			rank=sink
+		];
+		"9_0"		 [colorscheme=set15,
+			fillcolor=3,
+			label=""];
+		"9_1"		 [colorscheme=set15,
+			fillcolor=4,
+			label=""];
+		"9_2"		 [label=""];
+		"9_3"		 [colorscheme=set15,
+			fillcolor=5,
+			label=""];
+		"9_4"		 [colorscheme=set15,
+			fillcolor=1,
+			label=""];
+		"9_5"		 [colorscheme=set15,
+			fillcolor=2,
+			label=""];
+	}
+	"1_0" -> "2_0";
+	"1_0" -> "3_1";
+	"1_1" -> "2_2";
+	"1_1" -> "3_0";
+	"1_2" -> "2_1";
+	"1_2" -> "3_2";
+	"2_0" -> "4_0";
+	"2_0" -> "5_2";
+	"2_1" -> "4_0_death";
+	"2_1" -> "5_0";
+	"2_2" -> "4_1_death";
+	"2_2" -> "5_1";
+	"3_0" -> "6_0";
+	"3_0" -> "7_1";
+	"3_1" -> "6_1";
+	"3_1" -> "7_2";
+	"3_2" -> "6_0_death";
+	"3_2" -> "7_0";
+	"7_0" -> "8_1";
+	"7_0" -> "9_0";
+	"7_1" -> "8_2";
+	"7_1" -> "9_4";
+	"7_2" -> "8_3";
+	"7_2" -> "9_5";
+	"7_3" -> "8_4";
+	"7_3" -> "9_1";
+	"7_4" -> "8_0";
+	"7_4" -> "9_3";
+}

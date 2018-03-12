@@ -1,0 +1,17 @@
+[PROGRAMS]
+HHBLITS: /usr/local/bin/hhblits
+ADDSS: /usr/local/bin/addss.pl
+HHMAKE: /usr/local/bin/hhmake
+HHSEARCH: /usr/local/bin/hhsearch
+HHMODEL: /opt/hhsuite-2.0.16/scripts/hhmakemodel.pl
+
+[DATABASES]
+HHDB: /home/upmc/Prog/HH-suite/databases/uniprot20_2013_03/uniprot20_2013_03
+STRUCTDB: /home/upmc/Prog/HH-suite/databases/pdb70_28Jun14/pdb70_28Jun14_hhm_db
+
+[OPTIONS]
+NCPU: 6
+
+[DATA]
+CONTEXTLIB: /home/upmc/Prog/HH-suite/2.0.16/lib/hh/data/context_data.lib
+
