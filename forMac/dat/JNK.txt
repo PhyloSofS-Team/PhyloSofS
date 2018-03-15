@@ -1,8 +1,0 @@
-((Fu10, Ze10), (Xe10, (Mo10, Hu10)))
-
-Hu10: abcdefiIjnpq,uAabcdefiIjnpq,uAabcdefiIjnpz,defiIjnpz,degiIjnpq,defiIjnpq
-Mo10: uAabcdefiIjnpz,uAabcdefiIjnpq,abcdefiIjnpq,uAabcdefiIjnp,tuAabcdefiIjnpq,uAabcdegiIjnpq
-Xe10: uAabcdefiIjnpq,uAabcdefiIjynpz
-Ze10: abcdefiIjnpz,uAabcdefiIjxnpz,uAabcdefiIjxnpZ
-Fu10: uAabcdefiIjnpq
-

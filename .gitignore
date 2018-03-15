@@ -1,0 +1,16 @@
+# MAC
+.DS_Store
+__MACOSX/
+
+# PYTHON
+__pycache__/
+*.py[cod]
+*$py.class
+
+# JUPYTER
+.ipynb_checkpoints
+
+# VIM
+*~
+*.swp
+*.swo
