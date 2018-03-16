@@ -37,13 +37,13 @@ else:
 
 # fonction prend en parametre un object python o et un nom de fichier s
 # et va creer ou ecraser le fichier de nom s avec l'objet ecrit en binaire
-def pickPrint (o, s) :
+def pickPrint(o, s) :
     with open (s ,"wb") as f :
         pk.dump(o, f)
 
 # prochaine fonction inverse de la precedente qui cree un objet python
 # a partir du fichier de nom s ou il a ete ecrit en binaire
-def pickRead (s) :
+def pickRead(s) :
     with open (s, "rb") as f :
         return (pk.load(f))
 
@@ -79,9 +79,9 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
         ff.write("\n\n   ** The transcript tree for this topology : \n\n")
         ff.write(str(Tree.nodes(1)))
         ff.write("\n\n   ** Score for this topology = " + str(treeCost) + "\n\n")
-        ff.write ("   ** Execution time : " + str(res[2]) + " ; number of cuts : " + str(res[1]) + "\n")
+        ff.write("   ** Execution time : " + str(res[2]) + " ; number of cuts : " + str(res[1]) + "\n")
     for c in confs :
-        Res.append(elagTree (tree, c, AllExons))
+        Res.append(elagTree(tree, c, AllExons))
     pickPrint(Res, outputDir + "solution" + SUFF + ".pk")
     drawForest("solution"+SUFF, outputDir)
 
@@ -100,11 +100,11 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
 # (forests of phylogenetic trees):
 # - DiGraph from NetworkX package
 # - each node represents an ancestral (internal nodes) or
-# current (leaves) gene of a species
+# current(leaves) gene of a species
 # - a number of possible and equivalent configurations
-# is given for each node (attribute of the node: configuration)
+# is given for each node(attribute of the node: configuration)
 # there is a dependency between the numbers of configurations
-# of the different nodes (the attributes rConf and lConf
+# of the different nodes(the attributes rConf and lConf
 # of the considered configuration of the node give
 # the indices of the associated configurations
 # in the left and right children, the attribute parConf of
@@ -118,7 +118,7 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
 # parConf correspond to the configurations of the parent(s)
 # we go up to the point where we find an ancestral binary subnode
 # the variables binary, right and left gives the assigment for the
-# binary, right and left subnodes of the considered node (the child)
+# binary, right and left subnodes of the considered node(the child)
 # the second index in each tuple corresponds to the index of the transcript
 # in Bt, rft and lft, the first index corresponds to the index of the
 # transcript in Bt of the retained ancestral node
@@ -128,17 +128,17 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
 
 ###   exonState : string' list -> {0,1,2}' list
 
-def exonState (g, AllExons) :
+def exonState(g, AllExons) :
     res = []
-    l = len (g)
+    l = len(g)
     for e in AllExons:
         tmp = 0
         for t in g :
             tmp = tmp + (e in t)
         if tmp == 0 :
-            res.append (0)
+            res.append(0)
         elif tmp == l :
-            res.append (2)
+            res.append(2)
         else :
             res.append(1)
     return res
@@ -149,7 +149,7 @@ def exonState (g, AllExons) :
 
 ###      leaves : nx.DiGraph() -> int list
 
-def leaves (t) :
+def leaves(t) :
     res = set([])
     for n in t.nodes():
         if t.successors(n) == [] :
@@ -168,7 +168,7 @@ def leaves (t) :
 
 ###     parents : nx.DiGraph , [int' set , int' set] ->  [int' set , int' set]
 
-def parents (gt, ens):
+def parents(gt, ens):
     res1 = set([])
     res2 = set([])
     for i in ens[1]:
@@ -209,7 +209,7 @@ def parents (gt, ens):
 # le nombre de noeuds binaires. Un noeud binaire est un transcrit de l'espece
 # ancestral correspondante qui a deux transcrits descendants,
 # un dans chacune des deux especes filles.
-# ln (Left (sub)Nodes) :
+# ln (Left(sub)Nodes) :
 # le nombre de noeuds gauche, i.e un transcrit ayant un seul descendant
 #
 # Un arbre de transcrits est arbre oriente construit a partir d'un arbre de gene
@@ -221,7 +221,7 @@ def parents (gt, ens):
 
 ###    aleatopo : nx.DiGraph -> nx.DiGraph
 
-def aleaTopo (gt, minBNTree) :
+def aleaTopo(gt, minBNTree) :
 
     tt = nx.DiGraph()
     tt.add_edges_from(gt.edges())
@@ -232,13 +232,13 @@ def aleaTopo (gt, minBNTree) :
         tt.node[i]['trans']=gt.node[i]['trans']
         tt.node[i]['n']=len(gt.node[i]['trans'])
 
-    ens = parents (gt, ens)
+    ens = parents(gt, ens)
 
     # l'algo part d'en bas
     while ens[0] != set([]) :
         #print ens[0]
         for e in ens[0] :
-            l,r = gt.successors (e)
+            l,r = gt.successors(e)
         #   print "je suis "+str(e)+" "+str(l)+" "+str(r)
             ml = tt.node[l]['n']
             mr = tt.node[r]['n']
@@ -263,13 +263,13 @@ def aleaTopo (gt, minBNTree) :
                 tt.node[e]['rn']= rn
                 tt.node[e]['n']= bn+ln+rn
 
-        ens = parents (gt, ens)
+        ens = parents(gt, ens)
     return (tt)
 
 
 # next function takes a list l
 # and returns the sum of the n mins of l
-def minScore (n, l) :
+def minScore(n, l) :
     if n <= 0 :
         return(0)
     else :
@@ -307,12 +307,12 @@ def argMinMul (l) :
 
 
 # pour l'instant on supposera que la racine de tout arbre = 1
-def racine (t) :
+def racine(t) :
     return(1)
 
 # fonction qui renvoie tous les indices de l[ind:] ou n est present
 #         indexes : elmt' list , int , elmt -> int' list
-def indices (l,ind, n) :
+def indices(l,ind, n) :
     if (l== []):
         return ([])
     else :
@@ -342,7 +342,7 @@ def indices (l,ind, n) :
 # this is for step 1 : determine the states of the
 # exons at the genome level
 
-def sank (t, n, exS, costMat, AllExons) :
+def sank(t, n, exS, costMat, AllExons) :
 
     C0 = costMat[0]
     C1_0 = costMat[1]
@@ -378,7 +378,7 @@ def sank (t, n, exS, costMat, AllExons) :
 
 # propagateOnes utile pour dollo
 
-def propagateOnes (t, n, e) :
+def propagateOnes(t, n, e) :
     tmp = t.node[n]['dollo'][e]
     if t.successors(n) != [] :
         l,r = t.successors(n)
@@ -390,9 +390,9 @@ def propagateOnes (t, n, e) :
 # dollo sert a forcer l'etat des exons a respecter
 # la condition de dollo
 
-def dollo (t, AllExons):
+def dollo(t, AllExons):
     nExons = range( len(AllExons))
-    f = leaves (t)
+    f = leaves(t)
     res = nx.DiGraph()
     res.add_nodes_from(t.nodes())
     res.add_edges_from(t.edges())
@@ -402,8 +402,8 @@ def dollo (t, AllExons):
             if exS[j]>0 :
                 exS[j]=1
         res.node[i]['dollo']=exS
-    ens = parents (t,[f,f])
-    while (ens[0] != set([])):
+    ens = parents(t,[f,f])
+    while(ens[0] != set([])):
         for e in ens[0]:
             tmp = []
             l,r = t.successors(e)
@@ -419,10 +419,10 @@ def dollo (t, AllExons):
                     tmp.append(1)
                 else :
                     tmp.append(1)
-                    propagateOnes (res, l, ee)
-                    propagateOnes (res, r, ee)
+                    propagateOnes(res, l, ee)
+                    propagateOnes(res, r, ee)
                 res.node[e]['dollo'] = tmp
-        ens = parents (t, ens)
+        ens = parents(t, ens)
     return (res)
 
 
@@ -430,7 +430,7 @@ def dollo (t, AllExons):
 # l the list of the possible states of node n and will change recursively
 # st.node[n][extSate] for the exon e then will do the same for children
 
-def sankBack (ct, st, n, el, AllExons) :
+def sankBack(ct, st, n, el, AllExons) :
     nExons = range(len(AllExons))
     if ct.successors(n) != [] :
         l,r = st.successors(n)
@@ -456,12 +456,12 @@ def sankBack (ct, st, n, el, AllExons) :
 # ou chaque noeud contient ExState l'etat de chaque exon dans l'ensemble
 # de ses transcrits
 
-def exState (t, costMat, AllExons):
+def exState(t, costMat, AllExons):
     nExons = range(len(AllExons))
     tmp = nx.DiGraph()
     nodes = t.nodes()
-    tmp.add_edges_from (t.edges())
-    f = leaves (t)
+    tmp.add_edges_from(t.edges())
+    f = leaves(t)
     res = nx.DiGraph()
     res.add_edges_from(t.edges())
     for i in f :
@@ -472,18 +472,17 @@ def exState (t, costMat, AllExons):
             costTmp = [[10000,-1,-1],[10000,-1,-1],[10000,-1,-1]]
             costTmp[exState_of_i[e]][0]=0
             cost.append(costTmp)
-        tmp.node[i]['Cost'] = np.array (cost)
+        tmp.node[i]['Cost'] = np.array(cost)
 
     dolloMask = dollo(t, AllExons)
-    ens = parents (t,[f,f])
-    while (ens[0] != set([])):
+    ens = parents(t,[f,f])
+    while(ens[0] != set([])):
         for e in ens[0]:
             exS = dolloMask.node[e]['dollo']
             sank(tmp, e, exS, costMat, AllExons)
-        ens = parents (t, ens)
+        ens = parents(t, ens)
 
-
-    r = racine (t)
+    r = racine(t)
     res.node[r]['exState']=[]
     rootCost = tmp.node[r]['Cost']
     minCost = rootCost.min(axis=1)[:,0]
@@ -494,10 +493,9 @@ def exState (t, costMat, AllExons):
         indMins = indices(ll, 0, minCost_of_e)
         tmp2.append(indMins)
 
-    sankBack (tmp, res, r, tmp2, AllExons)
+    sankBack(tmp, res, r, tmp2, AllExons)
 
     return (res)
-
 
 # ex_state permet de ne prendre qu'une configuration parmi toutes
 # celles possibles des etats possibles des exons pour chaque noeud.
@@ -506,7 +504,7 @@ def exState (t, costMat, AllExons):
 
 ###  ex_state : nx.DiGraph() -> nx.DiGraph()
 
-def ex_state (t,priority) :
+def ex_state(t,priority) :
     tt = nx.DiGraph()
     tt.add_edges_from(t.edges())
     for i in tt.nodes() :
@@ -537,7 +535,7 @@ def ex_state (t,priority) :
 ## Scores :
 ###############
 
-def toScore (trans, exS, AllExons) :
+def toScore(trans, exS, AllExons) :
     nExons = range(len(AllExons))
     res = []
     for i in trans :
@@ -561,7 +559,7 @@ def toScore (trans, exS, AllExons) :
 # t1 et t2 en respect avec l'etat des exons exS
 
 
-def transScore (t1, t2, exS, exS_g, exS_d, costMat, AllExons) :
+def transScore(t1, t2, exS, exS_g, exS_d, costMat, AllExons) :
 
     C0 = costMat[0]
     C1_0 = costMat[1]
@@ -584,16 +582,16 @@ def transScore (t1, t2, exS, exS_g, exS_d, costMat, AllExons) :
 
             for i in [0,1] :
 
-                tmpCr = min ( [ CG[i][k] + cl[k] for k in [0,1,2]] )
-                tmpCl = min ( [ CD[i][k] + cr[k] for k in [0,1,2]] )
+                tmpCr = min( [ CG[i][k] + cl[k] for k in [0,1,2]] )
+                tmpCl = min( [ CD[i][k] + cr[k] for k in [0,1,2]] )
 
                 tmpRes.append(tmpCl+tmpCr)
             tmpRes.append(10000)
 
         elif exS[e] == 0 :
 
-            tmpCl = min ( [ C1_0[i] + cl[i] for i in [0,1,2]] )
-            tmpCr = min ( [ C1_0[i] + cr[i] for i in [0,1,2]] )
+            tmpCl = min( [ C1_0[i] + cl[i] for i in [0,1,2]] )
+            tmpCr = min( [ C1_0[i] + cr[i] for i in [0,1,2]] )
 
             tmpRes = [tmpCl + tmpCr, 10000, 10000]
 
@@ -601,8 +599,8 @@ def transScore (t1, t2, exS, exS_g, exS_d, costMat, AllExons) :
             CG = C1_2 [exS_g[e] != 0]
             CD = C1_2 [exS_d[e] != 0]
 
-            tmpCl = min ( [ CG[i] + cl[i] for i in [0,1,2]] )
-            tmpCr = min ( [ CD[i] + cr[i] for i in [0,1,2]] )
+            tmpCl = min( [ CG[i] + cl[i] for i in [0,1,2]] )
+            tmpCr = min( [ CD[i] + cr[i] for i in [0,1,2]] )
 
             tmpRes = [10000, 10000, tmpCl + tmpCr]
         res.append(tmpRes)
@@ -611,7 +609,7 @@ def transScore (t1, t2, exS, exS_g, exS_d, costMat, AllExons) :
 
 
 # le cout d'un transcrit t = somme des mins des lignes de t
-def scoreTrans (t) :
+def scoreTrans(t) :
     res = 0
     for i in t :
         res = res + (min(i))
@@ -620,7 +618,7 @@ def scoreTrans (t) :
 
 # la fonction suivante permet de mesurer la distance entre deux transcrits
 
-def transDist (t1, t2, exS, exs_g, exs_d, costMat, AllExons) :
+def transDist(t1, t2, exS, exs_g, exs_d, costMat, AllExons) :
     res = scoreTrans(transScore(t1,t2,exS,exs_g,exs_d, costMat, AllExons))
     return(res)
 
@@ -698,7 +696,7 @@ def findMins(n, a, dim, forVals):
 
 # adaptX met a jour x en fonction de
 # misLines, les lignes ou colonnes deja supprimees
-def adaptX (x, misLines) :
+def adaptX(x, misLines) :
     countX = x
     n = len(misLines)
     i = 0
@@ -736,7 +734,7 @@ def adaptX2 (x, nx, misLines) :
 # x premiere ligne ou colonne a supprimer et
 # y le nombre de lignes supprimees a partir de x
 
-def adaptMisLines (misLines, (x,y) ) :
+def adaptMisLines(misLines, (x,y) ) :
     xx = adaptX (x, misLines)
     yy = y
     TMP = []
@@ -758,7 +756,7 @@ def adaptMisLines (misLines, (x,y) ) :
 # le dictionnaire qui a pour parConf parconf et si elle le trouve
 # met a jour res en concatenant les indices de Bt herites a res[0] ..
 
-def inheritedFrom (t, n, conf, parConf, res) :
+def inheritedFrom(t, n, conf, parConf, res) :
     #print "iheritedFrom"
     #print t, n, conf, parConf, res
     tmp = t.node[n]['configurations'][conf]['inherited']
@@ -780,7 +778,7 @@ def inheritedFrom (t, n, conf, parConf, res) :
 # configurations des parents parConf, la liste des listes
 # d'indices de respectivemtn bn, lft, rft,  qui sont herites.
 
-def inherited (t, n, conf, parConf):
+def inherited(t, n, conf, parConf):
     l = parConf[:]
     res=[[],[],[]]
     while l != [] :
@@ -788,7 +786,7 @@ def inherited (t, n, conf, parConf):
         l.pop(0)
     return(res)
 
-def testParaT (n) :
+def testParaT(n) :
     res = nx.DiGraph()
     res.add_node(n)
     res.node[n]['bn'] = 3
@@ -804,7 +802,7 @@ def testParaT (n) :
     return(res)
 
 def genereParaTRec0 (t, n, conf, parConf, res) :
-    tmp = inherited (t,n,conf,parConf)
+    tmp = inherited(t,n,conf,parConf)
 
     if t.successors(n) == [] :
         res.node[n]['bn'] = t.node[n]['bn']
@@ -829,12 +827,12 @@ def genereParaTRec0 (t, n, conf, parConf, res) :
         res.node[n]['bn'] = t.node[n]['bn']
         res.node[n]['fbn'] = t.node[n]['bn'] - len(tmp[0])
 
-        nlt = len (t.node[n]['configurations'][conf]['lftInd'])
+        nlt = len(t.node[n]['configurations'][conf]['lftInd'])
         tmp2 = t.node[n]['ln'] - len(tmp[1])
         res.node[n]['ln'] = tmp2
         res.node[n]['nlt'] = nlt
 
-        nrt = len (t.node[n]['configurations'][conf]['rftInd'])
+        nrt = len(t.node[n]['configurations'][conf]['rftInd'])
         tmp3 = t.node[n]['rn'] - len(tmp[2])
         res.node[n]['rn'] = tmp3
         res.node[n]['nrt'] = nrt
@@ -855,16 +853,16 @@ def genereParaTRec0 (t, n, conf, parConf, res) :
 
         pc1 = parConf[:]
         pc1.append(conf)
-        genereParaTRec (t, l, lConf, pc1, res)
+        genereParaTRec(t, l, lConf, pc1, res)
         pc2 = parConf[:]
         pc2.append(conf)
-        genereParaTRec (t, r, rConf, pc2, res)
+        genereParaTRec(t, r, rConf, pc2, res)
 
 
 # remonteTPRec utile pour remonteTP sert a basiier nlft ou nrft
 # dans le cas d'un ln ou rn = 0 rencontrE en construction de paraT
 #t arbre de transcrits, pt paraT, n noeud, par parent, grdpar
-def remonteTPRec (t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
+def remonteTPRec(t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
     enf = pt.successors(grdPar)
     #ipdb.set_trace()
     if par == enf[0] :
@@ -874,7 +872,7 @@ def remonteTPRec (t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
             k = inherited(t, n, conf, PC1)
             if len(k[inh]) < un :
                 pt.node[grdPar]['nlft'] = pt.node[grdPar]['nlft'] - nft
-                remonteTPRec (t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
+                remonteTPRec(t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
 
 
     else :
@@ -885,21 +883,21 @@ def remonteTPRec (t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
             k = inherited(t, n, conf, PC1)
             if len(k[inh]) < un :
                 pt.node[grdPar]['nrft'] = pt.node[grdPar]['nrft'] - nft
-                remonteTPRec (t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
+                remonteTPRec(t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
 
 
-def remonteTP (t, pt, n, conf, parConf, un, nft, inh) :
+def remonteTP(t, pt, n, conf, parConf, un, nft, inh) :
 
     if pt.predecessors(n) != [] :
         par = pt.predecessors(n)[0]
         PC0 = parConf[:]
         PC1 = []
-        remonteTPRec (t, pt, n, n, par, conf, PC0, PC1, un, nft, inh)
+        remonteTPRec(t, pt, n, n, par, conf, PC0, PC1, un, nft, inh)
 
 
-def genereParaTRec (t, n, conf, parConf, res) :
+def genereParaTRec(t, n, conf, parConf, res) :
 
-    tmp = inherited (t,n,conf,parConf)
+    tmp = inherited(t,n,conf,parConf)
 
     if t.successors(n) == [] :
         res.node[n]['bn'] = t.node[n]['bn']
@@ -926,13 +924,13 @@ def genereParaTRec (t, n, conf, parConf, res) :
         res.node[n]['bn'] = bn
         res.node[n]['fbn'] = t.node[n]['bn'] - len(tmp[0])
 
-        nlt = len (t.node[n]['configurations'][conf]['lftInd'])
+        nlt = len(t.node[n]['configurations'][conf]['lftInd'])
         ln = t.node[n]['ln']
         tmp2 = ln - len(tmp[1])
         res.node[n]['ln'] = tmp2
         res.node[n]['nlt'] = nlt
 
-        nrt = len (t.node[n]['configurations'][conf]['rftInd'])
+        nrt = len(t.node[n]['configurations'][conf]['rftInd'])
         rn = t.node[n]['rn']
         tmp3 = rn - len(tmp[2])
         res.node[n]['rn'] = tmp3
@@ -961,7 +959,7 @@ def genereParaTRec (t, n, conf, parConf, res) :
                     elif (i + bn)  in  [y[ind_I] for y in t.node[par]['configurations'][parConf[-1]]['Lbn'] ] :
                         tmpp = tmpp + 1
                 tmpp = tmpp - len(tmp[1])
-                remonteTP (t, res, n, conf, parConf, ln, tmpp, 1)
+                remonteTP(t, res, n, conf, parConf, ln, tmpp, 1)
         else :
             res.node[n]['lftInd'] = t.node[n]['configurations'][conf]['lftInd']
             res.node[n]['nlft'] = nlt - len(tmp[1])
@@ -989,7 +987,7 @@ def genereParaTRec (t, n, conf, parConf, res) :
 
                 tmpp = tmpp - len(tmp[2])
                 #ipdb.set_trace()
-                remonteTP (t, res, n, conf, parConf, rn, tmpp, 2)
+                remonteTP(t, res, n, conf, parConf, rn, tmpp, 2)
         else :
             res.node[n]['rftInd'] = t.node[n]['configurations'][conf]['rftInd']
             res.node[n]['nrft'] = nrt - len(tmp[2])
@@ -997,12 +995,12 @@ def genereParaTRec (t, n, conf, parConf, res) :
         pc1 = parConf[:]
         pc1.append(conf)
         #ipdb.set_trace()
-        genereParaTRec (t, l, lConf, pc1, res)
+        genereParaTRec(t, l, lConf, pc1, res)
         pc2 = parConf[:]
         pc2.append(conf)
-        genereParaTRec (t, r, rConf, pc2, res)
+        genereParaTRec(t, r, rConf, pc2, res)
 
-def generateParaT (t,n, conf, parConf) :
+def generateParaT(t,n, conf, parConf) :
     res = nx.DiGraph()
     res.add_node(n)
     genereParaTRec(t,n, conf, parConf, res)
@@ -1018,23 +1016,23 @@ def generateParaT0 (t,n, conf, parConf) :
 # adaptFt used for adaptForVals to send from a node n
 # to the root of paraT the number of deleted lines and will
 # adapt nlft/rflt of the nodes in the path
-def adaptFt (n, paraT, nft) :
+def adaptFt(n, paraT, nft) :
     if paraT.predecessors(n) != [] :
         par = paraT.predecessors(n)[0]
         enf = paraT.successors(par)
         if n == enf[0] :
             paraT.node[par]['nlft'] = paraT.node[par]['nlft'] - nft
-            adaptFt (par, paraT, nft)
+            adaptFt(par, paraT, nft)
         else :
             paraT.node[par]['nrft'] = paraT.node[par]['nrft'] - nft
-            adaptFt (par, paraT, nft)
+            adaptFt(par, paraT, nft)
 
 
 # table of score t, x the index of line from ind0
 # xt corresponding transcript in the corresponding node
 # res the transcript tree beeing constructed
 
-def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
+def adaptDistTab(t, x, xt, forVals, ind0, paraT, n, ax) :
 
     nRows, nCols = t.shape
     bn = paraT.node[n]['bn']
@@ -1092,7 +1090,7 @@ def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
 
                 if paraT.node[n]['ln'] == 0 :
                     paraT.node[n]['nlft'] = 0
-                    adaptFt (n, paraT, nlft)
+                    adaptFt(n, paraT, nlft)
 
                     return (np.array([]),tmpp, nlft)
 
@@ -1129,15 +1127,15 @@ def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
                 if paraT.node[n]['rn'] == 0 :
                     paraT.node[n]['nrft'] = 0
                     adaptFt(n, paraT, nrft)
-                    for k in range (nrft) :
+                    for k in range(nrft) :
                         try :
                             t = np.delete(t, tmpp, axis = ax )
                         except :
                             #ipdb.set_trace()
-                            raise (ValueError)
+                            raise(ValueError)
 
                     Tmp= []
-                    for i in range (len (forVals)) :
+                    for i in range(len(forVals)) :
                         ttmp = tmpp + nrft
                         if forVals[i][ax] >= tmpp :
                             if forVals[i][ax] < ttmp :
@@ -1168,14 +1166,14 @@ def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
                 if paraT.node[n]['ln'] == 0 :
 
                     paraT.node[n]['nlft'] = 0
-                    adaptFt (n, paraT, nlft)
+                    adaptFt(n, paraT, nlft)
 
-                    for k in range (nlft) :
+                    for k in range(nlft) :
                         try :
                             t = np.delete(t, tmpp, axis = ax)
                         except :
                             #ipdb.set_trace()
-                            raise (ValueError)
+                            raise(ValueError)
 
                     Tmp = []
                     for i in range(len(forVals)) :
@@ -1205,8 +1203,8 @@ def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
 
             paraT.node[n]['fbn'] = paraT.node[n]['fbn']-1
 
-            tt = np.delete (t, ind0 + x, axis = ax)
-            adaptFt (n , paraT, 1)
+            tt = np.delete(t, ind0 + x, axis = ax)
+            adaptFt(n , paraT, 1)
 
             Tmp = []
             tmp = ind0 + x
@@ -1232,15 +1230,15 @@ def adaptDistTab (t, x, xt, forVals, ind0, paraT, n, ax) :
 # a graph is constructed with a source 's' and a sink 't'
 # where the source is connected to dim[0] nodes
 # dim[1] nodes are cnnected to the sink, and
-# dim[0] nodes are connected to dim[1] nodes (all possible pairs)
+# dim[0] nodes are connected to dim[1] nodes(all possible pairs)
 # with capacity zero in case of a forbidden cell, 1 otherwise
-# the function calls maximum_flow_value from networkx package (beware the version!!)
+# the function calls maximum_flow_value from networkx package(beware the version!!)
 # which determines the number of paths with maximum capacity
 # with the constraint that each intermediate node must appear in only one path
 # returns true if the number of paths is higher or equal to n(=bn)
 def maxAssign (n, dim, forVals) :
     #print("max assign")
-    l = len (forVals)
+    l = len(forVals)
     if  n == 0 or l < min(dim) :
         return (True)
     else :
@@ -1282,8 +1280,8 @@ def BandB_assign (n,t, dim, pathScore, path, misRows, misCols, forVals, lParaT, 
     #print "assigning B"
     #print bestScore, bestAssign, n, pathScore, forVals
     # test if the problem can be solved
-    # meaning that given the constraints (forbidden cells and dimensions)
-    # we can pair n transcripts (by max flow algorithm)
+    # meaning that given the constraints(forbidden cells and dimensions)
+    # we can pair n transcripts(by max flow algorithm)
     if maxAssign(n,dim,forVals) :
 	# if there is nothing to pair
 	# then we have reduced the problem to nothing
@@ -1314,7 +1312,7 @@ def BandB_assign (n,t, dim, pathScore, path, misRows, misCols, forVals, lParaT, 
             #print "n is not null"
 	    # find the lowest non-overlapping values in the dist array
 	    # x and y are the indices for the smallest value
-            Mins, (x,y) = findMins (n,t,dim,forVals)
+            Mins, (x,y) = findMins(n,t,dim,forVals)
 	    #print Mins, (x,y)
             #ipdb.set_trace()
 	    # the score bound is the sum of the lowest non-overlapping values
@@ -1322,7 +1320,7 @@ def BandB_assign (n,t, dim, pathScore, path, misRows, misCols, forVals, lParaT, 
             scoreBound = sum (Mins) + pathScore
 	    #print "scoreBound:",scoreBound, "bestScore:", bestScore
 	    # continue only if the score is lower than the best score
-	    # found so far (over all visited paths up to now)
+	    # found so far(over all visited paths up to now)
             if scoreBound <= bestScore :
 		#print "lower"
                 tt = t.copy()
@@ -1337,13 +1335,13 @@ def BandB_assign (n,t, dim, pathScore, path, misRows, misCols, forVals, lParaT, 
                 #ipdb.set_trace()
 		# adapt the dist array for lines
                 try :
-                    tt, xStartDel, xNDel = adaptDistTab (tt, x, newX, newForVals, 0, newLParaT, lRoot, 0)
+                    tt, xStartDel, xNDel = adaptDistTab(tt, x, newX, newForVals, 0, newLParaT, lRoot, 0)
                 except :
                     print "could not update the transcript table"
                     #ipdb.set_trace()
 		# adapt the dist array for columns
                 try :
-                    tt, yStartDel, yNDel = adaptDistTab (tt, y, newY, newForVals, 0, newRParaT, rRoot, 1)
+                    tt, yStartDel, yNDel = adaptDistTab(tt, y, newY, newForVals, 0, newRParaT, rRoot, 1)
                 except :
                     print "could not update the transcript table"
                     #ipdb.set_trace()
@@ -1357,35 +1355,35 @@ def BandB_assign (n,t, dim, pathScore, path, misRows, misCols, forVals, lParaT, 
                 #ipdb.set_trace()
 		# go along this way: the problem is reduced since line(s)&column(s) were removed
 		#print "BandB for n-1"
-                BandB_assign (n-1, tt, newDim, newPathScore, newPath, newMisRows, newMisCols, newForVals, newLParaT, newRParaT, lRoot, rRoot)
+                BandB_assign(n-1, tt, newDim, newPathScore, newPath, newMisRows, newMisCols, newForVals, newLParaT, newRParaT, lRoot, rRoot)
 		# forbid the cell (x,y) and look for the second minimum
                 forVals.append([x,y])
                 #ipdb.set_trace()
 		#print "BandB for n"
-                BandB_assign (n, t, dim, pathScore, path, misRows, misCols, forVals, lParaT, rParaT, lRoot, rRoot)
+                BandB_assign(n, t, dim, pathScore, path, misRows, misCols, forVals, lParaT, rParaT, lRoot, rRoot)
 
 
 #### cette partie est ajoutee pour eviter la redondance de certains calculs
 #### et pour fixer un nombre de bn min pour certains noeuds en remontant les 0
 
 # g l'arbre de gene
-def leafScoreTabs (g, est, costMat, AllExons) :
+def leafScoreTabs(g, est, costMat, AllExons) :
     f = leaves(g)
-    ens = parents (g, [f,f])
+    ens = parents(g, [f,f])
     res = {}
     for e in ens[0] :
         l,r = g.successors(e)
-        exSe_r = exonState (g.node[r]['trans'], AllExons)
-        exSe_l = exonState (g.node[l]['trans'], AllExons)
-        ll = toScore (g.node[l]['trans'], exSe_l, AllExons)
-        rr = toScore (g.node[r]['trans'], exSe_r, AllExons)
+        exSe_r = exonState(g.node[r]['trans'], AllExons)
+        exSe_l = exonState(g.node[l]['trans'], AllExons)
+        ll = toScore(g.node[l]['trans'], exSe_l, AllExons)
+        rr = toScore(g.node[r]['trans'], exSe_r, AllExons)
         tmp = []
         exSe = est.node[e]['est']
 
         for i in ll :
             tmpp = []
             for j in rr:
-                tmpp.append(transDist (i,j,exSe, exSe_l, exSe_r, costMat, AllExons))
+                tmpp.append(transDist(i,j,exSe, exSe_l, exSe_r, costMat, AllExons))
             tmp.append(tmpp)
         res[str(e)]=np.array(tmp)
     return(res)
@@ -1394,7 +1392,7 @@ def leafScoreTabs (g, est, costMat, AllExons) :
 # renvoie egalement la liste de toutes les combinaisons maximales de 0 de lignes et colonnes differentes
 
 #l la liste des indices des 0 d'un tableau
-def max0Rec (l, res) :
+def max0Rec(l, res) :
     global AllPaths
    # print "res is:"
     #print res
@@ -1402,15 +1400,15 @@ def max0Rec (l, res) :
     while len(l) > 0 :
         tmp = tuple(l.pop())
         enrichPath(res, tmp)
-        max0Rec (l,res)
+        max0Rec(l,res)
 
 def max0 (t, res) :
-    l = list(np.transpose(np.where (t==0)))
+    l = list(np.transpose(np.where(t==0)))
     #print l
     tmp = [[]]
     #print "tmp is:"
     #print tmp
-    max0Rec (l, tmp)
+    max0Rec(l, tmp)
     tmpRes = len(res[0])
     for i in tmp:
         len_i = len(i)
@@ -1423,7 +1421,7 @@ def max0 (t, res) :
 
 
 #prend des listes d'indices de 0 et un nouveau couple d'indice ...
-def enrichPath (l, ind) :
+def enrichPath(l, ind) :
     for i in l[:] :
         if len(i) == 0:
             i.append(ind)
@@ -1451,12 +1449,12 @@ def remonte0 (g, est, costMat, AllExons) :
     res = nx.DiGraph()
     res.add_edges_from(g.edges())
     for e in f :
-        est.node[e]['est'] = exonState (g.node[e]['trans'], AllExons)
-        res.node[e]['trans'] = [toScore (g.node[e]['trans'], est.node[e]['est'], AllExons)]
-        res.node[e]['minBN'] = len (g.node[e]['trans'])
+        est.node[e]['est'] = exonState(g.node[e]['trans'], AllExons)
+        res.node[e]['trans'] = [toScore(g.node[e]['trans'], est.node[e]['est'], AllExons)]
+        res.node[e]['minBN'] = len(g.node[e]['trans'])
 	#print e,res.node[e]['minBN']
 
-    ens = parents (g, [f,f])
+    ens = parents(g, [f,f])
     while ens[0] != set([]) :
         for e in ens[0] :
 	    #print e,ens[0]
@@ -1474,7 +1472,7 @@ def remonte0 (g, est, costMat, AllExons) :
                         for ii in i :
                             tmppp = []
                             for jj in j :
-                                tmppp.append (transDist (ii,jj,exSe, exSe_l, exSe_r, costMat, AllExons))
+                                tmppp.append(transDist(ii,jj,exSe, exSe_l, exSe_r, costMat, AllExons))
                             tmpp.append(tmppp)
 
                         # max number of zeros on different lines or columns
@@ -1484,15 +1482,15 @@ def remonte0 (g, est, costMat, AllExons) :
 			#print tmp
 			#print trans
                         len_tmp = len(tmp[0])
-                        len_trans = len (trans[0])
+                        len_trans = len(trans[0])
                         if len_tmp > len_trans :
                             for k in tmp :
-                                #trans = [transFromInd (kk,i,j, exSe, exSe_l, exSe_r,costMat, AllExons) for kk in k]
-                                trans = [transFromInd (k,i,j, exSe, exSe_l, exSe_r,costMat, AllExons)]
+                                #trans = [transFromInd(kk,i,j, exSe, exSe_l, exSe_r,costMat, AllExons) for kk in k]
+                                trans = [transFromInd(k,i,j, exSe, exSe_l, exSe_r,costMat, AllExons)]
                         elif len_tmp == len_trans and len_tmp > 0 :
                             for k in tmp :
-                                TMP = transFromInd (k,i,j, exSe, exSe_l, exSe_r,costMat, AllExons)
-                                trans.append (TMP)
+                                TMP = transFromInd(k,i,j, exSe, exSe_l, exSe_r,costMat, AllExons)
+                                trans.append(TMP)
                 #print trans
                 res.node[e]['trans'] = trans
                 res.node[e]['minBN'] = len(trans[0])
@@ -1502,13 +1500,13 @@ def remonte0 (g, est, costMat, AllExons) :
             else :
                 res.node[e]['trans'] = [[]]
                 res.node[e]['minBN'] = 0
-        ens = parents (g, ens)
+        ens = parents(g, ens)
     return(res)
 
-def transFromInd (k,i,j,ex,ex_g,ex_d, costMat, AllExons) :
+def transFromInd(k,i,j,ex,ex_g,ex_d, costMat, AllExons) :
     res = []
     for s in k :
-        res.append(transScore (i[s[0]], j[s[1]], ex, ex_g, ex_d, costMat, AllExons))
+        res.append(transScore(i[s[0]], j[s[1]], ex, ex_g, ex_d, costMat, AllExons))
         #print res
     return(res)
 
@@ -1521,7 +1519,7 @@ def transFromInd (k,i,j,ex,ex_g,ex_d, costMat, AllExons) :
 # Fonction principale qui affecte bn transcrits de gg a bn de dd
 # bestAffectHigh pour les noeuds de hauteur au moins 2
 # bestAffectLow pour les noeuds de hauteur 1 (pour lesquels pas besoin de recalculer les couts)
-def bestAffectHigh (bn, gg, dd, exSe, exSe_g, exSe_d, lpt, rpt, lRoot, rRoot, costMat, AllExons) :
+def bestAffectHigh(bn, gg, dd, exSe, exSe_g, exSe_d, lpt, rpt, lRoot, rRoot, costMat, AllExons) :
     global bestAssign
     bestAssign = []
     global bestScore
@@ -1537,14 +1535,14 @@ def bestAffectHigh (bn, gg, dd, exSe, exSe_g, exSe_d, lpt, rpt, lRoot, rRoot, co
         for i in gg :
             tmp = []
             for j in dd :
-                tmp.append(transDist (i,j,exSe, exSe_g, exSe_d, costMat, AllExons))
+                tmp.append(transDist(i,j,exSe, exSe_g, exSe_d, costMat, AllExons))
             distMat.append(tmp)
 
         t = np.array(distMat)
-    #print ("here ok going to BandB\n")
+    #print("here ok going to BandB\n")
     #BandB_assign (bn, t, t.shape, 0, [], misRows, misCols, [], lpt, rpt, lRoot, rRoot)
         try :
-            BandB_assign (bn, t, t.shape, 0, [], misRows, misCols, [], lpt, rpt, lRoot, rRoot)
+            BandB_assign(bn, t, t.shape, 0, [], misRows, misCols, [], lpt, rpt, lRoot, rRoot)
         except :
             #ipdb.set_trace()
             raise ValueError
@@ -1559,7 +1557,7 @@ def bestAffectHigh (bn, gg, dd, exSe, exSe_g, exSe_d, lpt, rpt, lRoot, rRoot, co
             a.append(tmp)
         return (res, scoreRes)
 
-def bestAffectLow (bn, t, lpt, rpt, lRoot, rRoot) :
+def bestAffectLow(bn, t, lpt, rpt, lRoot, rRoot) :
     global bestAssign
     bestAssign = []
     global bestScore
@@ -1571,7 +1569,7 @@ def bestAffectLow (bn, t, lpt, rpt, lRoot, rRoot) :
         misRows = []
         misCols = []
     try :
-        BandB_assign (bn, t, t.shape, 0, [], misRows, misCols, [], lpt, rpt, lRoot, rRoot)
+        BandB_assign(bn, t, t.shape, 0, [], misRows, misCols, [], lpt, rpt, lRoot, rRoot)
     except :
         print "could not assign band"
         #ipdb.set_trace()
@@ -1588,11 +1586,11 @@ def bestAffectLow (bn, t, lpt, rpt, lRoot, rRoot) :
 # res the tree, n node, c configuration in n , pc configuration in par(n)
 # countBt the num of binary node in pc[0] of par(n), x the index range(bn),
 # range(ln) or range(rn)
-def propagateAssign (res, n, c, pc, xPar, X) :
+def propagateAssign(res, n, c, pc, xPar, X) :
 
     bn = res.node[n]['bn']
-    nlft = len (res.node[n]['configurations'][c]['lftInd'])
-    tmpLen = len (res.node[n]['configurations'][c]['inherited'])
+    nlft = len(res.node[n]['configurations'][c]['lftInd'])
+    tmpLen = len(res.node[n]['configurations'][c]['inherited'])
 
     elmt = 0
     found = False
@@ -1620,7 +1618,7 @@ def propagateAssign (res, n, c, pc, xPar, X) :
         elmt = 0
         parConfTmp = pc[:]
         tmp = {'parConf' : parConfTmp, 'binary' : [], 'left' : [] , 'right' : []}
-        tmp[s].append ((xPar, x))
+        tmp[s].append((xPar, x))
         res.node[n]['configurations'][c]['inherited'].append(tmp)
 
     if s != 'binary' and res.successors(n) != [] :
@@ -1637,7 +1635,7 @@ def propagateAssign (res, n, c, pc, xPar, X) :
             lr = r
             conf = res.node[n]['configurations'][c]['rConf']
 
-        propagateAssign (res, lr, conf, PC, xPar, xx)
+        propagateAssign(res, lr, conf, PC, xPar, xx)
 
 
 
@@ -1646,7 +1644,7 @@ def propagateAssign (res, n, c, pc, xPar, X) :
 # la fonction suivante pour ajuster un transcrit par rapport a un masque donne
 # given the mask of the child and parent exons, the costs associated to the child exon
 # are updated to feed the parent exon (bottom-up)
-def adaptToMask (tt,parMask, mask, costMat) :
+def adaptToMask(tt,parMask, mask, costMat) :
 
     C0 = costMat[0]
     C1_0 = costMat[1]
@@ -1664,7 +1662,7 @@ def adaptToMask (tt,parMask, mask, costMat) :
                 e[1] = C1_1[0][1][0] + e[0]
             # the parent exon is constitutive
             elif parMask[i] == 2 :
-                # the child exon is absent (and no)
+                # the child exon is absent(and no)
                 e[2] = C1_2[0][0] + e[0]
                 e[1] = 10000
                 e[0] = 10000
@@ -1694,10 +1692,10 @@ def adaptToMask (tt,parMask, mask, costMat) :
         i = i + 1
     return(t)
 
-#misL une liste de couple (i,j)
+#misL une liste de couple(i,j)
 # i l'indice du premier element a retirer de T
 # j le nombre d'element a retirer de T a partir de i
-def iniFt (T, misL) :
+def iniFt(T, misL) :
      count = 0
      misL.sort()
      for i in misL :
@@ -1711,8 +1709,8 @@ def iniFt (T, misL) :
 # fonction principale qui remonte les assignations des feuilles a la racine
 def leafAssign (t, est, distTabs, costMat, AllExons) :
     res= nx.DiGraph()
-    res.add_edges_from (t.edges())
-    f = leaves (t)
+    res.add_edges_from(t.edges())
+    f = leaves(t)
     for e in f :
         res.node[e]['ln'] = 0
         res.node[e]['rn'] = 0
@@ -1726,12 +1724,12 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
         dicTmp['lftInd']=[]
         dicTmp['rftInd']=[]
         dicTmp['inherited'] = []
-        dicTmp['Bt'] = toScore (t.node[e]['trans'], est.node[e]['est'], AllExons)
+        dicTmp['Bt'] = toScore(t.node[e]['trans'], est.node[e]['est'], AllExons)
         dicTmp['scoreBt'] = [0 for s in range(t.node[e]['n'])]
         res.node[e]['trans'] = t.node[e]['trans']
         res.node[e]["configurations"] = [dicTmp]
 
-    ens = parents (t, [f,f])
+    ens = parents(t, [f,f])
     #print "ens",ens[0]
     #first level, distance matrices always the same
     for e in ens[0]:
@@ -1751,11 +1749,11 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
         res.node[e]['configurations'] = []
         countConf=0
         distT = distTabs[str(e)]
-        lParaT = generateParaT (res, l, 0, [])
-        rParaT = generateParaT (res, r, 0, [])
+        lParaT = generateParaT(res, l, 0, [])
+        rParaT = generateParaT(res, r, 0, [])
         try :
 	    #print "I try"
-            affectations= bestAffectLow (bn, distT, lParaT, rParaT, l, r)
+            affectations= bestAffectLow(bn, distT, lParaT, rParaT, l, r)
         except :
             print "could not apply best low affectation"
             #ipdb.set_trace()
@@ -1801,7 +1799,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
             #print "parConf",parConf
 
             for k in a[0] :
-                dicTmp['Bt'].append (transScore (tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
+                dicTmp['Bt'].append(transScore(tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
 
                 propagateAssign(res, l, 0, parConf, countBt, k[0])
                 propagateAssign(res, r, 0, parConf, countBt, k[1])
@@ -1811,7 +1809,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
             if ln > 0 :
                 lInd = range(nl)
                 try :
-                    iniFt (lInd, a[1])
+                    iniFt(lInd, a[1])
                 except :
                     print "iniFt is not ok"
                     #ipdb.set_trace()
@@ -1827,7 +1825,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
                 rInd = range(nr)
 
                 try :
-                    iniFt (rInd, a[2])
+                    iniFt(rInd, a[2])
                 except :
                     print "iniFt is not ok"
 #                    ipdb.set_trace()
@@ -1842,7 +1840,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
             res.node[e]["configurations"].append(dicTmp)
 
     ens = parents(t,ens)
-    while (ens[0] != set([])):
+    while(ens[0] != set([])):
 
         for e in ens[0]:
             #print "hello"
@@ -1869,7 +1867,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
             for i in range(len(lConf)) :
 
                 tmpG = lConf[i]['Bt'] + lConf[i]['lft'] + lConf[i]['rft']
-                lParaT = generateParaT (res, l, i, [])
+                lParaT = generateParaT(res, l, i, [])
                 lbn = res.node[l]['bn']
                 lnlt = len(lConf[i]['lftInd'])
 
@@ -1878,22 +1876,22 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
                 for j in range(len(rConf)) :
 
                     tmpD = rConf[j]['Bt'] + rConf[j]['lft'] + rConf[j]['rft']
-                    rParaT = generateParaT (res,r,j, [])
+                    rParaT = generateParaT(res,r,j, [])
                     lpt = lParaT.copy()
                     rbn = res.node[r]['bn']
                     rnlt = len(rConf[j]['lftInd'])
 
 
                     try :
-                        affectations,scoreAffect= bestAffectHigh (bn, tmpG, tmpD, exSe, exSe_g, exSe_d, lpt, rParaT, l, r, costMat, AllExons)
+                        affectations,scoreAffect= bestAffectHigh(bn, tmpG, tmpD, exSe, exSe_g, exSe_d, lpt, rParaT, l, r, costMat, AllExons)
                     except :
                         print "could not apply best high affectation"
 #                        ipdb.set_trace()
 
                     #####
 
-                    TG = range (len (tmpG))
-                    TD = range (len (tmpD))
+                    TG = range(len(tmpG))
+                    TD = range(len(tmpD))
 
                     if bn == 0 : # pour faire plus propre a mettre a part, au dessus de la deouble boucle i,j
                         bnNonNul = False
@@ -1949,7 +1947,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
 
 
                             for k in a[0] :
-                                dicTmp['Bt'].append (transScore (tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
+                                dicTmp['Bt'].append(transScore(tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
                                 propL.append([i, [countConf], countBt, k[0]])
                                 propR.append([j, [countConf], countBt, k[1]])
                                 #propagateAssign(res, l, i, parConf, countBt, k[0])
@@ -1960,7 +1958,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
                             if ln > 0 :
                                 lInd = TG[:]
                                 try :
-                                    iniFt (lInd, a[1])
+                                    iniFt(lInd, a[1])
                                 except :
                                     print "lInd is not ok"
 #                                    ipdb.set_trace()
@@ -1975,7 +1973,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
                             if rn > 0 :
                                 rInd = TD[:]
                                 try :
-                                    iniFt (rInd, a[2])
+                                    iniFt(rInd, a[2])
                                 except :
                                     print "rInd is not ok"
                                   #  ipdb.set_trace()
@@ -2013,7 +2011,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
 # the score will not be systematically computed for the entire forest
 # the calculation stops when the current score is equal or greater then bestScore
 # (which can be initialized to 10000 to avoid premature stops)
-def tree_costRec (t, n, conf, parConf,cutTree,res, bestScore, costs) :
+def tree_costRec(t, n, conf, parConf,cutTree,res, bestScore, costs) :
 
     tmp = inherited(t,n,conf,parConf)
     bn = t.node[n]['bn']    - len(tmp[0])
@@ -2042,7 +2040,7 @@ def tree_costRec (t, n, conf, parConf,cutTree,res, bestScore, costs) :
 #            ipdb.set_trace()
         res[0] = res[0] + btScore + len(Bt) * costs[0]
     elif bn < 0 :
-        print ("problem bn <0\n")
+        print("problem bn <0\n")
         #ipdb.set_trace()
     if t.successors(n) != [] :
         lParConf = parConf[:]
@@ -2060,11 +2058,11 @@ def tree_costRec (t, n, conf, parConf,cutTree,res, bestScore, costs) :
             #ipdb.set_trace()
             res[0]=10000
 
-def generateTreeRec (t, tt, conf, n) :
+def generateTreeRec(t, tt, conf, n) :
     tt.node[n]['bn'] = t.node[n]['bn']
     tt.node[n]['ln'] = t.node[n]['ln']
     tt.node[n]['rn'] = t.node[n]['rn']
-    tmp = len (t.node[n]['configurations'])
+    tmp = len(t.node[n]['configurations'])
     tt.node[n]['configurations'] = [{}] * tmp
     tt.node[n]['configurations'][conf] = copy.deepcopy(t.node[n]['configurations'][conf])
 
@@ -2072,23 +2070,23 @@ def generateTreeRec (t, tt, conf, n) :
         lConf = t.node[n]['configurations'][conf]['lConf']
         rConf = t.node[n]['configurations'][conf]['rConf']
         l,r = t.successors(n)
-        generateTreeRec (t, tt, lConf, l)
-        generateTreeRec (t, tt, rConf, r)
+        generateTreeRec(t, tt, lConf, l)
+        generateTreeRec(t, tt, rConf, r)
 
-def generateTree (t, conf) :
+def generateTree(t, conf) :
     tt = nx.DiGraph()
     #tt.add_nodes_from(t.nodes())
     tt.add_edges_from(t.edges())
     generateTreeRec(t, tt, conf, 1)
     return (tt)
 
-def tree_cost (t, baseScore, costs) :
+def tree_cost(t, baseScore, costs) :
     Res= baseScore
     confRes = []
     tRes = nx.DiGraph()
     cutTrees = []
     nConfs = len(t.node[1]['configurations'])
-    print ("number of configurations: " + str(nConfs) + " \n")
+    print("number of configurations: " + str(nConfs) + " \n")
     # to avoid too large number of configurations
     #if nConfs > 10000:
 
@@ -2097,7 +2095,7 @@ def tree_cost (t, baseScore, costs) :
         res = [0]
         cutTree = nx.DiGraph()
         cutTree.add_edges_from(tt.edges())
-        tree_costRec (tt, 1, i, [], cutTree, res, Res, costs) # root = 1
+        tree_costRec(tt, 1, i, [], cutTree, res, Res, costs) # root = 1
         if res[0] < Res:
             confRes = [i]
             tRes = tt.copy()
@@ -2114,10 +2112,10 @@ def tree_cost (t, baseScore, costs) :
 # next function takes a topology and calculates une borne inf
 # nn node number ans p the number of enherited transcripts
 # in the node nn
-def evalTopoRec (t, nn, p, costs ) :
+def evalTopoRec(t, nn, p, costs ) :
     succ = t.successors(nn)
     if  succ == [] :
-        n = len (t.node[nn]['trans'])
+        n = len(t.node[nn]['trans'])
         return (costs[0] * (n-p) )
     else :
         l,r = t.successors(nn)
@@ -2125,16 +2123,16 @@ def evalTopoRec (t, nn, p, costs ) :
         ln = t.node[nn]['ln']
         rn = t.node[nn]['rn']
         n = bn + ln + rn
-        tmpL = evalTopoRec (t, l, (ln+bn), costs)
-        tmpR = evalTopoRec (t, r, (rn+bn), costs)
+        tmpL = evalTopoRec(t, l, (ln+bn), costs)
+        tmpR = evalTopoRec(t, r, (rn+bn), costs)
         # costs[1]: CD, costs[0]: CB
         #return (tmpL + tmpR + min(costs[1],1) * (ln+rn) + min(costs[0],1) * (n-p))
         return (tmpL + tmpR + costs[1] * (ln+rn) + costs[0] * (n-p))
 
-def evalTopo (t, costs) :
-    return (evalTopoRec (t, 1, 0, costs))
+def evalTopo(t, costs) :
+    return (evalTopoRec(t, 1, 0, costs))
 
-def coherentTopo (t) :
+def coherentTopo(t) :
     res = True
     intNodes = set(t.nodes()) - leaves(t)
     for i in intNodes :
@@ -2152,10 +2150,10 @@ def coherentTopo (t) :
 
 # determine the types of elementary moves
 # allowed at each node of the forest structure
-def treeMoves (t, minBNTree) :
+def treeMoves(t, minBNTree) :
 
     tt = nx.DiGraph()
-    f = leaves (t)
+    f = leaves(t)
     edges = t.edges()
     TMP = []
     for i in range(len(edges)) :
@@ -2230,7 +2228,7 @@ def treeMoves (t, minBNTree) :
     return (tt)
 
 # moves must not be empty
-def moveTopo ( baseTopo, nodes, treeMoves ) :
+def moveTopo( baseTopo, nodes, treeMoves ) :
 
     t = baseTopo.copy()
     N = len(nodes)
@@ -2285,7 +2283,7 @@ def moveTopo ( baseTopo, nodes, treeMoves ) :
     return (t,nn)
 
 
-def elagMaxTopo (tt, e, n) :
+def elagMaxTopo(tt, e, n) :
     succ = tt.successors(e)
     nn = 0
     if len(succ) > 0 :
@@ -2301,7 +2299,7 @@ def elagMaxTopo (tt, e, n) :
                 tt.node[e]['n'] = tt.node[e]['n'] - tmp
                 nn = tmp
             if nn > 0 :
-                elagMaxTopo (tt, l, nn)
+                elagMaxTopo(tt, l, nn)
         elif tt.node[e]['rn'] > 0 :
             tmp = tt.node[e]['rn']
             if tmp >= n :
@@ -2313,9 +2311,9 @@ def elagMaxTopo (tt, e, n) :
                 tt.node[e]['n'] = tt.node[e]['n'] - tmp
                 nn = tmp
             if nn>0:
-                elagMaxTopo (tt, r, nn)
+                elagMaxTopo(tt, r, nn)
 
-def maxTopo (gt) :
+def maxTopo(gt) :
     tt = nx.DiGraph()
     tt.add_edges_from(gt.edges())
     tmp = leaves(gt)
@@ -2326,11 +2324,11 @@ def maxTopo (gt) :
         tt.node[i]['n']=len(gt.node[i]['trans'])
 
 
-    ens = parents (gt, ens)
+    ens = parents(gt, ens)
 
     while ens[0] != set([]) :
         for e in ens[0] :
-            l,r = gt.successors (e)
+            l,r = gt.successors(e)
             ml = tt.node[l]['n']
             mr = tt.node[r]['n']
             bn = min(ml,mr)
@@ -2344,21 +2342,21 @@ def maxTopo (gt) :
 
             tt.node[e]['n']= bn+ln+rn
 
-        ens = parents (gt, ens)
+        ens = parents(gt, ens)
 
 
     if tt.node[1]['ln'] > 0 :
-        elagMaxTopo (tt, 2, tt.node[1]['ln'])
+        elagMaxTopo(tt, 2, tt.node[1]['ln'])
         tt.node[1]['n'] = tt.node[1]['n'] - tt.node[1]['ln']
         tt.node[1]['ln'] = 0
     elif tt.node[1]['rn'] > 0 :
-        elagMaxTopo (tt, 3, tt.node[1]['rn'])
+        elagMaxTopo(tt, 3, tt.node[1]['rn'])
         tt.node[1]['n'] = tt.node[1]['n'] - tt.node[1]['rn']
         tt.node[1]['rn'] = 0
     # il reste des ln et bn en plus qu'on pourrait enlever pour eventuellement baisser le score
     return (tt)
 
-def setTopo (gt, nodes) :
+def setTopo(gt, nodes) :
     tt = nx.DiGraph()
     tt.add_edges_from(gt.edges())
     tmp = leaves(gt)
@@ -2381,11 +2379,11 @@ def setTopo (gt, nodes) :
 
 # convert a list of exon cost tables s into a readable string
 # problem: if there are multiple minima, this may not work!!
-def scoreToTrans (s, AllExons) :
+def scoreToTrans(s, AllExons) :
     res = ""
     count = 0
     for i in s :
-        tmp = argMin (i)
+        tmp = argMin(i)
         if tmp > 0 :
             res = res + AllExons[count]
         count = count + 1
@@ -2443,7 +2441,7 @@ def scoreToTrans2 (t, c, i, j, k, AllExons) :
                             parTrans = t.node[parent]['configurations'][parConf]['Bt'][couple[0]]
                             parIndMin = argMinMul(parTrans[e])
                             # if the parent transcript has one minimum
-                            # take it as the minimum of the current transcript (child)
+                            # take it as the minimum of the current transcript(child)
                             if len(parIndMin)==1:
                                 indMin = min(1,parIndMin[0])
                               #  print "indMin", indMin
@@ -2451,7 +2449,7 @@ def scoreToTrans2 (t, c, i, j, k, AllExons) :
                                 #print "WARNING!! the parent is also ambiguous!!"
                     # increment the index of the config
                     p = p + 1
-            # otherwise, we do not care, simply take the first one (absent)
+            # otherwise, we do not care, simply take the first one(absent)
             else:
                 indMin = tmp[0]
         if indMin > 0:
@@ -2462,7 +2460,7 @@ def scoreToTrans2 (t, c, i, j, k, AllExons) :
 
 # given a configuration c of a node and the list of all exons
 # convert the different attributes of c
-def confToTrans (c, AllExons) :
+def confToTrans(c, AllExons) :
     res = {}
     # list of binary transcripts as readable strings
     res['Bt'] = [scoreToTrans(i, AllExons) for i in c['Bt']]
@@ -2501,7 +2499,7 @@ def confToTrans2 (t, i, c, AllExons) :
 # creates a new tree that comprises the same edges as the original one
 # creates an attribute configurations that will look the same as the original one
 # except that transcripts are displayed a strings and not a lists of exon cost tables
-def transTree (t, AllExons) :
+def transTree(t, AllExons) :
     res = nx.DiGraph()
     res.add_edges_from(t.edges())
     for i in res.nodes() :
@@ -2520,12 +2518,12 @@ def transTree (t, AllExons) :
         ############################################################################################################
 
 #returns the children of e , his brother and the brothers of all his ancestors
-def siblings (res , e) :
+def siblings(res , e) :
     tmp = res.successors(e)
     tmp.append(e)
     tmpNode = e
     ancestr = res.predecessors(tmpNode)
-    while len (ancestr) > 0 :
+    while len(ancestr) > 0 :
         par = ancestr[0]
         enf = res.successors(par)
         if enf[0] == tmpNode :
@@ -2539,7 +2537,7 @@ def siblings (res , e) :
 
 # function that cleans a tree resulting from leafAssignRec
 # cleaning the inherited attributes to start a new assignment from e to the root
-def updateInherRec (res, e, n) :
+def updateInherRec(res, e, n) :
     nConfs = len(res.node[e]['configurations'])
     for c in range(nConfs) :
         tmp = []
@@ -2549,10 +2547,10 @@ def updateInherRec (res, e, n) :
         res.node[e]['configurations'][c]['inherited'] = tmp
 
     Tmp = res.successors(e)
-    if len (Tmp) > 0 :
+    if len(Tmp) > 0 :
         l,r = Tmp
-        updateInherRec (res, l, (n+1))
-        updateInherRec (res, r, (n+1))
+        updateInherRec(res, l, (n+1))
+        updateInherRec(res, r, (n+1))
 
 # fonction analogue a leaf assign mais ici on suppose que les affectations
 # ont deja ete remonte jusqu'a la racine, information disponbiles dans res
@@ -2560,7 +2558,7 @@ def updateInherRec (res, e, n) :
 # ( l'ancienne topologie = topologie de res en input avant modifications )
 # on change res qu'en redeterminant les affectations de e a la racine
 # est est l'arbre des etats d'exons au niveau du gene
-def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
+def leafAssignRec(t, res, est, e, distTabs, costMat, AllExons) :
 
     l,r = t.successors(e)
     bn = t.node[e]['bn']
@@ -2580,8 +2578,8 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
         res.node[e]['configurations'] = []
         countConf=0
         distT = distTabs[str(e)]
-        lParaT = generateParaT (res, l, 0, [])
-        rParaT = generateParaT (res, r, 0, [])
+        lParaT = generateParaT(res, l, 0, [])
+        rParaT = generateParaT(res, r, 0, [])
 
         affectations = bestAffectLow (bn, distT, lParaT, rParaT, l, r)
 
@@ -2622,7 +2620,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
             parConf = [countConf]
 
             for k in a[0] :
-                dicTmp['Bt'].append (transScore (tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
+                dicTmp['Bt'].append(transScore(tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
 
                 propagateAssign(res, l, 0, parConf, countBt, k[0])
                 propagateAssign(res, r, 0, parConf, countBt, k[1])
@@ -2632,7 +2630,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
             if ln > 0 :
                 lInd = range(nl)
                 try :
-                    iniFt (lInd, a[1])
+                    iniFt(lInd, a[1])
                 except :
                     print "lInd is not ok"
                   #  ipdb.set_trace()
@@ -2648,7 +2646,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
                 rInd = range(nr)
 
                 try :
-                    iniFt (rInd, a[2])
+                    iniFt(rInd, a[2])
                 except :
                     print "iniFt is not ok"
                    # ipdb.set_trace()
@@ -2672,25 +2670,25 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
         for i in range(len(lConf)) :
 
             tmpG = lConf[i]['Bt'] + lConf[i]['lft'] + lConf[i]['rft']
-            lParaT = generateParaT (res, l, i, [])
+            lParaT = generateParaT(res, l, i, [])
             lbn = res.node[l]['bn']
             lnlt = len(lConf[i]['lftInd'])
 
             for j in range(len(rConf)) :
 
                 tmpD = rConf[j]['Bt'] + rConf[j]['lft'] + rConf[j]['rft']
-                rParaT = generateParaT (res,r,j, [])
+                rParaT = generateParaT(res,r,j, [])
                 lpt = lParaT.copy()
                 rbn = res.node[r]['bn']
                 rnlt = len(rConf[j]['lftInd'])
 
                 try :
-                    affectations = bestAffectHigh (bn, tmpG, tmpD, exSe, exSe_g, exSe_d, lpt, rParaT, l, r, costMat, AllExons)
+                    affectations = bestAffectHigh(bn, tmpG, tmpD, exSe, exSe_g, exSe_d, lpt, rParaT, l, r, costMat, AllExons)
                 except :
                     print "could not apply best high affectation"
 #                    ipdb.set_trace()
-                TG = range (len (tmpG))
-                TD = range (len (tmpD))
+                TG = range(len(tmpG))
+                TD = range(len(tmpD))
 
                 if affectations == [] :
                     dicTmp = {}
@@ -2728,7 +2726,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
 
 
                     for k in a[0] :
-                        dicTmp['Bt'].append (transScore (tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
+                        dicTmp['Bt'].append(transScore(tmpG[k[0]],tmpD[k[1]], exSe, exSe_g, exSe_d, costMat, AllExons ) )
 
                         propagateAssign(res, l, i, parConf, countBt, k[0])
                         propagateAssign(res, r, j, parConf, countBt, k[1])
@@ -2738,7 +2736,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
                     if ln > 0 :
                         lInd = TG[:]
                         try :
-                            iniFt (lInd, a[1])
+                            iniFt(lInd, a[1])
                         except :
                             print "iniFt is not ok"
                            # ipdb.set_trace()
@@ -2754,7 +2752,7 @@ def leafAssignRec (t, res, est, e, distTabs, costMat, AllExons) :
                         rInd = TD[:]
 
                         try :
-                            iniFt (rInd, a[2])
+                            iniFt(rInd, a[2])
                         except :
                             print "iniFt is not ok"
 #                            ipdb.set_trace()
@@ -2794,7 +2792,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
     nodes = []
     borInf = 0
     est = ex_state(exState(gt, costMat, AllExons), priority)
-    # we start with the biggest possible forest (max number of bn)
+    # we start with the biggest possible forest(max number of bn)
     coupes = 0
     minBNTree= remonte0(gt,est, costMat, AllExons)
     #print "minBNTree",minBNTree.nodes()
@@ -2817,23 +2815,23 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
         bestTopo = baseTopo
 
         i = i+1
-        print (">>> " + str(i) + "\n")
-        print ("leaf assign for max topo\n")
+        print(">>> " + str(i) + "\n")
+        print("leaf assign for max topo\n")
         baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
 
-        #print ("tree cost for max topo\n")
+        #print("tree cost for max topo\n")
         tRes, bestConf, bestSc,cutTrees = tree_cost(baseTree, 10000, costs)
         baseScore = bestSc
-        f.write (str (baseScore) + " " + str(bestSc) +  "\n")
+        f.write(str(baseScore) + " " + str(bestSc) +  "\n")
         print("tree cost for max topo "+str(baseScore))
 
-        tM = treeMoves (baseTopo, minBNTree)
+        tM = treeMoves(baseTopo, minBNTree)
 
         for n in tM.nodes() :
             if tM.node[n]['nMoves'] > 0 :
                 nodes.append(n)
 	if nodes == []:
-		print ("\n~}~}~}~}~} no neighbors")
+		print("\n~}~}~}~}~} no neighbors")
 		go = False
 
     # otherwise the search starts from a random jump
@@ -2844,11 +2842,11 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             bestTopo = baseTopo
 
             i = i+1
-            print (">>> " + str(i) + "\n")
-            print ("leaf assign for start topo\n")
+            print(">>> " + str(i) + "\n")
+            print("leaf assign for start topo\n")
             baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
 
-            print ("tree cost for start topo\n")
+            print("tree cost for start topo\n")
             tRes, bestConf, bestSc,cutTrees = tree_cost(baseTree, 10000, costs)
             baseScore = bestSc
             print("tree cost for start topo "+str(baseScore))
@@ -2856,20 +2854,20 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                 pickPrint(baseTree, outputDir+"betterTopos/topo"+str(countTrees)+"_"+str(baseScore)+".pk")
                 countTrees = countTrees + 1
 
-            tM = treeMoves (baseTopo, minBNTree)
+            tM = treeMoves(baseTopo, minBNTree)
 
             for n in tM.nodes() :
                 if tM.node[n]['nMoves'] > 0 :
                     nodes.append(n)
             if nodes == []:
-		    print ("\n~}~}~}~}~} no neighbors")
+		    print("\n~}~}~}~}~} no neighbors")
 		    go = False
 
     if withMemory:
         visited = []
 
     # be aware that: (1) base topologies issued by random jumps
-    # are not counted in the number of iterations, and (2) cut
+    # are not counted in the number of iterations, and(2) cut
     # neighbors of a base topology are counted
     # this implies that the number of assignments and evaluations
     # is not the same as the number of iterations
@@ -2880,7 +2878,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
 	    # and perform assignment for this base
         if nodes == [] :
             i = i + 1
-            print (">>> " + str(i) + "\n")
+            print(">>> " + str(i) + "\n")
             print(">>>>> random jump(s) \n")
             # jumps will accumulate until a suitable base topology is found
 	       # they are not counted as iterations
@@ -2892,7 +2890,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                  # generate neighbors only if the lower bound in lower than best score
                  if borInf <= bestSc :
                      print(">>>>> looking for neighbors... \n")
-                     tM = treeMoves (baseTopo, minBNTree)
+                     tM = treeMoves(baseTopo, minBNTree)
 
                      for n in tM.nodes() :
                          if tM.node[n]['nMoves'] > 0 :
@@ -2932,14 +2930,14 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                 cutTrees = tmpCutTrees
             # print the cost for the base forest
             print("tree cost for base topo "+str(baseScore))
-            f.write (str (baseScore) + " " + str(bestSc) +  "\n")
+            f.write(str(baseScore) + " " + str(bestSc) +  "\n")
 
             print(">>>>> Neighbor search ended \n")
 
         # be aware that this is not a else!!
         # at this point, nodes is necessarily not empty
         # evaluate a neighbor of the base topology
-        t,nn = moveTopo (baseTopo, nodes, tM)
+        t,nn = moveTopo(baseTopo, nodes, tM)
         borInf = evalTopo(t, costs)
         if withMemory:
             code = getCodeTopo(t)
@@ -2949,7 +2947,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
         # whether the topology is suitable or not
         # this counts as an iteration
         i = i+1
-        print (">>> " + str(i) + "\n")
+        print(">>> " + str(i) + "\n")
         # run the assignment algorithm only if the topology is suitable
         if borInf <= bestSc and not found:
             print(">>>>>> leaf assignment ...\n")
@@ -2972,9 +2970,9 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             # if the score of the forest is better than the base forest score,
             # change for it and generate a new neighborhood
             if tmpScore < baseScore :
-                print ("Changing base\n")
+                print("Changing base\n")
                 baseTopo = t.copy()
-                tM = treeMoves (baseTopo, minBNTree)
+                tM = treeMoves(baseTopo, minBNTree)
                 nodes = []
                 for n in tM.nodes() :
                     if tM.node[n]['nMoves'] > 0 :
@@ -2997,24 +2995,24 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                 countTrees = countTrees + 1
 
             # write the score to the output file
-            f.write (str (tmpScore) + " " + str(bestSc) +  "\n")
+            f.write(str(tmpScore) + " " + str(bestSc) +  "\n")
 
         # if the topology is not suitable, it is still counted as an iteration
         else :
-            print ("~}~}~}~}~} unsuitable topology \n")
+            print("~}~}~}~}~} unsuitable topology \n")
             coupes = coupes + 1
 
     ti = (time.time() - t0) / 60
-    #print (" execution time = " + str(ti) + " minuts\n")
+    #print(" execution time = " + str(ti) + " minuts\n")
 
     f.close()
     return(bestTopo, bestSc, coupes, ti, cutTrees)
 
-def bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons,bestSc, baseScore, topoRecSearch, scoreRecSearch):
+def bestTopoRec(baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons,bestSc, baseScore, topoRecSearch, scoreRecSearch):
     #print scoreRecSearch
     #if baseScore == 71:
         #pickPrint(baseTopo, "bestTopo71.pk")
-    tM = treeMoves (baseTopo, minBNTree)
+    tM = treeMoves(baseTopo, minBNTree)
 
     nodes=[]
     for n in tM.nodes() :
@@ -3026,7 +3024,7 @@ def bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons,be
     # for all the neighbors
     while nodes != []:
         # get the neighbor
-        t,nn = moveTopo (baseTopo, nodes, tM)
+        t,nn = moveTopo(baseTopo, nodes, tM)
         borInf = evalTopo(t, costs)
         # if the topology is suitable
         if borInf <= bestSc[0]:
@@ -3045,13 +3043,13 @@ def bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons,be
             if tmpScore < baseScore :
                 # then change for this topo as the base
                 bestNeigh = True
-                print ("Changing base\n")
+                print("Changing base\n")
                 # if the score is better than the best one, then record it
                 if tmpScore < bestSc[0] :
                     bestSc[0]=tmpScore
                     #if tmpScore == 71:
                      #   pickPrint(t, "bestTopo71.pk")
-                bestTopoRec (t, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, tmpScore, topoRecSearch, scoreRecSearch)
+                bestTopoRec(t, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, tmpScore, topoRecSearch, scoreRecSearch)
 
     # if among the nieghbors, none had a score lower than the base score
     # then to change of base occurred, then we arrived at a leaf of the search tree
@@ -3080,14 +3078,14 @@ def bestWideTopology (gt, AllExons, costs, costMat, priority, SUFF, initBest, to
         baseTopo = maxTopo(gt)
         bestTopo = baseTopo
 
-        print ("leaf assign for max topo\n")
+        print("leaf assign for max topo\n")
         baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
 
-        print ("tree cost for max topo\n")
+        print("tree cost for max topo\n")
         tRes, bestConf, baseScore,cutTrees = tree_cost(baseTree, 10000, costs)
         print("tree cost for max topo "+str(baseScore))
 
-        bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, baseScore, baseScore, topoRecSearch, scoreRecSearch)
+        bestTopoRec(baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, baseScore, baseScore, topoRecSearch, scoreRecSearch)
 
     # otherwise the search starts from a random jump
     else:
@@ -3095,14 +3093,14 @@ def bestWideTopology (gt, AllExons, costs, costMat, priority, SUFF, initBest, to
         if topoStart!={}:
             baseTopo = setTopo(gt,topoStart)
 
-            print ("leaf assign for start topo\n")
+            print("leaf assign for start topo\n")
             baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
 
-            print ("tree cost for start topo\n")
+            print("tree cost for start topo\n")
             tRes, bestConf, baseScore, cutTrees = tree_cost(baseTree, 10000, costs)
 
             print("tree cost for start topo "+str(baseScore))
-            bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, baseScore, topoRecSearch, scoreRecSearch)
+            bestTopoRec(baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, baseScore, topoRecSearch, scoreRecSearch)
 
         else:
             baseTopo = aleaTopo(gt, minBNTree)
@@ -3113,14 +3111,14 @@ def bestWideTopology (gt, AllExons, costs, costMat, priority, SUFF, initBest, to
                 baseTopo = aleaTopo(gt, minBNTree)
                 borInf = evalTopo(baseTopo, costs)
 
-            print ("leaf assign for start topo\n")
+            print("leaf assign for start topo\n")
             baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
 
-            print ("tree cost for start topo\n")
+            print("tree cost for start topo\n")
             tRes, bestConf, baseScore, cutTrees = tree_cost(baseTree, 10000, costs)
 
             print("tree cost for start topo "+str(baseScore))
-            bestTopoRec (baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, baseScore, topoRecSearch, scoreRecSearch)
+            bestTopoRec(baseTopo, minBNTree, costs, est, distTabs, costMat, AllExons, bestSc, baseScore, topoRecSearch, scoreRecSearch)
 
     bestScInd = []
     bestSc= 10000
@@ -3146,7 +3144,7 @@ def boltzmann (x, k, T) :
 
 # T un arbre, n un noeud et x le transcrit de ce neoud
 # renvoie tous les transcrits aux feuilles descendants de x
-def transInduits (T, n, x, c) :
+def transInduits(T, n, x, c) :
     if T.successors(n) == [] :
         res = set([])
         res.add((n,x))
@@ -3155,23 +3153,23 @@ def transInduits (T, n, x, c) :
         l,r = T.successors(n)
         bn = T.node[n]['bn']
         conf = T.node[n]['configurations'][c]
-        lnft = len (conf['lftInd'] )
+        lnft = len(conf['lftInd'] )
         lConf = conf['lConf']
         rConf = conf['rConf']
         if x < bn :
             xl = conf['Lbn'][x][0]
             xr = conf['Lbn'][x][1]
-            resL = transInduits (T, l, xl, lConf)
-            resR = transInduits (T, r, xr, rConf)
+            resL = transInduits(T, l, xl, lConf)
+            resR = transInduits(T, r, xr, rConf)
             return( resL | resR)
 
         elif x < bn + lnft :
             xl = conf['lftInd'][x-bn]
-            return (transInduits (T, l, xl, lConf) )
+            return (transInduits(T, l, xl, lConf) )
 
         else :
             xr = conf['lftInd'][x-bn-lnft]
-            return (transInduits (T, r, xr, rConf) )
+            return (transInduits(T, r, xr, rConf) )
 
 
 def transPartRec(T, n, c, pC, res) :
@@ -3180,9 +3178,9 @@ def transPartRec(T, n, c, pC, res) :
     conf = T.node[n]['configurations'][c]
     lConf = conf['lConf']
     rConf = conf['rConf']
-    BN = set(range(bn)) - set (Tmp[0])
+    BN = set(range(bn)) - set(Tmp[0])
     for i in BN :
-        res.append (transInduits (T, n, i, c))
+        res.append(transInduits(T, n, i, c))
 
     if T.successors(n) !=[] :
         lPC = pC[:]
@@ -3193,13 +3191,13 @@ def transPartRec(T, n, c, pC, res) :
         transPartRec(T, l, lConf, lPC, res)
         transPartRec(T, r, rConf, rPC, res)
 
-def transPart (T, c) :
+def transPart(T, c) :
     res= []
     transPartRec(T, 1, c, [], res) # root = 1
     return (res)
 
 # l liste d'indices a modifier
-def compactIndList (l, X) :
+def compactIndList(l, X) :
     n = len(l)
     if n > 0 :
         Tmp = []
@@ -3208,7 +3206,7 @@ def compactIndList (l, X) :
             if i not in l :
                 Tmp.append(i)
         Tmp.append(maxL)
-        for i in range (n) :
+        for i in range(n) :
             j = 0
             while l[i] > Tmp[j] :
                 j = j + 1
@@ -3217,7 +3215,7 @@ def compactIndList (l, X) :
 
 # reucrsive function that is first called on the root of the tree
 # and goes down to each leaf for a given configuration
-def elagTreeRec (t, conf, n, res, ln, rn, AllExons) :
+def elagTreeRec(t, conf, n, res, ln, rn, AllExons) :
     #print "this is node"+str(n)
     if t.successors(n) != [] :
         l,r = t.successors(n)
@@ -3246,7 +3244,7 @@ def elagTreeRec (t, conf, n, res, ln, rn, AllExons) :
 
         rLft = len(t.node[r]['configurations'][rConf]['lftInd'])
         rRft = len(t.node[r]['configurations'][rConf]['rftInd'])
-        # fill lInd with the indices of all left subnodes of the current node (number passed as parameter)
+        # fill lInd with the indices of all left subnodes of the current node(number passed as parameter)
         lln, lrn = [],[]
         rln, rrn = [],[]
 
@@ -3325,7 +3323,7 @@ def elagTreeRec (t, conf, n, res, ln, rn, AllExons) :
             lInd.append(indexChild)
             #trans.append(scoreToTrans(c['lft'][i], AllExons))
             trans.append(scoreToTrans2(t, conf, n, i, 1, AllExons))
-                # fill rInd with the indices of all right subnodes of the current node (number passed as parameter)
+                # fill rInd with the indices of all right subnodes of the current node(number passed as parameter)
         for i in rn :
             indexChild = c['rftInd'][i]
             if indexChild  >= rbn :
@@ -3397,7 +3395,7 @@ def elagTreeRec (t, conf, n, res, ln, rn, AllExons) :
             tmp.append((-1,-1))
         res.node[n] = {'Lbn':tmp,'lftInd':[], 'rftInd':[], 'trans' : t.node[n].get("trans", "NA")}
 
-def elagTree (t, conf, AllExons) :
+def elagTree(t, conf, AllExons) :
     res = nx.DiGraph()
-    elagTreeRec (t, conf, 1, res, [], [], AllExons)
+    elagTreeRec(t, conf, 1, res, [], [], AllExons)
     return(res)
