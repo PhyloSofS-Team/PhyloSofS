@@ -17,6 +17,14 @@ else:
     def get_edge_list(nx_graph):
         return [ e for e in nx_graph.edges() ]
 
+# NetworkX 2.0: The degree of an individual node can be calculated by G.degree[node]
+if LooseVersion(nx.__version__) < LooseVersion('2.0'):
+    def get_out_degree(nx_graph, node):
+        return nx_graph.out_degree(node)
+else:
+    def get_out_degree(nx_graph, node):
+        return nx_graph.out_degree[node]
+
 # NetworkX deprecates max_flow in favor of maximum_flow_value in version 1.9 :
 if LooseVersion(nx.__version__) < LooseVersion('1.9'):
     def maximum_flow_value(g, x, y):

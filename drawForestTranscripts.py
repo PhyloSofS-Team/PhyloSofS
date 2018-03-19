@@ -146,7 +146,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
         #dot_T.add_nodes_from(nlist)
         currank = "same"
         #all species are pushed at the bottom of the tree
-        if (T.out_degree(n) == 0):
+        if (nx_utils.get_out_degree(T, n) == 0):
             currank = "sink"
             nspecies.extend(nlist)
         dot_T.add_subgraph(nlist, name = "cluster_%d" % (n),
@@ -165,8 +165,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
         if len(a)>0:
             print "**** Error when creating edge from %s to %s *****" % (s,e)
             for x in a: print "%s does not exist" % ([s,e][x])
+
     ##Drawing all the edges from the internal nodes
-    for n in filter(lambda x: T.out_degree(x) > 0, nodes):
+    for n in filter(lambda x: nx_utils.get_out_degree(T,x) > 0, nodes):
         i = 0
         for i_tr in TOPOATTRIBUTES:
             dad_t = "%d_%d" % (n, i)
@@ -221,7 +222,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     #print "edges"
     #print dot_T.edges()
 
-    # NetworkX 1.11: No longer import nx_agraph and nx_pydot into the top-level namespace. 
+    # NetworkX 1.11: nx_agraph is not longer imported from
     ntr_totAll = len(sorted(nx.connected_components(nx.nx_agraph.from_agraph(dot_T).to_undirected())))
     ntrans = filter( lambda x: len(x) > 1,  nx.connected_components(nx.nx_agraph.from_agraph(dot_T).to_undirected()))
     ntr_tot = len(ntrans)
