@@ -24,3 +24,11 @@ if LooseVersion(nx.__version__) < LooseVersion('1.9'):
 else:
     def maximum_flow_value(g, x, y):
         return nx.maximum_flow_value(g, x, y)
+
+# NetworkX 2.0 changed the nodes method to the nodes attribute
+if LooseVersion(nx.__version__) < LooseVersion('2.0'):
+    def str_nodes(nx_graph):
+        return str(nx_graph.nodes(1))
+else:
+    def str_nodes(nx_graph):
+        return str([ (i, nx_graph.nodes[i]) for i in nx_graph.nodes ])

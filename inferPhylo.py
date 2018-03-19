@@ -65,11 +65,11 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
     Tree = transTree(tree, AllExons)
     with open(outputDir+"final" + SUFF + ".txt", 'w') as ff :
         ff.write("\n~~~~~~~~   Phylosofs results  :\n\n   ** exon state for ancestral nodes : \n\n")
-        ff.write(str(exSt.nodes(1)))
+        ff.write(nx_utils.str_nodes(exSt))
         ff.write("\n\n   ** Best topology found : \n\n")
-        ff.write(str(tree.nodes(1)))
+        ff.write(nx_utils.str_nodes(tree))
         ff.write("\n\n   ** The transcript tree for this topology : \n\n")
-        ff.write(str(Tree.nodes(1)))
+        ff.write(nx_utils.str_nodes(Tree))
         ff.write("\n\n   ** Score for this topology = " + str(treeCost) + "\n\n")
         ff.write("   ** Execution time : " + str(res[2]) + " ; number of cuts : " + str(res[1]) + "\n")
     for c in confs :

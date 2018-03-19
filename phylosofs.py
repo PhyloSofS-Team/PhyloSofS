@@ -22,7 +22,6 @@ import initData
 import pickle as pk
 from inferPhylo import *
 from modelIsoforms import *
-import pdb
 
 def printUsage():
     print """Usage: python phylosofs.py
@@ -239,7 +238,7 @@ if (__name__ == '__main__'):
                 res = [topoStart]
             else:
                 res = bestWideTopology(dat, AllExons, costs, costMat, priority, SUFF, initBest,topoStart)
-
+        
         if len(res[0].nodes())>0:
             exSt = ex_state(exState(dat, costMat, AllExons), priority)
             distTabs = leafScoreTabs(dat, exSt, costMat, AllExons)
