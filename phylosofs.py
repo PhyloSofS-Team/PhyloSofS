@@ -1,5 +1,5 @@
 #####  Modele d'inference de phylogenies de transcrits
-#####  Pour etudier l'apparition et la fixation 
+#####  Pour etudier l'apparition et la fixation
 #####  d'evenements d'epissage au cours de l'evolution
 
 ## Par Elodie Laine, Hugues Richard, Adel Ait-hamlat
@@ -10,7 +10,7 @@
 ## SUFF: suffix for the output files
 
 from __future__ import division
-import sys 
+import sys
 import time
 import random
 import networkx as nx
@@ -18,25 +18,25 @@ import itertools as it
 import numpy as np
 import math as M
 import copy
-import initData	
-import pickle as pk	
+import initData
+import pickle as pk
 from inferPhylo import *
-from modelIsoforms import * 
-
+from modelIsoforms import *
+import pdb
 
 def printUsage():
     print """Usage: python phylosofs.py
-             Mandatory:  
+             Mandatory:
              ==========
                         -c            text file containing values for parameters (for molecular modeling part)
-                        -inSeq        text file containing input data: string representing the gene tree in Newick format on the first line, 
+                        -inSeq        text file containing input data: string representing the gene tree in Newick format on the first line,
                                       and then the list of transcripts for each leave (leaf_name: t1,t2,t3...)
-                        -mode         P and/or M for phylogenetic inference and/or molecular modeling 
+                        -mode         P and/or M for phylogenetic inference and/or molecular modeling
              Optional:
              =========
                         -b            birth cost (by default: 5)
                         -d            death cost (by default: 3)
-                        -inStruct     text file containing input data: either a directory where multifasta files 
+                        -inStruct     text file containing input data: either a directory where multifasta files
                                       are located (one file per species) or a single fasta file with the sequence
                                       of only one transcript (in that case, the uniq option must be set to TRUE)
                                       (by default, the current directory is used)
@@ -46,13 +46,13 @@ def printUsage():
                         -noPrune      disable the removal of exons that appear in only one transcript
                         -o            output directory (by default: $PWD)
                         -only3D       perform only the 3D modeling step (skip template search)
-                        -onlyQuality  perform only the 3D models quality assessment 
-                        -printOnly    perform only the generation of the PDF file enabling to visualize a transcripts'  
-                                      phylogeny given as input via the option -topo 
+                        -onlyQuality  perform only the 3D models quality assessment
+                        -printOnly    perform only the generation of the PDF file enabling to visualize a transcripts'
+                                      phylogeny given as input via the option -topo
                         -uniq         treat only one transcript whose sequence is taken from the fasta file
                                       indicated by the -i option
-                        -s            starting score (by default: not considered), if no score is given, the algorithm starts the search 
-                                      by the topology corresponding to the maximum number of binary subnodes at each nodes (forest with 
+                        -s            starting score (by default: not considered), if no score is given, the algorithm starts the search
+                                      by the topology corresponding to the maximum number of binary subnodes at each nodes (forest with
                                       the smallest possible number of trees), otherwise it starts from a randomly chosen topology
                         -suff         suffix (by default: _bdm_n)
                         -topo         initial topology (by default: maximum or random topology), or transcripts'
@@ -150,7 +150,7 @@ if (__name__ == '__main__'):
     # initial score
     try:
         initBest = int(sys.argv[sys.argv.index("-s")+1])
-        slowMode = True 
+        slowMode = True
     except:
         initBest = 0
         slowMode = False
@@ -200,7 +200,7 @@ if (__name__ == '__main__'):
     ###################### phylogenetic inference ######################
 
     if doPhylo:
-        
+
         print "--------------------------------------------"
         print "Running phylogenetic reconstruction step..."
         print "--------------------------------------------"
@@ -213,7 +213,7 @@ if (__name__ == '__main__'):
         # C1 : niveau proteique (etape 2)
         #C1= [ [0,cm,0], [cm,0,0], [0,cm,0] ]
         C1_1 = [ [[0,cm,0],[cm,0,0]] , [[0,0,cm],[0,0,0]] ]
-          ##   1 -> 1                 0/2 -> 1     
+          ##   1 -> 1                 0/2 -> 1
         C1_2 = [ [0,0,0], [cm,0,0] ]
           ##   0->2     1/2->2
         C1_0 = [0,cm,0]
@@ -283,9 +283,9 @@ if (__name__ == '__main__'):
                 os.chdir('..')
             else:
                 print dirs
-                for mydir in dirs[1:] : 
+                for mydir in dirs[1:] :
                     os.chdir(mydir)
-                    for trans in gl.glob('./*.fa'): 
+                    for trans in gl.glob('./*.fa'):
                         runModelProcess(HHBLITS,ADDSS,HHMAKE,HHSEARCH,HHMODEL,HHDB,STRUCTDB,ALLPDB,NCPU,trans,selTemp,only3D)
                     os.chdir('..')
 
@@ -295,7 +295,7 @@ if (__name__ == '__main__'):
         fOUT.write('# procheck: Ideally, scores should be above -0.5. Values below -1.0 may need investigation.\n')
         fOUT.write('# dope: This is a Z-score; positive scores are likely to be poor models, while scores lower than -1 or so are likely to be native-like.\n')
         fOUT.write('transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\toverall\tdope\trSurf\trHydroph\n')
-        for mydir in dirs[1:]: 
+        for mydir in dirs[1:]:
             try:
                 os.chdir(mydir)
                 try:

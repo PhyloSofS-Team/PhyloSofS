@@ -14,7 +14,7 @@ from sys import argv
 ###TODO list of features:
 #_ fix coloring in the exons
 #_ add weblinks to ensembl
-#_ get the set of 
+#_ get the set of
 
 TESTING = True
 
@@ -25,6 +25,7 @@ import itertools
 import string
 import subprocess
 import os
+import nx_utils
 
 BINARY= "Lbn"
 LEFT  = "lftInd"
@@ -65,14 +66,14 @@ def isATree(T):
     """
     Returns true if the graph T is a tree (all nodes have at most one parent)
     """
-    p = [x[1] for x in T.in_degree_iter(T.nodes_iter())]
+    p = [x[1] for x in T.in_degree(T.nodes())] # in_degree & nodes instead of *_iter (NetworkX 2)
     return p.count(0) == 1 and all((x <= 1 for x in p))
 
 
 
 def DotAllConfigurations(LT, outdir, prefix="forest_"):
     """
-    From a list LT of transcripts, writes down the set of Graphviz dot files for all configurations 
+    From a list LT of transcripts, writes down the set of Graphviz dot files for all configurations
     in the directory outdir and compiles a pdf file with all graphs as outdir.pdf
     """
     if not os.path.isdir(outdir):
@@ -81,7 +82,7 @@ def DotAllConfigurations(LT, outdir, prefix="forest_"):
         outfile="%s/%s_%d.dot" % (outdir, prefix, i)
         outpdf= "%s/%s_%d.pdf" % (outdir, prefix, i)
         ForestToDot(T, outfile)
-        command = "dot -Tpdf -o %s %s" % (outpdf, outfile)   
+        command = "dot -Tpdf -o %s %s" % (outpdf, outfile)
         status = subprocess.call(command, shell = True)
         ##Do something with the status
     print "Joining of all Topologies pdf is not implemented yet"
@@ -89,7 +90,7 @@ def DotAllConfigurations(LT, outdir, prefix="forest_"):
 
 def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     """
-    From a forest T of transcripts, writes down the Graphviz graph to fileout 
+    From a forest T of transcripts, writes down the Graphviz graph to fileout
     which corresponds to the configuration iconf
     Optionnally reports the transcript structure at the leaves with the parameter leafTranscripts
     Additional parameters can be passed to the graph with **args.
@@ -105,7 +106,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     #we keep a dictionnary of all nodes in the forest
     forest_nodes = {}
     nspecies = []
-    nbDeaths = 0 
+    nbDeaths = 0
     ##Get the conf number at each node for each configuration
     ##get the total number of transcripts
     ##TODO if transcript structure is asked, add a node for each structure in the subgraph, and
@@ -123,9 +124,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
             dot_T.add_node(nlist[k],label="")
         fout.write("\n")
 	if n>1:
-	    parent = T.predecessors(n)[0]
-	    if sorted(T.successors(parent)).index(n) == 0 :
-	        choice = RIGHT 
+	    parent = nx_utils.predecessors(T, n)[0]
+	    if sorted(nx_utils.successors(T, parent)).index(n) == 0 :
+	        choice = RIGHT
                 #print "I'm right", n, "my parent is", parent, T.node[parent][RIGHT]
 	    else:
 		choice = LEFT
@@ -148,7 +149,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
         if (T.out_degree(n) == 0):
             currank = "sink"
             nspecies.extend(nlist)
-        dot_T.add_subgraph(nlist, name = "cluster_%d" % (n), 
+        dot_T.add_subgraph(nlist, name = "cluster_%d" % (n),
                            label = "", rank = currank) #"%d" % (n), rank = currank)
         for fn in nlist:
             forest_nodes[fn] = currank
@@ -170,7 +171,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
         for i_tr in TOPOATTRIBUTES:
             dad_t = "%d_%d" % (n, i)
             ##left and right sons (sorted left-to-right by construction)
-            sl, sr = sorted(T.successors(n))
+            sl, sr = sorted(nx_utils.successors(T,n))
             if i_tr == BINARY:
                 #2 sons
                 for (l,r) in T.node[n][i_tr]:
@@ -212,15 +213,17 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
                 ##error
                 raise "Error in drawing"
     ### TODO Still needs a function drawing all the ancestral transcripts at the
-    ### nodes                
-    ### getting all sets of transcripts which are related (same connected component) 
+    ### nodes
+    ### getting all sets of transcripts which are related (same connected component)
     ### and print them with the same color symbol
     #print "Nodes of dot_T"
     #print dot_T.nodes()
     #print "edges"
     #print dot_T.edges()
-    ntr_totAll = len(sorted(nx.connected_components(nx.from_agraph(dot_T).to_undirected())))
-    ntrans = filter( lambda x: len(x) > 1,  nx.connected_components(nx.from_agraph(dot_T).to_undirected()))
+
+    # NetworkX 1.11: No longer import nx_agraph and nx_pydot into the top-level namespace. 
+    ntr_totAll = len(sorted(nx.connected_components(nx.nx_agraph.from_agraph(dot_T).to_undirected())))
+    ntrans = filter( lambda x: len(x) > 1,  nx.connected_components(nx.nx_agraph.from_agraph(dot_T).to_undirected()))
     ntr_tot = len(ntrans)
     fout2.write("Total number of trees: "+str(ntr_tot)+"\n")
     fout2.write("Total number of deaths: "+str(nbDeaths)+"\n")
@@ -258,13 +261,13 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
 #        resT = pickle.load(f)
 #    with open("MAPK8.Gene.pickle", 'rb') as f:
 #        MAPK8_Gene = pickle.load(f)
-#    
+#
 #    with open("rres.pk", 'rb') as f:
 #        transT2 = pickle.load(f)
-#        
+#
 #    ForestToDot(transT, "test.dot")
 #    status = subprocess.call("dot" + " -Tpdf -o test.pdf test.dot", shell = True)
-#    
+#
 #    ForestToDot(transT2[0], "tmult1.dot", 0)
 #    status = subprocess.call("dot" + " -Tpdf -o tmult1.pdf tmult1.dot", shell = True)
 #
@@ -281,4 +284,3 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
 
 #ForestToDot(transU[1], "test1.dot")
 #status = subprocess.call("dot" + " -Tpdf -o test1.pdf test.dot", shell = True)
-

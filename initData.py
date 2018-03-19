@@ -1,5 +1,5 @@
 #####  Modele d'inference de phylogenies de transcrits
-#####  Pour etudier l'apparition et la fixation 
+#####  Pour etudier l'apparition et la fixation
 #####  d'evenements d'epissage au cours de l'evolution
 
 ## initialisation of the data
@@ -15,12 +15,12 @@ import itertools as it
 import numpy as np
 import math as M
 import copy
-import pickle as pk	
+import pickle as pk
+import nx_utils
 
-
-# find where to split the string 
+# find where to split the string
 # or substring representing a binary tree or subtree
-# in order to get the two children 
+# in order to get the two children
 def findSplit(treeStr):
     index = 0
     start = 0
@@ -48,14 +48,14 @@ def convertToGraph(treeStr, transList):
     curr = 1
     treeStr = treeStr[1:-1]
     indexSplit = findSplit(treeStr)
-    assert indexSplit > 0, "Incorrect tree" 
+    assert indexSplit > 0, "Incorrect tree"
     treeList = [treeStr[0:indexSplit],treeStr[indexSplit+1:len(treeStr)]]
     ancSuc = [treeList]
     while len(anc) > 0:
         newAnc = []
         newAncSuc = []
         for a in range(len(anc)):
-            assert len(ancSuc[a])==2, "Incorrect tree" 
+            assert len(ancSuc[a])==2, "Incorrect tree"
             for i in range(2):
                 curr = curr+1
                 edgesList.append((anc[a],curr))
@@ -65,17 +65,17 @@ def convertToGraph(treeStr, transList):
                     newAnc.append(curr)
                     tmp = ancSuc[a][i][1:-1]
                     indexSplit = findSplit(tmp)
-                    assert indexSplit > 0, "Incorrect tree" 
-                    newAncSuc.append([tmp[0:indexSplit],tmp[indexSplit+1:len(tmp)]]) 
+                    assert indexSplit > 0, "Incorrect tree"
+                    newAncSuc.append([tmp[0:indexSplit],tmp[indexSplit+1:len(tmp)]])
         anc = newAnc
         ancSuc = newAncSuc
     treeGraph = nx.DiGraph()
     treeGraph.add_edges_from(edgesList)
     for s in transList.keys():
         treeGraph.node[leafs[s]]['trans'] = transList[s]
-    return(treeGraph)      
+    return(treeGraph)
 
-# read input data from a text file 
+# read input data from a text file
 # that contains the geen tree in Newick format (string)
 # and the list of transcripts for current species
 def readInputDat(filename):
@@ -97,7 +97,7 @@ def readInputDat(filename):
 # get the list of all exons appearing in the leaves
 def getExons (transSet) :
     return [ c for c in transSet.strip() if c != ':' and c != ',' ]
-   
+
 # filter based on conservation: remove exons that appear only once
 # be aware that the transcripts containing these exon are not eliminated
 # the number of transctips can still be reduced (the removed exon was the only difference)
@@ -114,7 +114,7 @@ def getExonsPruned (t) :
     resPruned = [i for i in res.keys() if res.get(i) > 1]
     tbrm = [i for i in res.keys() if res.get(i) < 2]
     for n in t.nodes():
-        if t.successors(n) == [] :
+        if nx_utils.successors(t, n) == [] :
             #print t.node[n]['trans']
             for k in range(len(t.node[n]['trans'])) :
                 for e in tbrm:
@@ -123,7 +123,7 @@ def getExonsPruned (t) :
             #print t.node[n]['trans']
 
     return [i for i in res.keys() if res.get(i) > 1]
- 
+
 # count the number of times an exon appear
 def getExonOccur (transSet) :
     res = {}
@@ -140,7 +140,7 @@ def getExonOccur (transSet) :
 def getLeaves (t) :
 	res = set([])
 	for n in t.nodes():
-		if t.successors(n) == [] :
+		if nx_utils.successors(t, n) == [] :
 			res.add(n)
 	return res
 
@@ -159,4 +159,3 @@ def initTree(filename, prune):
     else:
 	exons=getExons(getTranscripts(Tree))
     return(Tree,exons)
-

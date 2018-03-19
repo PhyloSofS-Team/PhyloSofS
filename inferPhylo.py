@@ -17,15 +17,7 @@ import math as M
 import copy
 import pickle as pk
 from drawForestTranscripts import *
-
-from distutils.version import LooseVersion
-# NetworkX deprecates max_flow in favor of maximum_flow_value in version 1.9 :
-if LooseVersion(nx.__version__) < LooseVersion('1.9'):
-    def nx_maximum_flow_value(g, x, y):
-        return nx.max_flow(g, x, y)
-else:
-    def nx_maximum_flow_value(g, x, y):
-        return nx.maximum_flow_value(g, x, y)
+import nx_utils
 
                        ##################################################
 
@@ -152,7 +144,7 @@ def exonState(g, AllExons) :
 def leaves(t) :
     res = set([])
     for n in t.nodes():
-        if t.successors(n) == [] :
+        if nx_utils.successors(t,n) == [] :
             res.add(n)
     return res
 
@@ -172,14 +164,14 @@ def parents(gt, ens):
     res1 = set([])
     res2 = set([])
     for i in ens[1]:
-        if gt.predecessors(i) != [] :
+        if nx_utils.predecessors(gt, i) != [] :
             try :
-                tmp0 = gt.predecessors(i)[0]
+                tmp0 = nx_utils.predecessors(gt, i)[0]
                 tmp = {tmp0}
             except IndexError :
                 tmp = set([])
-            if len(gt.successors(tmp0)) == 2 :
-                l,r = gt.successors(tmp0)
+            if len(nx_utils.successors(gt,tmp0)) == 2 :
+                l,r = nx_utils.successors(gt,tmp0)
                 if (l in ens[1] and r in ens[1]) :
                     res1 = res1 | tmp
                     res2 = res2 | tmp
@@ -238,7 +230,7 @@ def aleaTopo(gt, minBNTree) :
     while ens[0] != set([]) :
         #print ens[0]
         for e in ens[0] :
-            l,r = gt.successors(e)
+            l,r = nx_utils.successors(gt,e)
         #   print "je suis "+str(e)+" "+str(l)+" "+str(r)
             ml = tt.node[l]['n']
             mr = tt.node[r]['n']
@@ -250,7 +242,7 @@ def aleaTopo(gt, minBNTree) :
         #   print type(minBN)
         #   print minBN
             bn = random.randint(minBN,min(ml,mr))
-            if gt.predecessors(e) == [] :
+            if nx_utils.predecessors(gt, e) == [] :
                 tt.node[e]['bn']=bn
                 tt.node[e]['n']=bn
                 tt.node[e]['ln']= 0
@@ -350,7 +342,7 @@ def sank(t, n, exS, costMat, AllExons) :
     C1_2 = costMat[3]
     nExons = range( len(AllExons))
 
-    l,r = t.successors(n)
+    l,r = nx_utils.successors(t,n)
     res = []
     # for each exon
     for e in nExons :
@@ -380,8 +372,8 @@ def sank(t, n, exS, costMat, AllExons) :
 
 def propagateOnes(t, n, e) :
     tmp = t.node[n]['dollo'][e]
-    if t.successors(n) != [] :
-        l,r = t.successors(n)
+    if nx_utils.successors(t,n) != [] :
+        l,r = nx_utils.successors(t,n)
         if tmp == 2 :
            t.node[n]['dollo'][e] = 1
            propagateOnes(t,l,e)
@@ -406,7 +398,7 @@ def dollo(t, AllExons):
     while(ens[0] != set([])):
         for e in ens[0]:
             tmp = []
-            l,r = t.successors(e)
+            l,r = nx_utils.successors(t,e)
             exSL = res.node[l]['dollo']
             exSR = res.node[r]['dollo']
             for ee in nExons :
@@ -432,8 +424,8 @@ def dollo(t, AllExons):
 
 def sankBack(ct, st, n, el, AllExons) :
     nExons = range(len(AllExons))
-    if ct.successors(n) != [] :
-        l,r = st.successors(n)
+    if nx_utils.successors(ct,n) != [] :
+        l,r = nx_utils.successors(st,n)
         st.node[n]['exState'] = el
         tmpL = []
         tmpR = []
@@ -508,7 +500,7 @@ def ex_state(t,priority) :
     tt = nx.DiGraph()
     tt.add_edges_from(t.edges())
     for i in tt.nodes() :
-        if tt.successors(i) != [] :
+        if nx_utils.successors(tt,i) != [] :
             tt.node[i]['est'] = []
             for ii in t.node[i]['exState'] :
                 if priority[0] in ii:
@@ -804,7 +796,7 @@ def testParaT(n) :
 def genereParaTRec0 (t, n, conf, parConf, res) :
     tmp = inherited(t,n,conf,parConf)
 
-    if t.successors(n) == [] :
+    if nx_utils.successors(t,n) == [] :
         res.node[n]['bn'] = t.node[n]['bn']
         res.node[n]['fbn'] = t.node[n]['bn'] - len(tmp[0])
         res.node[n]['ln'] = 0
@@ -820,7 +812,7 @@ def genereParaTRec0 (t, n, conf, parConf, res) :
         lConf = t.node[n]['configurations'][conf]['lConf']
         rConf = t.node[n]['configurations'][conf]['rConf']
 
-        l,r = t.successors(n)
+        l,r = nx_utils.successors(t,n)
         res.add_edge(n,l)
         res.add_edge(n,r)
 
@@ -863,7 +855,7 @@ def genereParaTRec0 (t, n, conf, parConf, res) :
 # dans le cas d'un ln ou rn = 0 rencontrE en construction de paraT
 #t arbre de transcrits, pt paraT, n noeud, par parent, grdpar
 def remonteTPRec(t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
-    enf = pt.successors(grdPar)
+    enf = nx_utils.successors(pt,grdPar)
     #ipdb.set_trace()
     if par == enf[0] :
         if pt.node[grdPar]['ln'] > 0:
@@ -872,7 +864,7 @@ def remonteTPRec(t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
             k = inherited(t, n, conf, PC1)
             if len(k[inh]) < un :
                 pt.node[grdPar]['nlft'] = pt.node[grdPar]['nlft'] - nft
-                remonteTPRec(t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
+                remonteTPRec(t, pt, n, grdPar, nx_utils.predecessors(pt, grdPar)[0], conf, PC0, PC1, un, nft, inh)
 
 
     else :
@@ -883,13 +875,13 @@ def remonteTPRec(t, pt, n, par, grdPar, conf, PC0, PC1, un, nft, inh) :
             k = inherited(t, n, conf, PC1)
             if len(k[inh]) < un :
                 pt.node[grdPar]['nrft'] = pt.node[grdPar]['nrft'] - nft
-                remonteTPRec(t, pt, n, grdPar, pt.predecessors(grdPar)[0], conf, PC0, PC1, un, nft, inh)
+                remonteTPRec(t, pt, n, grdPar, nx_utils.predecessors(pt, grdPar)[0], conf, PC0, PC1, un, nft, inh)
 
 
 def remonteTP(t, pt, n, conf, parConf, un, nft, inh) :
 
-    if pt.predecessors(n) != [] :
-        par = pt.predecessors(n)[0]
+    if nx_utils.predecessors(pt, n) != [] :
+        par = nx_utils.predecessors(pt, n)[0]
         PC0 = parConf[:]
         PC1 = []
         remonteTPRec(t, pt, n, n, par, conf, PC0, PC1, un, nft, inh)
@@ -899,7 +891,7 @@ def genereParaTRec(t, n, conf, parConf, res) :
 
     tmp = inherited(t,n,conf,parConf)
 
-    if t.successors(n) == [] :
+    if nx_utils.successors(t,n) == [] :
         res.node[n]['bn'] = t.node[n]['bn']
         res.node[n]['fbn'] = t.node[n]['bn'] - len(tmp[0])
         res.node[n]['ln'] = 0
@@ -916,7 +908,7 @@ def genereParaTRec(t, n, conf, parConf, res) :
         lConf = t.node[n]['configurations'][conf]['lConf']
         rConf = t.node[n]['configurations'][conf]['rConf']
 
-        l,r = t.successors(n)
+        l,r = nx_utils.successors(t,n)
         res.add_edge(n,l)
         res.add_edge(n,r)
 
@@ -941,8 +933,8 @@ def genereParaTRec(t, n, conf, parConf, res) :
             res.node[n]['nlft'] = 0
             if ln > 0 and parConf != [] :
 
-                par = t.predecessors(n)[0]
-                enf = t.successors(par)
+                par = nx_utils.predecessors(t, n)[0]
+                enf = nx_utils.successors(t,par)
                 if n == enf[0] :
                     side = 'lftInd'
                     ind_I = 0
@@ -968,8 +960,8 @@ def genereParaTRec(t, n, conf, parConf, res) :
             res.node[n]['rftInd'] = []
             res.node[n]['nrft'] = 0
             if rn > 0 and parConf != []  :
-                par = t.predecessors(n)[0]
-                enf = t.successors(par)
+                par = nx_utils.predecessors(t, n)[0]
+                enf = nx_utils.successors(t,par)
                 if n == enf[0] :
                     side = 'lftInd'
                     ind_I = 0
@@ -1017,9 +1009,9 @@ def generateParaT0 (t,n, conf, parConf) :
 # to the root of paraT the number of deleted lines and will
 # adapt nlft/rflt of the nodes in the path
 def adaptFt(n, paraT, nft) :
-    if paraT.predecessors(n) != [] :
-        par = paraT.predecessors(n)[0]
-        enf = paraT.successors(par)
+    if nx_utils.predecessors(paraT, n) != [] :
+        par = nx_utils.predecessors(paraT, n)[0]
+        enf = nx_utils.successors(paraT,par)
         if n == enf[0] :
             paraT.node[par]['nlft'] = paraT.node[par]['nlft'] - nft
             adaptFt(par, paraT, nft)
@@ -1052,8 +1044,8 @@ def adaptDistTab(t, x, xt, forVals, ind0, paraT, n, ax) :
     # in case of a vector instead of an array
     if nRows == 0 or nCols == 0 :
 
-        if paraT.successors(n) != [] :
-            l,r = paraT.successors(n)
+        if nx_utils.successors(paraT,n) != [] :
+            l,r = nx_utils.successors(paraT,n)
 
         if xt >= bn : # On ne rentre jamais dans ce cas si n feuille
 
@@ -1108,8 +1100,8 @@ def adaptDistTab(t, x, xt, forVals, ind0, paraT, n, ax) :
     # in case of a real array
     else :
 
-        if paraT.successors(n) != [] :
-            l,r = paraT.successors(n)
+        if nx_utils.successors(paraT,n) != [] :
+            l,r = nx_utils.successors(paraT,n)
 
         if xt >= bn : # On ne rentre jamais dans ce cas si n feuille
 
@@ -1262,7 +1254,7 @@ def maxAssign (n, dim, forVals) :
 	try:
         # for some mysterious reason, this function
 	    # crashes for some particular graphs
-	    flowVal = nx_maximum_flow_value(G, 's', 't')
+	    flowVal = nx_utils.maximum_flow_value(G, 's', 't')
 	except:
 	    print "I could not flow"
 	    #print n
@@ -1621,8 +1613,8 @@ def propagateAssign(res, n, c, pc, xPar, X) :
         tmp[s].append((xPar, x))
         res.node[n]['configurations'][c]['inherited'].append(tmp)
 
-    if s != 'binary' and res.successors(n) != [] :
-        l,r = res.successors(n)
+    if s != 'binary' and nx_utils.successors(res,n) != [] :
+        l,r = nx_utils.successors(res,n)
         PC=pc[:]
         PC.append(c)
 
@@ -1734,7 +1726,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
     #first level, distance matrices always the same
     for e in ens[0]:
 
-        l,r = t.successors(e)
+        l,r = nx_utils.successors(t,e)
         bn = t.node[e]['bn']
         ln = t.node[e]['ln']
         rn = t.node[e]['rn']
@@ -1844,7 +1836,7 @@ def leafAssign (t, est, distTabs, costMat, AllExons) :
 
         for e in ens[0]:
             #print "hello"
-            l,r = t.successors(e)
+            l,r = nx_utils.successors(t,e)
             bn = t.node[e]['bn']
             ln = t.node[e]['ln']
             rn = t.node[e]['rn']
@@ -2042,12 +2034,12 @@ def tree_costRec(t, n, conf, parConf,cutTree,res, bestScore, costs) :
     elif bn < 0 :
         print("problem bn <0\n")
         #ipdb.set_trace()
-    if t.successors(n) != [] :
+    if nx_utils.successors(t,n) != [] :
         lParConf = parConf[:]
         rParConf = parConf[:]
         rParConf.append(conf)
         lParConf.append(conf)
-        l,r=t.successors(n)
+        l,r = nx_utils.successors(t,n)
         rConf = config['rConf']
         lConf = config['lConf']
         if res[0]< bestScore :
@@ -2066,10 +2058,10 @@ def generateTreeRec(t, tt, conf, n) :
     tt.node[n]['configurations'] = [{}] * tmp
     tt.node[n]['configurations'][conf] = copy.deepcopy(t.node[n]['configurations'][conf])
 
-    if t.successors(n) != [] :
+    if nx_utils.successors(t,n) != [] :
         lConf = t.node[n]['configurations'][conf]['lConf']
         rConf = t.node[n]['configurations'][conf]['rConf']
-        l,r = t.successors(n)
+        l,r = nx_utils.successors(t,n)
         generateTreeRec(t, tt, lConf, l)
         generateTreeRec(t, tt, rConf, r)
 
@@ -2113,12 +2105,12 @@ def tree_cost(t, baseScore, costs) :
 # nn node number ans p the number of enherited transcripts
 # in the node nn
 def evalTopoRec(t, nn, p, costs ) :
-    succ = t.successors(nn)
+    succ = nx_utils.successors(t, nn)
     if  succ == [] :
         n = len(t.node[nn]['trans'])
         return (costs[0] * (n-p) )
     else :
-        l,r = t.successors(nn)
+        l,r = nx_utils.successors(t,nn)
         bn = t.node[nn]['bn']
         ln = t.node[nn]['ln']
         rn = t.node[nn]['rn']
@@ -2136,7 +2128,7 @@ def coherentTopo(t) :
     res = True
     intNodes = set(t.nodes()) - leaves(t)
     for i in intNodes :
-        l,r = t.successors(i)
+        l,r = nx_utils.successors(t,i)
         bn = t.node[i]['bn']
         ln = t.node[i]['ln']
         rn = t.node[i]['rn']
@@ -2154,7 +2146,7 @@ def treeMoves(t, minBNTree) :
 
     tt = nx.DiGraph()
     f = leaves(t)
-    edges = t.edges()
+    edges = nx_utils.get_edge_list(t)
     TMP = []
     for i in range(len(edges)) :
         e = edges[i]
@@ -2168,7 +2160,7 @@ def treeMoves(t, minBNTree) :
     tt.add_edges_from(edges)
 
     for nn in tt.nodes() :
-        l,r = t.successors(nn)
+        l,r = nx_utils.successors(t,nn)
         Ln = t.node[l]['n']
         Rn = t.node[r]['n']
         bn = t.node[nn]['bn']
@@ -2177,9 +2169,9 @@ def treeMoves(t, minBNTree) :
         rn = t.node[nn]['rn']
         n = t.node[nn]['n']
 
-        if t.predecessors(nn) != [] :
-            par = t.predecessors(nn)[0]
-            enf = t.successors(par)
+        if nx_utils.predecessors(t, nn) != [] :
+            par = nx_utils.predecessors(t, nn)[0]
+            enf = nx_utils.successors(t,par)
             nLim = t.node[par]['bn']
             if nn == enf[0] :
                 nLim = nLim + t.node[par]['ln']
@@ -2284,7 +2276,7 @@ def moveTopo( baseTopo, nodes, treeMoves ) :
 
 
 def elagMaxTopo(tt, e, n) :
-    succ = tt.successors(e)
+    succ = nx_utils.successors(tt,e)
     nn = 0
     if len(succ) > 0 :
         l,r = succ
@@ -2328,7 +2320,7 @@ def maxTopo(gt) :
 
     while ens[0] != set([]) :
         for e in ens[0] :
-            l,r = gt.successors(e)
+            l,r = nx_utils.successors(gt,e)
             ml = tt.node[l]['n']
             mr = tt.node[r]['n']
             bn = min(ml,mr)
@@ -2436,7 +2428,7 @@ def scoreToTrans2 (t, c, i, j, k, AllExons) :
                             parent = i
                             # go up along the phylogeny
                             for parConf in datIn['parConf'] :
-                                parent = t.predecessors(parent)[0]
+                                parent = nx_utils.predecessors(t, parent)[0]
                                 # get the parent transcript
                             parTrans = t.node[parent]['configurations'][parConf]['Bt'][couple[0]]
                             parIndMin = argMinMul(parTrans[e])
@@ -2519,19 +2511,19 @@ def transTree(t, AllExons) :
 
 #returns the children of e , his brother and the brothers of all his ancestors
 def siblings(res , e) :
-    tmp = res.successors(e)
+    tmp = nx_utils.successors(res,e)
     tmp.append(e)
     tmpNode = e
-    ancestr = res.predecessors(tmpNode)
+    ancestr = nx_utils.predecessors(res, tmpNode)
     while len(ancestr) > 0 :
         par = ancestr[0]
-        enf = res.successors(par)
+        enf = nx_utils.successors(res,par)
         if enf[0] == tmpNode :
             tmp.append(enf[1])
         else :
             tmp.append(enf[0])
         tmpNode = par
-        ancestr = res.predecessors(tmpNode)
+        ancestr = nx_utils.predecessors(res, tmpNode)
     return(tmp)
 
 
@@ -2546,7 +2538,7 @@ def updateInherRec(res, e, n) :
                 tmp.append(copy.deepcopy(i))
         res.node[e]['configurations'][c]['inherited'] = tmp
 
-    Tmp = res.successors(e)
+    Tmp = nx_utils.successors(res,e)
     if len(Tmp) > 0 :
         l,r = Tmp
         updateInherRec(res, l, (n+1))
@@ -2560,7 +2552,7 @@ def updateInherRec(res, e, n) :
 # est est l'arbre des etats d'exons au niveau du gene
 def leafAssignRec(t, res, est, e, distTabs, costMat, AllExons) :
 
-    l,r = t.successors(e)
+    l,r = nx_utils.successors(t,e)
     bn = t.node[e]['bn']
     ln = t.node[e]['ln']
     rn = t.node[e]['rn']
@@ -2573,7 +2565,7 @@ def leafAssignRec(t, res, est, e, distTabs, costMat, AllExons) :
     exSe_g = est.node[l]['est']
     exSe_d = est.node[r]['est']
 
-    if t.successors(l) == [] and t.successors(r) == []: #le cas des noeud de niveau 1 (juste au dessus des feuilles)
+    if nx_utils.successors(t,l) == [] and nx_utils.successors(t,r) == []: #le cas des noeud de niveau 1 (juste au dessus des feuilles)
 
         res.node[e]['configurations'] = []
         countConf=0
@@ -2766,7 +2758,7 @@ def leafAssignRec(t, res, est, e, distTabs, costMat, AllExons) :
                     countConf = countConf + 1
                     res.node[e]["configurations"].append(dicTmp)
 
-    tmp = t.predecessors(e)
+    tmp = nx_utils.predecessors(t, e)
     #ipdb.set_trace()
     if tmp != [] :
         par = tmp[0]
@@ -2777,7 +2769,7 @@ def getCodeTopo(topo):
 
     code = ""
     for uu in topo.nodes():
-        if topo.successors(uu)!=[]:
+        if nx_utils.successors(topo,uu)!=[]:
             code = code + str(topo.node[uu]['bn'])+str(topo.node[uu]['ln'])+str(topo.node[uu]['rn'])
     return int(code)
 
@@ -2898,7 +2890,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
 
             # print the topology in the standard output
             for uu in baseTopo.nodes():
-                if baseTopo.successors(uu)==[]:
+                if nx_utils.successors(baseTopo, uu)==[]:
                     uuBN = baseTopo.node[uu]['n']
                     uuLN = 0
                     uuRN = 0
@@ -3145,12 +3137,12 @@ def boltzmann (x, k, T) :
 # T un arbre, n un noeud et x le transcrit de ce neoud
 # renvoie tous les transcrits aux feuilles descendants de x
 def transInduits(T, n, x, c) :
-    if T.successors(n) == [] :
+    if nx_utils.successors(t,n) == [] :
         res = set([])
         res.add((n,x))
         return(res)
     else :
-        l,r = T.successors(n)
+        l,r = nx_utils.successors(t,n)
         bn = T.node[n]['bn']
         conf = T.node[n]['configurations'][c]
         lnft = len(conf['lftInd'] )
@@ -3182,12 +3174,12 @@ def transPartRec(T, n, c, pC, res) :
     for i in BN :
         res.append(transInduits(T, n, i, c))
 
-    if T.successors(n) !=[] :
+    if nx_utils.successors(t,n) !=[] :
         lPC = pC[:]
         lPC.append(c)
         rPC = lPC[:]
 
-        l,r = T.successors(n)
+        l,r = nx_utils.successors(t,n)
         transPartRec(T, l, lConf, lPC, res)
         transPartRec(T, r, rConf, rPC, res)
 
@@ -3217,8 +3209,8 @@ def compactIndList(l, X) :
 # and goes down to each leaf for a given configuration
 def elagTreeRec(t, conf, n, res, ln, rn, AllExons) :
     #print "this is node"+str(n)
-    if t.successors(n) != [] :
-        l,r = t.successors(n)
+    if nx_utils.successors(t,n) != [] :
+        l,r = nx_utils.successors(t,n)
         res.add_node(l)
         res.add_node(r)
         res.add_edges_from([(n,l),(n,r)])
@@ -3380,7 +3372,8 @@ def elagTreeRec(t, conf, n, res, ln, rn, AllExons) :
             rInd[i] = tmp0
 
         # print Lbn
-        res.node[n] = {'Lbn':Lbn, 'lftInd':lInd, 'rftInd':rInd, 'trans':trans}
+        # https://networkx.github.io/documentation/latest/release/migration_guide_from_1.x_to_2.0.html?
+        res.node[n].update({'Lbn':Lbn, 'lftInd':lInd, 'rftInd':rInd, 'trans':trans})
         # print res.node[n]
 
         lln.sort()
@@ -3393,7 +3386,8 @@ def elagTreeRec(t, conf, n, res, ln, rn, AllExons) :
         tmp = []
         for i in range(t.node[n]['bn']):
             tmp.append((-1,-1))
-        res.node[n] = {'Lbn':tmp,'lftInd':[], 'rftInd':[], 'trans' : t.node[n].get("trans", "NA")}
+        # https://networkx.github.io/documentation/latest/release/migration_guide_from_1.x_to_2.0.html?
+        res.node[n].update({'Lbn':tmp,'lftInd':[], 'rftInd':[], 'trans' : t.node[n].get("trans", "NA")})
 
 def elagTree(t, conf, AllExons) :
     res = nx.DiGraph()
