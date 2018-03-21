@@ -15,6 +15,7 @@ __pycache__/
 *.swp
 *.swo
 
-# EXAMPLE
+# TO RUN TESTS
+test/tmp/*
 bestTopos/
 betterTrees/
