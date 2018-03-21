@@ -61,15 +61,12 @@ def TabToRecord(tab):
     """
     return ["[label = \"{" + " | ".join(tr) + "}\"]" for tr in tab]
 
-
 def isATree(T):
     """
     Returns true if the graph T is a tree (all nodes have at most one parent)
     """
-    p = [x[1] for x in T.in_degree(T.nodes())] # in_degree & nodes instead of *_iter (NetworkX 2)
+    p = [ x[1] for x in nx_utils.get_in_degree_of_nodes(T) ]
     return p.count(0) == 1 and all((x <= 1 for x in p))
-
-
 
 def DotAllConfigurations(LT, outdir, prefix="forest_"):
     """

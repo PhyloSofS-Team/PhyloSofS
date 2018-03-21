@@ -25,6 +25,14 @@ else:
     def get_out_degree(nx_graph, node):
         return nx_graph.out_degree[node]
 
+# NetworkX 2.0: *_iter methods are deprecated
+if LooseVersion(nx.__version__) < LooseVersion('2.0'):
+    def get_in_degree_of_nodes(nx_graph):
+        return nx_graph.in_degree_iter(nx_graph.nodes_iter())
+else:
+    def get_in_degree_of_nodes(nx_graph):
+        return nx_graph.in_degree(nx_graph.nodes())
+
 # NetworkX deprecates max_flow in favor of maximum_flow_value in version 1.9 :
 if LooseVersion(nx.__version__) < LooseVersion('1.9'):
     def maximum_flow_value(g, x, y):
