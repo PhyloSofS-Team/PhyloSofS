@@ -95,7 +95,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     #TODO: get species ID for all the leaf nodes, this should be set somewhere in the tree
     #TODO: add the score of the tree where can we get this value ?
     dot_T = pgv.AGraph(directed = True, strict = True, rankdir = "TB",  newrank = True,
-                       outputorder="edgesfirst", margin="0.0", splines = False, **args)
+    outputorder="edgesfirst", margin="0.0", splines = False, **args)
     dot_T.edge_attr.update(weight = '1', minlen = '4', dir = 'none' )
     dot_T.node_attr.update(shape = 'egg', style = 'filled', width = '1',height='0.7') # 0.1
     assert isATree(T), "Error the transcript structure provided is not a tree"
@@ -113,34 +113,34 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     #print nodes
     for n in sorted(nodes):
         ##create as many nodes as transcripts for the given configuration
-	nlist = [ "%d_%d" % (n, i) for i in range(ntranscripts(T,n)) ]
-	#print T.node[n]
-	for k in range(len(nlist)):
-	    #print T.node[n]['trans'][k]
-	    fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
+        nlist = [ "%d_%d" % (n, i) for i in range(ntranscripts(T,n)) ]
+        #print T.node[n]
+        for k in range(len(nlist)):
+            #print T.node[n]['trans'][k]
+            fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
             dot_T.add_node(nlist[k],label="")
         fout.write("\n")
-	if n>1:
-	    parent = nx_utils.predecessors(T, n)[0]
-	    if sorted(nx_utils.successors(T, parent)).index(n) == 0 :
-	        choice = RIGHT
+        if n>1:
+            parent = nx_utils.predecessors(T, n)[0]
+            if sorted(nx_utils.successors(T, parent)).index(n) == 0 :
+                choice = RIGHT
                 #print "I'm right", n, "my parent is", parent, T.node[parent][RIGHT]
-	    else:
-		choice = LEFT
-		#print "I'm left", n, "my parent is", parent, T.node[parent][LEFT]
+            else:
+                choice = LEFT
+                #print "I'm left", n, "my parent is", parent, T.node[parent][LEFT]
             for l in T.node[parent][choice]:
-	        #sl_t = "%d_%d" % (sl,l)
-	        ##ajoute un noeud square pour les morts
-	        ##Pbme, il est pas du bon côté
-	        t_death = "%d_%d_death" % (n, l)
-		nbDeaths = nbDeaths + 1
-		#print t_death
-	        dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
-	        nlist.append(t_death)
-	        #dot_T.add_edge(dad_t, t_death)
+                #sl_t = "%d_%d" % (sl,l)
+                ##ajoute un noeud square pour les morts
+                ##Pbme, il est pas du bon côté
+                t_death = "%d_%d_death" % (n, l)
+                nbDeaths = nbDeaths + 1
+                #print t_death
+                dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
+                nlist.append(t_death)
+                #dot_T.add_edge(dad_t, t_death)
                 #i = i + 1
-	        #dad_t = "%d_%d" % (n,i)
-        #dot_T.add_nodes_from(nlist)
+                #dad_t = "%d_%d" % (n,i)
+                #dot_T.add_nodes_from(nlist)
         currank = "same"
         #all species are pushed at the bottom of the tree
         if (nx_utils.get_out_degree(T, n) == 0):
@@ -154,7 +154,6 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     ##All actual species have to be at the same level
     #dot_T.add_subgraph(nspecies, rank = "sink")
     #for fn in nspecies: forest_nodes[fn] = "sink"
-
 
     def _testcreate(s,e, d):
         ##simple logging of errors, should raise
@@ -188,7 +187,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
                     ##ajoute un noeud square pour les morts
                     ##Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sr, l)
-		    #print t_death
+                    #print t_death
                     #dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
                     dot_T.add_edge(dad_t, t_death)
                     i = i + 1
@@ -202,7 +201,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
                     ##ajoute un noeud square pour les morts
                     ##Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sl, r)
-		    #print t_death
+                    #print t_death
                     #dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
                     dot_T.add_edge(dad_t, t_death)
                     i = i + 1
