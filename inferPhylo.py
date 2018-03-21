@@ -17,8 +17,9 @@ import math as M
 import copy
 import pickle as pk
 from drawForestTranscripts import *
+import os
+import warnings
 import nx_utils
-
                        ##################################################
 
                             ######### FONCTIONS INPUT/OUTPUT #########
@@ -2773,13 +2774,21 @@ def getCodeTopo(topo):
             code = code + str(topo.node[uu]['bn'])+str(topo.node[uu]['ln'])+str(topo.node[uu]['rn'])
     return int(code)
 
+def mkdir_subfolder(folder_path, subfolder):
+    """
+    Create a subfolder inside folder_path if it doesn't exists.
+    """
+    full_path = os.path.join(folder_path, subfolder)
+    if os.path.isdir(full_path):
+        warnings.warn(full_path + " already exist.", RuntimeWarning)
+    else:
+        os.makedirs(full_path)
+    return full_path
+
 #####  (best) main function with gt a genetree with transcripts at the leaves
-def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, slowMode, topoStart, withMemory, outputDir) :
-    try:
-        os.system("mkdir bestTopos/")
-        os.system("mkdir betterTrees/")
-    except:
-        print "Warning!! bestTopos/ and betterTrees/ already exist."
+def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, slowMode, topoStart, withMemory, outputDir):
+    bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
+    betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
     t0 = time.time()
     nodes = []
     borInf = 0
@@ -2843,7 +2852,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             baseScore = bestSc
             print("tree cost for start topo "+str(baseScore))
             if baseScore < initBest :
-                pickPrint(baseTree, outputDir+"betterTopos/topo"+str(countTrees)+"_"+str(baseScore)+".pk")
+                pickPrint(baseTree, os.path.join(betterTopos_path, "topo"+str(countTrees)+"_"+str(baseScore)+".pk"))
                 countTrees = countTrees + 1
 
             tM = treeMoves(baseTopo, minBNTree)
@@ -2852,8 +2861,8 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                 if tM.node[n]['nMoves'] > 0 :
                     nodes.append(n)
             if nodes == []:
-		    print("\n~}~}~}~}~} no neighbors")
-		    go = False
+		        print("\n~}~}~}~}~} no neighbors")
+		        go = False
 
     if withMemory:
         visited = []
@@ -2873,12 +2882,12 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             print(">>> " + str(i) + "\n")
             print(">>>>> random jump(s) \n")
             # jumps will accumulate until a suitable base topology is found
-	       # they are not counted as iterations
+            # they are not counted as iterations
             while borInf > bestSc or nodes ==[]:
                  # create a new base topology
                  baseTopo = aleaTopo(gt, minBNTree)
                  borInf = evalTopo(baseTopo, costs)
-	       #print "borInf",borInf
+                 #print "borInf",borInf
                  # generate neighbors only if the lower bound in lower than best score
                  if borInf <= bestSc :
                      print(">>>>> looking for neighbors... \n")
@@ -2899,8 +2908,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                     uuLN = baseTopo.node[uu]['ln']
                     uuRN = baseTopo.node[uu]['rn']
 
-               # print(">>>>> node_"+str(uu)+": bn="+str(uuBN)+"; ln="+str(uuLN)+"; rn="+str(uuRN)+"\n")
-
+            # print(">>>>> node_"+str(uu)+": bn="+str(uuBN)+"; ln="+str(uuLN)+"; rn="+str(uuRN)+"\n")
             # generate base forest by assignment algorithm
             baseTree = leafAssign(baseTopo,est,distTabs, costMat,AllExons)
             #print baseTree.nodes()
@@ -2908,11 +2916,12 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             tRes , baseConf, baseScore, tmpCutTrees = tree_cost(baseTree, 10000, costs)
             #print "baseScore",baseScore
             # if the cost is lower than the best solution, record it
+
             if baseScore <= bestSc :
-                pickPrint(baseTopo, outputDir+"bestTopos/topo"+str(countBest)+"_"+str(baseScore)+".pk")
+                pickPrint(baseTopo, os.path.join(bestTopos_path, "topo"+str(countBest)+"_"+str(baseScore)+".pk"))
                 countBest = countBest + 1
             if baseScore < initBest :
-                pickPrint(baseTree, outputDir+"betterTrees/tree"+str(countTrees)+"_"+str(baseScore)+".pk")
+                pickPrint(baseTree, os.path.join(betterTrees_path, "tree"+str(countTrees)+"_"+str(baseScore)+".pk"))
                 countTrees = countTrees + 1
 
             if baseScore < bestSc :
@@ -2946,7 +2955,6 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
             tmpTree = leafAssign(t, est,distTabs, costMat, AllExons)
             print(">>>>>> leaf assignment ended \n")
             print(">>>>>> tree cost ...\n")
-            #ipdb.set_trace()
             if slowMode:
                 tRes , tmpConf, tmpScore, tmpCutTrees = tree_cost(tmpTree, 10000, costs)
             else:
@@ -2957,7 +2965,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
 
             if withMemory:
                 visited.append(code)
-               # print len(visited)
+                # print len(visited)
 
             # if the score of the forest is better than the base forest score,
             # change for it and generate a new neighborhood
@@ -2974,7 +2982,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
 
                 # if the cost is lower than the best solution, record it
                 if tmpScore <= bestSc :
-                    pickPrint(t, outputDir+"bestTopos/topo"+str(countBest)+"_"+str(baseScore)+".pk")
+                    pickPrint(t, os.path.join(bestTopos_path, "topo"+str(countBest)+"_"+str(baseScore)+".pk"))
                     countBest = countBest + 1
 
                 if tmpScore < bestSc :
@@ -2983,7 +2991,7 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
                     bestSc = tmpScore
                     cutTrees = tmpCutTrees
             if tmpScore < initBest :
-                pickPrint(tmpTree, outputDir+"betterTrees/tree"+str(countTrees)+"_"+str(tmpScore)+".pk")
+                pickPrint(tmpTree, os.path.join(betterTrees_path, "tree"+str(countTrees)+"_"+str(tmpScore)+".pk"))
                 countTrees = countTrees + 1
 
             # write the score to the output file

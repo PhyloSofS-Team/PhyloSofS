@@ -1,6 +1,7 @@
 import unittest
 import subprocess
 import filecmp
+import os
 
 class Test_PhyloSofS(unittest.TestCase):
 
@@ -18,7 +19,8 @@ class Test_PhyloSofS(unittest.TestCase):
         self.assertTrue(filecmp.cmp("test/tmp/solution_532_1_config0.info",
                                     "test/data/solution_532_1_config0.info"),
                                     "solution_532_1_config0.info")
-
+        self.assertTrue(os.path.isdir("test/tmp/bestTopos"))
+        self.assertTrue(os.path.isdir("test/tmp/betterTrees"))
 
 if __name__ == '__main__':
     unittest.main()
