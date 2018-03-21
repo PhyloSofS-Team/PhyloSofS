@@ -8,7 +8,6 @@ A set of function to output a forest of transcripts, given a reconstructed set o
 @author: hrichard (contributions from elaine)
 """
 from sys import argv
-
 #fichier = argv[1]
 
 ###TODO list of features:
@@ -99,7 +98,6 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     dot_T.edge_attr.update(weight = '1', minlen = '4', dir = 'none' )
     dot_T.node_attr.update(shape = 'egg', style = 'filled', width = '1',height='0.7') # 0.1
     assert isATree(T), "Error the transcript structure provided is not a tree"
-    nodes = nx.topological_sort(T)
     #we keep a dictionnary of all nodes in the forest
     forest_nodes = {}
     nspecies = []
@@ -111,7 +109,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
     fout = open(fileout+"_config"+str(iconf)+".info", "w")
     fout2 = open(fileout+"_config"+str(iconf)+".sum", "w")
     #print nodes
-    for n in sorted(nodes):
+    for n in sorted(nx.topological_sort(T)):
         ##create as many nodes as transcripts for the given configuration
         nlist = [ "%d_%d" % (n, i) for i in range(ntranscripts(T,n)) ]
         #print T.node[n]
@@ -161,9 +159,8 @@ def ForestToDot(T, fileout, iconf, leafTranscripts = False, **args):
         if len(a)>0:
             print "**** Error when creating edge from %s to %s *****" % (s,e)
             for x in a: print "%s does not exist" % ([s,e][x])
-
     ##Drawing all the edges from the internal nodes
-    for n in filter(lambda x: nx_utils.get_out_degree(T,x) > 0, nodes):
+    for n in filter(lambda x: nx_utils.get_out_degree(T,x) > 0, nx.topological_sort(T)):
         i = 0
         for i_tr in TOPOATTRIBUTES:
             dad_t = "%d_%d" % (n, i)
