@@ -1,13 +1,13 @@
-#####  Modele d'inference de phylogenies de transcrits
-#####  Pour etudier l'apparition et la fixation
-#####  d'evenements d'epissage au cours de l'evolution
+# Modele d'inference de phylogenies de transcrits
+# Pour etudier l'apparition et la fixation
+# d'evenements d'epissage au cours de l'evolution
 
-## Par Elodie Laine, Hugues Richard, Adel Ait-hamlat
-## Usage: python transPhyl3.py CB CD cm SUFF
-## CB: birth cost
-## CD: death cost
-## cm: mutation cost
-## SUFF: suffix for the output files
+# Par Elodie Laine, Hugues Richard, Adel Ait-hamlat
+# Usage: python transPhyl3.py CB CD cm SUFF
+# CB: birth cost
+# CD: death cost
+# cm: mutation cost
+# SUFF: suffix for the output files
 
 from __future__ import division
 import sys
@@ -22,6 +22,7 @@ import initData
 import pickle as pk
 from inferPhylo import *
 from modelIsoforms import *
+
 
 def printUsage():
     print """Usage: python phylosofs.py
@@ -57,6 +58,7 @@ def printUsage():
                         -topo         initial topology (by default: maximum or random topology), or transcripts'
                                       phylogeny to be printed out (if the -printOnly option is active)"""
 
+
 if (__name__ == '__main__'):
 
     nb_arguments = len(sys.argv)
@@ -77,31 +79,35 @@ if (__name__ == '__main__'):
                 inputFile = sys.argv[sys.argv.index("-inSeq")+1]
                 os.path.isfile(inputFile)
             except:
-                sys.stderr.write("You must give an existing input text file for phylogenetic inference. See usage instructions.\n\n")
+                sys.stderr.write(
+                    "You must give an existing input text file for phylogenetic inference. See usage instructions.\n\n")
                 exit(2)
         if "M" in mode:
             doModel = True
             try:
                 configFile = sys.argv[sys.argv.index("-c")+1]
                 os.path.isfile(configFile)
-                HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = init(configFile)
+                HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = init(
+                    configFile)
             except:
-                sys.stderr.write("You must give an existing configuration file for molecular modeling. See usage instructions\n\n")
+                sys.stderr.write(
+                    "You must give an existing configuration file for molecular modeling. See usage instructions\n\n")
                 exit(2)
     except:
-        sys.stderr.write("You must give at least one action to be performed by PhyloSofS. See usage instructions.\n\n")
+        sys.stderr.write(
+            "You must give at least one action to be performed by PhyloSofS. See usage instructions.\n\n")
         exit(2)
 
     # birth cost
-    try :
+    try:
         CB = int(sys.argv[sys.argv.index("-b") + 1])
-    except :
+    except:
         CB = 5
 
     # death cost
-    try :
+    try:
         CD = int(sys.argv[sys.argv.index("-d") + 1])
-    except :
+    except:
         CD = 3
 
     try:
@@ -110,15 +116,15 @@ if (__name__ == '__main__'):
         pathTransSeqs = "./"
 
     # mutation cost
-    try :
+    try:
         cm = int(sys.argv[sys.argv.index("-m") + 1])
-    except :
+    except:
         cm = 2
 
     # number of iterations
-    try :
+    try:
         nbIt = int(sys.argv[sys.argv.index("-ni") + 1])
-    except :
+    except:
         nbIt = 1
 
     try:
@@ -136,14 +142,14 @@ if (__name__ == '__main__'):
     try:
         sys.argv[sys.argv.index("-only3D")]
         only3D = True
-    except :
+    except:
         only3D = False
 
     # only assess the quality of the 3D models for modeling part
     try:
         sys.argv[sys.argv.index("-onlyQuality")]
         onlyQuality = True
-    except :
+    except:
         onlyQuality = False
 
     # initial score
@@ -163,7 +169,7 @@ if (__name__ == '__main__'):
     # input topology
     try:
         f = sys.argv[sys.argv.index("-topo")+1]
-        topoStart = pk.load(open(f,'rb'))
+        topoStart = pk.load(open(f, 'rb'))
     except:
         topoStart = {}
 
@@ -178,23 +184,23 @@ if (__name__ == '__main__'):
         uniq = False
 
     # print only the solution corresponding to the input topology
-    try :
+    try:
         sys.argv[sys.argv.index("-printOnly")]
         printOnly = True
-    except :
+    except:
         printOnly = False
 
-    try :
+    try:
         sys.argv[sys.argv.index("-withMemory")]
         withMemory = True
-    except :
+    except:
         withMemory = False
 
-    try :
-	sys.argv[sys.argv.index("-noPrune")]
-	prune = False
-    except :
-	prune = True
+    try:
+        sys.argv[sys.argv.index("-noPrune")]
+        prune = False
+    except:
+        prune = True
 
     ###################### phylogenetic inference ######################
 
@@ -211,43 +217,45 @@ if (__name__ == '__main__'):
         # costs are ok
         # C1 : niveau proteique (etape 2)
         #C1= [ [0,cm,0], [cm,0,0], [0,cm,0] ]
-        C1_1 = [ [[0,cm,0],[cm,0,0]] , [[0,0,cm],[0,0,0]] ]
-          ##   1 -> 1                 0/2 -> 1
-        C1_2 = [ [0,0,0], [cm,0,0] ]
-          ##   0->2     1/2->2
-        C1_0 = [0,cm,0]
+        C1_1 = [[[0, cm, 0], [cm, 0, 0]], [[0, 0, cm], [0, 0, 0]]]
+        # 1 -> 1                 0/2 -> 1
+        C1_2 = [[0, 0, 0], [cm, 0, 0]]
+        # 0->2     1/2->2
+        C1_0 = [0, cm, 0]
 
         # C0 : niveau genique (etape 1)
-        C0 = [ [0,1,1], [1,0,1], [1,1,0] ]
+        C0 = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]
 
-        priority = (1,0,2)
+        priority = (1, 0, 2)
 
         costs = (CB, CD, cm)
-        costMat=(C0,C1_0,C1_1,C1_2)
+        costMat = (C0, C1_0, C1_1, C1_2)
 
-        dat,AllExons=initData.initTree(inputFile, prune)
+        dat, AllExons = initData.initTree(inputFile, prune)
         print "The exons are:"
         print AllExons
         nExons = range(len(AllExons))
         print nExons
 
         if topoStart == {}:
-            res = bestTopology(dat, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, slowMode, topoStart, withMemory, outputDir)
+            res = bestTopology(dat, AllExons, nbIt, costs, costMat, priority, SUFF,
+                               initBest, slowMode, topoStart, withMemory, outputDir)
         else:
             if printOnly:
                 res = [topoStart]
             else:
-                res = bestWideTopology(dat, AllExons, costs, costMat, priority, SUFF, initBest,topoStart)
-        
-        if len(res[0].nodes())>0:
+                res = bestWideTopology(dat, AllExons, costs, costMat,
+                                       priority, SUFF, initBest, topoStart)
+
+        if len(res[0].nodes()) > 0:
             exSt = ex_state(exState(dat, costMat, AllExons), priority)
             distTabs = leafScoreTabs(dat, exSt, costMat, AllExons)
             if printOnly:
                 tree = topoStart
-                writeOutput((tree,0,0), exSt, SUFF, costs, AllExons, outputDir)
+                writeOutput((tree, 0, 0), exSt, SUFF, costs, AllExons, outputDir)
             else:
                 tree = leafAssign(res[0], exSt, distTabs, costMat, AllExons)
-                writeOutput((tree,res[2],res[3]), exSt, SUFF, costs, AllExons, outputDir)
+                writeOutput((tree, res[2], res[3]), exSt, SUFF, costs, AllExons, outputDir)
         else:
             print "No suitable topology could be found."
 
@@ -278,22 +286,26 @@ if (__name__ == '__main__'):
             if uniq:
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
-                runModelProcess(HHBLITS,ADDSS,HHMAKE,HHSEARCH,HHMODEL,HHDB,STRUCTDB,ALLPDB,NCPU,'./'+trans,selTemp,only3D)
+                runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB,
+                                STRUCTDB, ALLPDB, NCPU, './'+trans, selTemp, only3D)
                 os.chdir('..')
             else:
                 print dirs
-                for mydir in dirs[1:] :
+                for mydir in dirs[1:]:
                     os.chdir(mydir)
                     for trans in gl.glob('./*.fa'):
-                        runModelProcess(HHBLITS,ADDSS,HHMAKE,HHSEARCH,HHMODEL,HHDB,STRUCTDB,ALLPDB,NCPU,trans,selTemp,only3D)
+                        runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL,
+                                        HHDB, STRUCTDB, ALLPDB, NCPU, trans, selTemp, only3D)
                     os.chdir('..')
 
         # assess the quality of the models
         print 'assess the quality of the models'
-        fOUT = open('quality.sum','w')
-        fOUT.write('# procheck: Ideally, scores should be above -0.5. Values below -1.0 may need investigation.\n')
+        fOUT = open('quality.sum', 'w')
+        fOUT.write(
+            '# procheck: Ideally, scores should be above -0.5. Values below -1.0 may need investigation.\n')
         fOUT.write('# dope: This is a Z-score; positive scores are likely to be poor models, while scores lower than -1 or so are likely to be native-like.\n')
-        fOUT.write('transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\toverall\tdope\trSurf\trHydroph\n')
+        fOUT.write(
+            'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\toverall\tdope\trSurf\trHydroph\n')
         for mydir in dirs[1:]:
             try:
                 os.chdir(mydir)
@@ -307,10 +319,11 @@ if (__name__ == '__main__'):
                     pref = trans.split('.')[0]
                     lenModel = computeLenModel('../'+pref)
                     lenFull, percentSS = computeSS('../'+pref)
-                    dihedrals, covalent, overall = assessQuality(PROCHECK,prot,pref)
+                    dihedrals, covalent, overall = assessQuality(PROCHECK, prot, pref)
                     zscore = assessNormalizedDopeScore(prot)
-                    rSurf, rHydroph = computeRatioSASA(NACCESS,prot,pref)
-                    fOUT.write(pref + '\t' + str(lenFull) + '\t' + str(percentSS) + '\t' + str(lenModel) + '\t' + dihedrals + '\t' + covalent + '\t' + overall + '\t' + str(zscore) + '\t' + str(rSurf) + '\t' + str(rHydroph) + '\n')
+                    rSurf, rHydroph = computeRatioSASA(NACCESS, prot, pref)
+                    fOUT.write(pref + '\t' + str(lenFull) + '\t' + str(percentSS) + '\t' + str(lenModel) + '\t' + dihedrals +
+                               '\t' + covalent + '\t' + overall + '\t' + str(zscore) + '\t' + str(rSurf) + '\t' + str(rHydroph) + '\n')
                 os.chdir('..')
                 os.system('rm -r procheck/')
                 os.chdir('..')

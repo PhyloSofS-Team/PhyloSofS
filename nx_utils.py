@@ -5,17 +5,21 @@ from distutils.version import LooseVersion
 if LooseVersion(nx.__version__) < LooseVersion('2.0'):
     def successors(nx_graph, node):
         return nx_graph.successors(node)
+
     def predecessors(nx_graph, node):
         return nx_graph.predecessors(node)
+
     def get_edge_list(nx_graph):
         return nx_graph.edges()
 else:
     def successors(nx_graph, node):
-        return list(nx_graph.successors(node)) # Use list to get a list from the generator
+        return list(nx_graph.successors(node))  # Use list to get a list from the generator
+
     def predecessors(nx_graph, node):
         return list(nx_graph.predecessors(node))
+
     def get_edge_list(nx_graph):
-        return [ e for e in nx_graph.edges() ]
+        return [e for e in nx_graph.edges()]
 
 # NetworkX 2.0: The degree of an individual node can be calculated by G.degree[node]
 if LooseVersion(nx.__version__) < LooseVersion('2.0'):
@@ -47,4 +51,4 @@ if LooseVersion(nx.__version__) < LooseVersion('2.0'):
         return str(nx_graph.nodes(1))
 else:
     def str_nodes(nx_graph):
-        return str([ (i, nx_graph.nodes[i]) for i in nx_graph.nodes ])
+        return str([(i, nx_graph.nodes[i]) for i in nx_graph.nodes])
