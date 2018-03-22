@@ -2787,8 +2787,6 @@ def mkdir_subfolder(folder_path, subfolder):
 
 #####  (best) main function with gt a genetree with transcripts at the leaves
 def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, slowMode, topoStart, withMemory, outputDir):
-    bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
-    betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
     t0 = time.time()
     nodes = []
     borInf = 0
@@ -2837,6 +2835,8 @@ def bestTopology (gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest, 
 
     # otherwise the search starts from a random jump
     else:
+        bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
+        betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
         bestSc = initBest
         if topoStart!={}:
             baseTopo = setTopo(gt,topoStart)
