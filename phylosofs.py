@@ -11,13 +11,7 @@
 
 from __future__ import division
 import sys
-import time
 import random
-import networkx as nx
-import itertools as it
-import numpy as np
-import math as M
-import copy
 import initData
 import pickle as pk
 from inferPhylo import *
@@ -178,7 +172,8 @@ if (__name__ == '__main__'):
         sys.argv[sys.argv.index("-uniq")]
         uniq = True
         if '.fa' not in pathTransSeqs:
-            sys.stderr.write('You must give a fasta input file with option -uniq.')
+            sys.stderr.write(
+                'You must give a fasta input file with option -uniq.')
             exit(2)
     except:
         uniq = False
@@ -252,10 +247,12 @@ if (__name__ == '__main__'):
             distTabs = leafScoreTabs(dat, exSt, costMat, AllExons)
             if printOnly:
                 tree = topoStart
-                writeOutput((tree, 0, 0), exSt, SUFF, costs, AllExons, outputDir)
+                writeOutput((tree, 0, 0), exSt, SUFF,
+                            costs, AllExons, outputDir)
             else:
                 tree = leafAssign(res[0], exSt, distTabs, costMat, AllExons)
-                writeOutput((tree, res[2], res[3]), exSt, SUFF, costs, AllExons, outputDir)
+                writeOutput((tree, res[2], res[3]), exSt,
+                            SUFF, costs, AllExons, outputDir)
         else:
             print "No suitable topology could be found."
 
@@ -319,7 +316,8 @@ if (__name__ == '__main__'):
                     pref = trans.split('.')[0]
                     lenModel = computeLenModel('../'+pref)
                     lenFull, percentSS = computeSS('../'+pref)
-                    dihedrals, covalent, overall = assessQuality(PROCHECK, prot, pref)
+                    dihedrals, covalent, overall = assessQuality(
+                        PROCHECK, prot, pref)
                     zscore = assessNormalizedDopeScore(prot)
                     rSurf, rHydroph = computeRatioSASA(NACCESS, prot, pref)
                     fOUT.write(pref + '\t' + str(lenFull) + '\t' + str(percentSS) + '\t' + str(lenModel) + '\t' + dihedrals +

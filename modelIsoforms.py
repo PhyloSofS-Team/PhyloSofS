@@ -4,9 +4,6 @@
 
 import glob as gl
 import os
-import sys
-import string
-import math
 from modeller import *
 from shutil import *
 from modeller.automodel import *
@@ -425,7 +422,8 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, A
             os.system(HHSEARCH + " -cpu " + NCPU + " -v 1 -i " + tmp + ".hhm -d " + STRUCTDB + " -o " + tmp +
                       ".hhr -p 20 -P 20 -Z 100 -B 100 -seq 1 -aliw 80 -local -ssm 2 -norealign -sc 1 -dbstrlen 10000 -cs " + CONTEXTLIB)
         # create the alignment for modeller
-        os.system(HHMODEL + " -i " + tmp + ".hhr -pir " + tmp + ".pir -m " + selTemp)
+        os.system(HHMODEL + " -i " + tmp + ".hhr -pir " +
+                  tmp + ".pir -m " + selTemp)
         # treat the alignment file to remove N- and C-terminal loops
         borders = treatAli(tmp+'.pir')
         # generate the 3D models with Modeller

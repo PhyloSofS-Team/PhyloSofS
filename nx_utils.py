@@ -13,7 +13,8 @@ if LooseVersion(nx.__version__) < LooseVersion('2.0'):
         return nx_graph.edges()
 else:
     def successors(nx_graph, node):
-        return list(nx_graph.successors(node))  # Use list to get a list from the generator
+        # Use list to get a list from the generator
+        return list(nx_graph.successors(node))
 
     def predecessors(nx_graph, node):
         return list(nx_graph.predecessors(node))

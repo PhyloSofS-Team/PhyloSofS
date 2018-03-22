@@ -6,16 +6,7 @@
 # Par Adel Ait-hamlat & Elodie Laine
 
 from __future__ import division
-from sys import argv
-import time
-import random
 import networkx as nx
-import itertools as it
-#import ipdb
-import numpy as np
-import math as M
-import copy
-import pickle as pk
 import nx_utils
 
 # find where to split the string
@@ -71,7 +62,8 @@ def convertToGraph(treeStr, transList):
                     tmp = ancSuc[a][i][1:-1]
                     indexSplit = findSplit(tmp)
                     assert indexSplit > 0, "Incorrect tree"
-                    newAncSuc.append([tmp[0:indexSplit], tmp[indexSplit+1:len(tmp)]])
+                    newAncSuc.append(
+                        [tmp[0:indexSplit], tmp[indexSplit+1:len(tmp)]])
         anc = newAnc
         ancSuc = newAncSuc
     treeGraph = nx.DiGraph()

@@ -7,24 +7,21 @@ A set of function to output a forest of transcripts, given a reconstructed set o
 
 @author: hrichard (contributions from elaine)
 """
-from sys import argv
-#fichier = argv[1]
-
-# TODO list of features:
-#_ fix coloring in the exons
-#_ add weblinks to ensembl
-#_ get the set of
-
-TESTING = True
 
 import networkx as nx
 import pygraphviz as pgv
-import pickle
 import itertools
 import string
 import subprocess
 import os
 import nx_utils
+
+# TODO list of features:
+#_fix coloring in the exons
+#_add weblinks to ensembl
+#_get the set of
+
+TESTING = True
 
 BINARY = "Lbn"
 LEFT = "lftInd"
@@ -53,7 +50,8 @@ def TranscriptsTable(T, n, iconf=0, nexons=None):
         l_ex = max(map(max, lot))
         nexons = ord(l_ex) - ord('a') + 1
     # table of transcripts usage
-    tab_t = [[x if x in t else '' for x in list(string.ascii_lowercase)[:nexons]] for t in lot]
+    tab_t = [[x if x in t else '' for x in list(string.ascii_lowercase)[
+        :nexons]] for t in lot]
     return tab_t
 
 
@@ -101,7 +99,8 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     dot_T = pgv.AGraph(directed=True, strict=True, rankdir="TB",  newrank=True,
                        outputorder="edgesfirst", margin="0.0", splines=False, **args)
     dot_T.edge_attr.update(weight='1', minlen='4', dir='none')
-    dot_T.node_attr.update(shape='egg', style='filled', width='1', height='0.7')  # 0.1
+    dot_T.node_attr.update(shape='egg', style='filled',
+                           width='1', height='0.7')  # 0.1
     assert isATree(T), "Error the transcript structure provided is not a tree"
     # we keep a dictionnary of all nodes in the forest
     forest_nodes = {}
@@ -160,7 +159,8 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
 
     def _testcreate(s, e, d):
         # simple logging of errors, should raise
-        a = [i for (i, x) in enumerate([not d.has_key(s), not d.has_key(e)]) if x]
+        a = [i for (i, x) in enumerate(
+            [not d.has_key(s), not d.has_key(e)]) if x]
         if len(a) > 0:
             print "**** Error when creating edge from %s to %s *****" % (s, e)
             for x in a:
@@ -233,11 +233,13 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     colorscheme = "set1%d" % (max([3, ntr_tot]))
     if ntr_tot > 9:
         colorscheme = "set3%d" % (max([3, ntr_tot]))
-    Graph_args = {"colorscheme": colorscheme}  # Additional args for graph drawing
+    # Additional args for graph drawing
+    Graph_args = {"colorscheme": colorscheme}
     # orphan transcripts stay in black
     for (i, l_n) in enumerate(ntrans):
         for n_id in l_n:
-            dot_T.get_node(n_id).attr.update({'colorscheme': colorscheme, 'fillcolor': i+1})
+            dot_T.get_node(n_id).attr.update(
+                {'colorscheme': colorscheme, 'fillcolor': i+1})
     # Options of the graph
     # update the arguments in the graphs
     dot_T.graph_attr.update(Graph_args)
