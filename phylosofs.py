@@ -11,11 +11,13 @@
 
 from __future__ import division
 import sys
+import os
+import glob
 import random
 import initData
 import pickle as pk
-from inferPhylo import *
-from modelIsoforms import *
+import inferPhylo as ip
+import modelIsoforms as mi
 
 
 def printUsage():
@@ -30,7 +32,7 @@ def printUsage():
              =========
                         -b            birth cost (by default: 5)
                         -d            death cost (by default: 3)
-                        -inStruct     text file containing input data: either a directory where multifasta files
+                        -inStruct     text file Fcontaining input data: either a directory where multifasta files
                                       are located (one file per species) or a single fasta file with the sequence
                                       of only one transcript (in that case, the uniq option must be set to TRUE)
                                       (by default, the current directory is used)
@@ -74,22 +76,26 @@ if (__name__ == '__main__'):
                 os.path.isfile(inputFile)
             except:
                 sys.stderr.write(
-                    "You must give an existing input text file for phylogenetic inference. See usage instructions.\n\n")
+                    "You must give an existing input text file for ",
+                    "phylogenetic inference. See usage instructions.\n\n")
                 exit(2)
         if "M" in mode:
             doModel = True
             try:
                 configFile = sys.argv[sys.argv.index("-c")+1]
                 os.path.isfile(configFile)
-                HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = init(
-                    configFile)
+                HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
+                    HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(
+                        configFile)
             except:
                 sys.stderr.write(
-                    "You must give an existing configuration file for molecular modeling. See usage instructions\n\n")
+                    "You must give an existing configuration file for "
+                    "molecular modeling. See usage instructions\n\n")
                 exit(2)
     except:
         sys.stderr.write(
-            "You must give at least one action to be performed by PhyloSofS. See usage instructions.\n\n")
+            "You must give at least one action to be performed by PhyloSofS. "
+            "See usage instructions.\n\n")
         exit(2)
 
     # birth cost
@@ -211,7 +217,7 @@ if (__name__ == '__main__'):
         # couts de changement d'etat des exons pour les especes ancestrales:
         # costs are ok
         # C1 : niveau proteique (etape 2)
-        #C1= [ [0,cm,0], [cm,0,0], [0,cm,0] ]
+        # C1= [ [0,cm,0], [cm,0,0], [0,cm,0] ]
         C1_1 = [[[0, cm, 0], [cm, 0, 0]], [[0, 0, cm], [0, 0, 0]]]
         # 1 -> 1                 0/2 -> 1
         C1_2 = [[0, 0, 0], [cm, 0, 0]]
@@ -233,26 +239,27 @@ if (__name__ == '__main__'):
         print nExons
 
         if topoStart == {}:
-            res = bestTopology(dat, AllExons, nbIt, costs, costMat, priority, SUFF,
-                               initBest, slowMode, topoStart, withMemory, outputDir)
+            res = ip.bestTopology(dat, AllExons, nbIt, costs, costMat,
+                                  priority, SUFF, initBest, slowMode,
+                                  topoStart, withMemory, outputDir)
         else:
             if printOnly:
                 res = [topoStart]
             else:
-                res = bestWideTopology(dat, AllExons, costs, costMat,
-                                       priority, SUFF, initBest, topoStart)
+                res = ip.bestWideTopology(dat, AllExons, costs, costMat,
+                                          priority, SUFF, initBest, topoStart)
 
         if len(res[0].nodes()) > 0:
-            exSt = ex_state(exState(dat, costMat, AllExons), priority)
-            distTabs = leafScoreTabs(dat, exSt, costMat, AllExons)
+            exSt = ip.ex_state(ip.exState(dat, costMat, AllExons), priority)
+            distTabs = ip.leafScoreTabs(dat, exSt, costMat, AllExons)
             if printOnly:
                 tree = topoStart
-                writeOutput((tree, 0, 0), exSt, SUFF,
-                            costs, AllExons, outputDir)
+                ip.writeOutput((tree, 0, 0), exSt, SUFF,
+                               costs, AllExons, outputDir)
             else:
-                tree = leafAssign(res[0], exSt, distTabs, costMat, AllExons)
-                writeOutput((tree, res[2], res[3]), exSt,
-                            SUFF, costs, AllExons, outputDir)
+                tree = ip.leafAssign(res[0], exSt, distTabs, costMat, AllExons)
+                ip.writeOutput((tree, res[2], res[3]), exSt,
+                               SUFF, costs, AllExons, outputDir)
         else:
             print "No suitable topology could be found."
 
@@ -268,7 +275,7 @@ if (__name__ == '__main__'):
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
             print 'prepare intputs...'
-            prepareInputs(pathTransSeqs)
+            mi.prepareInputs(pathTransSeqs)
 
         # determine the number of templates that will be retained
         selTemp = ""
@@ -283,26 +290,32 @@ if (__name__ == '__main__'):
             if uniq:
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
-                runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB,
-                                STRUCTDB, ALLPDB, NCPU, './'+trans, selTemp, only3D)
+                mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
+                                   HHMODEL, HHDB, STRUCTDB, ALLPDB, NCPU,
+                                   './'+trans, selTemp, only3D)
                 os.chdir('..')
             else:
                 print dirs
                 for mydir in dirs[1:]:
                     os.chdir(mydir)
-                    for trans in gl.glob('./*.fa'):
-                        runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL,
-                                        HHDB, STRUCTDB, ALLPDB, NCPU, trans, selTemp, only3D)
+                    for trans in glob.glob('./*.fa'):
+                        mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
+                                           HHMODEL, HHDB, STRUCTDB, ALLPDB,
+                                           NCPU, trans, selTemp, only3D)
                     os.chdir('..')
 
         # assess the quality of the models
         print 'assess the quality of the models'
         fOUT = open('quality.sum', 'w')
         fOUT.write(
-            '# procheck: Ideally, scores should be above -0.5. Values below -1.0 may need investigation.\n')
-        fOUT.write('# dope: This is a Z-score; positive scores are likely to be poor models, while scores lower than -1 or so are likely to be native-like.\n')
+            '# procheck: Ideally, scores should be above -0.5. '
+            'Values below -1.0 may need investigation.\n')
+        fOUT.write('# dope: This is a Z-score; positive scores are likely '
+                   'to be poor models, while scores lower than -1 or so are likely '
+                   'to be native-like.\n')
         fOUT.write(
-            'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\toverall\tdope\trSurf\trHydroph\n')
+            'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\t'
+            'overall\tdope\trSurf\trHydroph\n')
         for mydir in dirs[1:]:
             try:
                 os.chdir(mydir)
@@ -311,17 +324,20 @@ if (__name__ == '__main__'):
                 except:
                     os.mkdir('procheck/')
                 os.chdir('procheck/')
-                for prot in gl.glob('../*.B99990001.pdb'):
+                for prot in glob.glob('../*.B99990001.pdb'):
                     mydir, trans = os.path.split(prot)
                     pref = trans.split('.')[0]
-                    lenModel = computeLenModel('../'+pref)
-                    lenFull, percentSS = computeSS('../'+pref)
-                    dihedrals, covalent, overall = assessQuality(
+                    lenModel = mi.computeLenModel('../'+pref)
+                    lenFull, percentSS = mi.computeSS('../'+pref)
+                    dihedrals, covalent, overall = mi.assessQuality(
                         PROCHECK, prot, pref)
-                    zscore = assessNormalizedDopeScore(prot)
-                    rSurf, rHydroph = computeRatioSASA(NACCESS, prot, pref)
-                    fOUT.write(pref + '\t' + str(lenFull) + '\t' + str(percentSS) + '\t' + str(lenModel) + '\t' + dihedrals +
-                               '\t' + covalent + '\t' + overall + '\t' + str(zscore) + '\t' + str(rSurf) + '\t' + str(rHydroph) + '\n')
+                    zscore = mi.assessNormalizedDopeScore(prot)
+                    rSurf, rHydroph = mi.computeRatioSASA(NACCESS, prot, pref)
+                    fOUT.write(pref + '\t' + str(lenFull) + '\t' +
+                               str(percentSS) + '\t' + str(lenModel) +
+                               '\t' + dihedrals + '\t' + covalent +
+                               '\t' + overall + '\t' + str(zscore) +
+                               '\t' + str(rSurf) + '\t' + str(rHydroph) + '\n')
                 os.chdir('..')
                 os.system('rm -r procheck/')
                 os.chdir('..')

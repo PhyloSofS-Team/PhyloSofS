@@ -20,7 +20,9 @@ def findSplit(treeStr):
     end = len(treeStr)
     while index == 0 and start > -1:
         i = treeStr.find(",", start, end)
-        if treeStr[0:i].count("(") == treeStr[0:i].count(")") and treeStr[i+1:len(treeStr)].count("(") == treeStr[i+1:len(treeStr)].count(")"):
+        if treeStr[0:i].count("(") == treeStr[0:i].count(")") and \
+            treeStr[i+1:len(treeStr)].count("(") == \
+                treeStr[i+1:len(treeStr)].count(")"):
             index = i
         else:
             if i == -1:
@@ -29,7 +31,8 @@ def findSplit(treeStr):
                 start = i+1
     return(index)
 
-# Given a string representing a tree in Newick format, and a list of transcripts
+# Given a string representing a tree in Newick format,
+# and a list of transcripts
 # Create a NetworkX graph
 
 
@@ -99,8 +102,10 @@ def getExons(transSet):
 
 # filter based on conservation: remove exons that appear only once
 # be aware that the transcripts containing these exon are not eliminated
-# the number of transctips can still be reduced (the removed exon was the only difference)
-# this is equivalent to setting a cost of zero for the any change of state associated to these exons
+# the number of transctips can still be reduced
+# (the removed exon was the only difference)
+# this is equivalent to setting a cost of zero for the any change of
+# state associated to these exons
 
 
 def getExonsPruned(t):
@@ -108,20 +113,21 @@ def getExonsPruned(t):
     transSet = getTranscripts(t)
     for tr in transSet:
         for e in tr:
-            if res.has_key(e):
+            if e in res:
                 res[e] += 1.0
             else:
                 res[e] = 1.0
-    resPruned = [i for i in res.keys() if res.get(i) > 1]
+    # resPruned = [i for i in res.keys() if res.get(i) > 1]
     tbrm = [i for i in res.keys() if res.get(i) < 2]
     for n in t.nodes():
         if nx_utils.successors(t, n) == []:
-            #print t.node[n]['trans']
+            # print t.node[n]['trans']
             for k in range(len(t.node[n]['trans'])):
                 for e in tbrm:
-                    t.node[n]['trans'][k] = t.node[n]['trans'][k].replace(e, '')
+                    t.node[n]['trans'][k] = \
+                        t.node[n]['trans'][k].replace(e, '')
             t.node[n]['trans'] = list(set(t.node[n]['trans']))
-            #print t.node[n]['trans']
+            # print t.node[n]['trans']
 
     return [i for i in res.keys() if res.get(i) > 1]
 
@@ -130,10 +136,10 @@ def getExonsPruned(t):
 
 def getExonOccur(transSet):
     res = {}
-    #print len(transSet)
+    # print len(transSet)
     for t in transSet:
         for e in t:
-            if res.has_key(e):
+            if e in res:
                 res[e] += 1.0/len(transSet)
             else:
                 res[e] = 1.0/len(transSet)

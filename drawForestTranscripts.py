@@ -2,8 +2,8 @@
 """
 Created on Wed Sep  3 21:32:58 2014
 
-A set of function to output a forest of transcripts, given a reconstructed set of trees
-
+A set of function to output a forest of transcripts, given a reconstructed
+set of trees
 
 @author: hrichard (contributions from elaine)
 """
@@ -17,9 +17,9 @@ import os
 import nx_utils
 
 # TODO list of features:
-#_fix coloring in the exons
-#_add weblinks to ensembl
-#_get the set of
+# fix coloring in the exons
+# add weblinks to ensembl
+# get the set of
 
 TESTING = True
 
@@ -57,7 +57,8 @@ def TranscriptsTable(T, n, iconf=0, nexons=None):
 
 def TabToRecord(tab):
     """
-    output the string for a graphviz record label for the list of transcripts tab
+    output the string for a graphviz record label for the
+    list of transcripts tab
     """
     return ["[label = \"{" + " | ".join(tr) + "}\"]" for tr in tab]
 
@@ -72,8 +73,9 @@ def isATree(T):
 
 def DotAllConfigurations(LT, outdir, prefix="forest_"):
     """
-    From a list LT of transcripts, writes down the set of Graphviz dot files for all configurations
-    in the directory outdir and compiles a pdf file with all graphs as outdir.pdf
+    From a list LT of transcripts, writes down the set of Graphviz dot
+    files for all configurations in the directory outdir and compiles a
+    pdf file with all graphs as outdir.pdf
     """
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
@@ -90,14 +92,17 @@ def DotAllConfigurations(LT, outdir, prefix="forest_"):
 def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     """
     From a forest T of transcripts, writes down the Graphviz graph to fileout
-    which corresponds to the configuration iconf
-    Optionnally reports the transcript structure at the leaves with the parameter leafTranscripts
+    which corresponds to the configuration iconf.
+    Optionnally reports the transcript structure at the leaves with
+    the parameter leafTranscripts.
     Additional parameters can be passed to the graph with **args.
     """
-    # TODO: get species ID for all the leaf nodes, this should be set somewhere in the tree
+    # TODO: get species ID for all the leaf nodes, this should be set
+    #       somewhere in the tree
     # TODO: add the score of the tree where can we get this value ?
     dot_T = pgv.AGraph(directed=True, strict=True, rankdir="TB",  newrank=True,
-                       outputorder="edgesfirst", margin="0.0", splines=False, **args)
+                       outputorder="edgesfirst", margin="0.0",
+                       splines=False, **args)
     dot_T.edge_attr.update(weight='1', minlen='4', dir='none')
     dot_T.node_attr.update(shape='egg', style='filled',
                            width='1', height='0.7')  # 0.1
@@ -108,17 +113,18 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     nbDeaths = 0
     # Get the conf number at each node for each configuration
     # get the total number of transcripts
-    # TODO if transcript structure is asked, add a node for each structure in the subgraph, and
-    # impose the sink level for the structure nodes under the transcript node
+    # TODO if transcript structure is asked, add a node for
+    #      each structure in the subgraph, and impose the sink
+    #      level for the structure nodes under the transcript node
     fout = open(fileout+"_config"+str(iconf)+".info", "w")
     fout2 = open(fileout+"_config"+str(iconf)+".sum", "w")
-    #print nodes
+    # print nodes
     for n in sorted(nx.topological_sort(T)):
         # create as many nodes as transcripts for the given configuration
         nlist = ["%d_%d" % (n, i) for i in range(ntranscripts(T, n))]
-        #print T.node[n]
+        # print T.node[n]
         for k in range(len(nlist)):
-            #print T.node[n]['trans'][k]
+            # print T.node[n]['trans'][k]
             fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
             dot_T.add_node(nlist[k], label="")
         fout.write("\n")
@@ -126,22 +132,25 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
             parent = nx_utils.predecessors(T, n)[0]
             if sorted(nx_utils.successors(T, parent)).index(n) == 0:
                 choice = RIGHT
-                #print "I'm right", n, "my parent is", parent, T.node[parent][RIGHT]
+                # print "I'm right", n, "my parent is", parent,
+                #     T.node[parent][RIGHT]
             else:
                 choice = LEFT
-                #print "I'm left", n, "my parent is", parent, T.node[parent][LEFT]
+                # print "I'm left", n, "my parent is", parent,
+                #     T.node[parent][LEFT]
             for l in T.node[parent][choice]:
-                #sl_t = "%d_%d" % (sl,l)
+                # sl_t = "%d_%d" % (sl,l)
                 # ajoute un noeud square pour les morts
                 # Pbme, il est pas du bon côté
                 t_death = "%d_%d_death" % (n, l)
                 nbDeaths = nbDeaths + 1
-                #print t_death
-                dot_T.add_node(t_death, shape="triangle", label="", width='0.3')
+                # print t_death
+                dot_T.add_node(t_death, shape="triangle",
+                               label="", width='0.3')
                 nlist.append(t_death)
-                #dot_T.add_edge(dad_t, t_death)
-                #i = i + 1
-                #dad_t = "%d_%d" % (n,i)
+                # dot_T.add_edge(dad_t, t_death)
+                # i = i + 1
+                # dad_t = "%d_%d" % (n,i)
                 # dot_T.add_nodes_from(nlist)
         currank = "same"
         # all species are pushed at the bottom of the tree
@@ -149,24 +158,25 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
             currank = "sink"
             nspecies.extend(nlist)
         dot_T.add_subgraph(nlist, name="cluster_%d" % (n),
-                           label="", rank=currank)  # "%d" % (n), rank = currank)
+                           label="", rank=currank)  # "%d" % (n),rank=currank)
         for fn in nlist:
             forest_nodes[fn] = currank
     fout.close()
     # All actual species have to be at the same level
-    #dot_T.add_subgraph(nspecies, rank = "sink")
-    #for fn in nspecies: forest_nodes[fn] = "sink"
+    # dot_T.add_subgraph(nspecies, rank = "sink")
+    # for fn in nspecies: forest_nodes[fn] = "sink"
 
     def _testcreate(s, e, d):
         # simple logging of errors, should raise
         a = [i for (i, x) in enumerate(
-            [not d.has_key(s), not d.has_key(e)]) if x]
+            [s not in d, e not in d]) if x]
         if len(a) > 0:
             print "**** Error when creating edge from %s to %s *****" % (s, e)
             for x in a:
                 print "%s does not exist" % ([s, e][x])
     # Drawing all the edges from the internal nodes
-    for n in filter(lambda x: nx_utils.get_out_degree(T, x) > 0, nx.topological_sort(T)):
+    for n in filter(lambda x: nx_utils.get_out_degree(T, x) > 0,
+                    nx.topological_sort(T)):
         i = 0
         for i_tr in TOPOATTRIBUTES:
             dad_t = "%d_%d" % (n, i)
@@ -190,8 +200,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # ajoute un noeud square pour les morts
                     # Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sr, l)
-                    #print t_death
-                    #dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
+                    # print t_death
+                    # dot_T.add_node(t_death, shape = "triangle", label = "",
+                    #     width='0.3')
                     dot_T.add_edge(dad_t, t_death)
                     i = i + 1
                     dad_t = "%d_%d" % (n, i)
@@ -204,8 +215,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # ajoute un noeud square pour les morts
                     # Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sl, r)
-                    #print t_death
-                    #dot_T.add_node(t_death, shape = "triangle", label = "", width='0.3')
+                    # print t_death
+                    # dot_T.add_node(t_death, shape = "triangle",
+                    #     label = "", width='0.3')
                     dot_T.add_edge(dad_t, t_death)
                     i = i + 1
                     dad_t = "%d_%d" % (n, i)
@@ -214,12 +226,13 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                 raise "Error in drawing"
     # TODO Still needs a function drawing all the ancestral transcripts at the
     # nodes
-    # getting all sets of transcripts which are related (same connected component)
+    # getting all sets of transcripts which are related
+    # (same connected component)
     # and print them with the same color symbol
-    #print "Nodes of dot_T"
-    #print dot_T.nodes()
-    #print "edges"
-    #print dot_T.edges()
+    # print "Nodes of dot_T"
+    # print dot_T.nodes()
+    # print "edges"
+    # print dot_T.edges()
 
     # NetworkX 1.11: nx_agraph is not longer imported from
     ntr_totAll = len(sorted(nx.connected_components(
@@ -270,21 +283,23 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
 #        transT2 = pickle.load(f)
 #
 #    ForestToDot(transT, "test.dot")
-#    status = subprocess.call("dot" + " -Tpdf -o test.pdf test.dot", shell = True)
+#    status = subprocess.call("dot" + " -Tpdf -o test.pdf test.dot",shell=True)
 #
 #    ForestToDot(transT2[0], "tmult1.dot", 0)
-#    status = subprocess.call("dot" + " -Tpdf -o tmult1.pdf tmult1.dot", shell = True)
+#    status = subprocess.call("dot" + " -Tpdf -o tmult1.pdf tmult1.dot",
+#                             shell=True)
 #
 #    #ForestToDot(transTmultiple, "tmult2.dot", 1)
-#    #status = subprocess.call("dot" + " -Tpdf -o tmult2.pdf tmult2.dot", shell = True)
+#    #status = subprocess.call("dot" + " -Tpdf -o tmult2.pdf tmult2.dot",
+#                              shell=True)
 
 # with open(fichier, 'rb') as f:
 #    transU = pickle.load(f)
-#count = 0
+# count = 0
 # for i in transU :
-#	ForestToDot(i, "test.dot")
-#	status = subprocess.call("dot" + " -Tpdf -o Res_"+str(count)+".pdf test.dot", shell = True)
-#	count = count + 1
-
-#ForestToDot(transU[1], "test1.dot")
-#status = subprocess.call("dot" + " -Tpdf -o test1.pdf test.dot", shell = True)
+#   ForestToDot(i, "test.dot")
+#   status = subprocess.call("dot" + " -Tpdf -o Res_" + str(count) +
+#                            ".pdf test.dot", shell = True)
+#   count = count + 1
+# ForestToDot(transU[1], "test1.dot")
+# status = subprocess.call("dot" + " -Tpdf -o test1.pdf test.dot", shell=True)

@@ -1,7 +1,7 @@
 import networkx as nx
 from distutils.version import LooseVersion
 
-# successors, predecessors and edges returns a generator/iterator after version 2.0 :
+# successors, predecessors and edges returns a generator/iterator after v2.0 :
 if LooseVersion(nx.__version__) < LooseVersion('2.0'):
     def successors(nx_graph, node):
         return nx_graph.successors(node)
@@ -22,7 +22,8 @@ else:
     def get_edge_list(nx_graph):
         return [e for e in nx_graph.edges()]
 
-# NetworkX 2.0: The degree of an individual node can be calculated by G.degree[node]
+# NetworkX 2.0: The degree of an individual node can be calculated by
+# G.degree[node]
 if LooseVersion(nx.__version__) < LooseVersion('2.0'):
     def get_out_degree(nx_graph, node):
         return nx_graph.out_degree(node)
