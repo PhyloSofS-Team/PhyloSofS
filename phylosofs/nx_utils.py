@@ -1,3 +1,7 @@
+# Copyright (c) 2014-2018: Diego Javier Zea.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
 import networkx as nx
 from distutils.version import LooseVersion
 

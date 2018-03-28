@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Sep  3 21:32:58 2014
 
+# Copyright (c) 2014-2018: Hugues Richard, Elodie Laine and Diego Javier Zea.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
+"""
 A set of function to output a forest of transcripts, given a reconstructed
 set of trees
-
-@author: hrichard (contributions from elaine)
 """
 
 import networkx as nx

@@ -1,9 +1,12 @@
+# Copyright (c) 2014-2018: Adel Ait-hamlat, Diego Javier Zea and Elodie Laine.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
 # Modele d'inference de phylogenies de transcrits
 # Pour etudier l'apparition et la fixation
 # d'evenements d'epissage au cours de l'evolution
 
 # initialisation of the data
-# Par Adel Ait-hamlat & Elodie Laine
 
 from __future__ import division
 import networkx as nx

@@ -4,6 +4,7 @@ __MACOSX/
 
 # PYTHON
 __pycache__/
+phylosofs.egg-info/
 *.py[cod]
 *$py.class
 

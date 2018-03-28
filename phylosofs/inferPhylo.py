@@ -1,9 +1,13 @@
+# Copyright (c) 2014-2018: Elodie Laine, Hugues Richard, Adel Ait-hamlat
+# and Diego Javier Zea.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
 # Modele d'inference de phylogenies de transcrits
 # Pour etudier l'apparition et la fixation
 # d'evenements d'epissage au cours de l'evolution
 
 # all necessary functions
-# Par Elodie Laine, Hugues Richard, Adel Ait-hamlat
 
 from __future__ import division
 import time

@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2014-2018: Adel Ait-hamlat, Elodie Laine, Lélia Polit
+# and Diego Javier Zea.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
 # module to reconstruct 3D models of isoforms
-# authors: Adel Ait-Hamlat, Elodie Laine and Lelia Polit
-# usage:
 
 import glob
 import os

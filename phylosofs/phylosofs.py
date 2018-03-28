@@ -1,13 +1,11 @@
+# Copyright (c) 2014-2018: Elodie Laine, Hugues Richard, Adel Ait-hamlat
+# and Diego Javier Zea.
+# This code is part of the phylosofs package and governed by its license.
+# Please see the LICENSE.txt file included as part of this package.
+
 # Modele d'inference de phylogenies de transcrits
 # Pour etudier l'apparition et la fixation
 # d'evenements d'epissage au cours de l'evolution
-
-# Par Elodie Laine, Hugues Richard, Adel Ait-hamlat
-# Usage: python transPhyl3.py CB CD cm SUFF
-# CB: birth cost
-# CD: death cost
-# cm: mutation cost
-# SUFF: suffix for the output files
 
 from __future__ import division
 import sys
@@ -19,9 +17,13 @@ import pickle as pk
 import inferPhylo as ip
 import modelIsoforms as mi
 
+# CB: birth cost
+# CD: death cost
+# cm: mutation cost
+# SUFF: suffix for the output files
 
 def printUsage():
-    print """Usage: python phylosofs.py
+    print """Usage: phylosofs
              Mandatory:
              ==========
                         -c            text file containing values for parameters (for molecular modeling part)
@@ -55,7 +57,7 @@ def printUsage():
                                       phylogeny to be printed out (if the -printOnly option is active)"""
 
 
-if (__name__ == '__main__'):
+def main():
 
     nb_arguments = len(sys.argv)
     if(nb_arguments < 2):
@@ -344,3 +346,7 @@ if (__name__ == '__main__'):
             except:
                 print 'Problem with ' + mydir
         fOUT.close()
+
+
+if (__name__ == '__main__'):
+    main()
