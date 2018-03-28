@@ -7,34 +7,35 @@ import os
 import shutil  # TODO : Check if os or shutil.os is used.
 import warnings
 import ConfigParser
-config = ConfigParser.ConfigParser()
+_config = ConfigParser.ConfigParser()
 
 try:
     import modeller
-    MODELLER_MESSAGE = ""
+    _modeller_message = ""
 except ImportError:
     warnings.warn('modeller is not installed', ImportWarning)
-    MODELLER_MESSAGE = "Please install modeller: https://salilab.org/modeller/"
+    _modeller_message = "Please install modeller: " \
+                        "https://salilab.org/modeller/"
 
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
 
 
 def init(configFile):
 
-    config.read(os.path.expanduser(configFile))
+    _config.read(os.path.expanduser(configFile))
     # upload paths for librairies
-    HHBLITS = config.get("PROGRAMS", "HHBLITS")
-    ADDSS = config.get("PROGRAMS", "ADDSS")
-    HHMAKE = config.get("PROGRAMS", "HHMAKE")
-    HHSEARCH = config.get("PROGRAMS", "HHSEARCH")
-    HHMODEL = config.get("PROGRAMS", "HHMODEL")
-    PROCHECK = config.get("PROGRAMS", "PROCHECK")
-    NACCESS = config.get("PROGRAMS", "NACCESS")
-    HHDB = config.get("DATABASES", "HHDB")
-    STRUCTDB = config.get("DATABASES", "STRUCTDB")
-    ALLPDB = config.get("DATABASES", "ALLPDB")
-    NCPU = config.get("OPTIONS", "NCPU")
-    CONTEXTLIB = config.get("DATA", "CONTEXTLIB")
+    HHBLITS = _config.get("PROGRAMS", "HHBLITS")
+    ADDSS = _config.get("PROGRAMS", "ADDSS")
+    HHMAKE = _config.get("PROGRAMS", "HHMAKE")
+    HHSEARCH = _config.get("PROGRAMS", "HHSEARCH")
+    HHMODEL = _config.get("PROGRAMS", "HHMODEL")
+    PROCHECK = _config.get("PROGRAMS", "PROCHECK")
+    NACCESS = _config.get("PROGRAMS", "NACCESS")
+    HHDB = _config.get("DATABASES", "HHDB")
+    STRUCTDB = _config.get("DATABASES", "STRUCTDB")
+    ALLPDB = _config.get("DATABASES", "ALLPDB")
+    NCPU = _config.get("OPTIONS", "NCPU")
+    CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
 
     return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
            STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
@@ -242,8 +243,8 @@ def splitChainsPDB(fic, code, ext):
 
 
 def assessNormalizedDopeScore(pdb):
-    if MODELLER_MESSAGE != "":
-        raise ImportError(MODELLER_MESSAGE)
+    if _modeller_message != "":
+        raise ImportError(_modeller_message)
 
     env = modeller.environ()
     env.libs.topology.read(file='$(LIB)/top_heav.lib')
@@ -315,9 +316,9 @@ def computeRatioSASA(NACCESS, prot, pref):
 
 
 def model3D(fic, ALLPDB):
-    if MODELLER_MESSAGE != "":
-        raise ImportError(MODELLER_MESSAGE)
-    
+    if _modeller_message != "":
+        raise ImportError(_modeller_message)
+
     modeller.log.verbose()    # request verbose output
     env = modeller.environ()  # create a new MODELLER environment to build ...
     # ... this model in
@@ -340,7 +341,8 @@ def model3D(fic, ALLPDB):
             splitChainsPDB('pdb'+kn+'.ent', kn, 'pdb')
     knowns = tuple(knowns)
 
-    a = modeller.automodel.automodel(env, alnfile=fic, knowns=knowns, sequence=seq)
+    a = modeller.automodel.automodel(env, alnfile=fic, knowns=knowns,
+                                     sequence=seq)
     a.starting_model = 1                 # index of the first model
     a.ending_model = 1                 # index of the last model
     # (determines how many models to calculate)
