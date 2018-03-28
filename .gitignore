@@ -4,9 +4,12 @@ __MACOSX/
 
 # PYTHON
 __pycache__/
-phylosofs.egg-info/
 *.py[cod]
 *$py.class
+# installation
+phylosofs.egg-info/
+# py.test
+.pytest_cache/
 
 # JUPYTER
 .ipynb_checkpoints
