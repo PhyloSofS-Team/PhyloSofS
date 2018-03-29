@@ -2,7 +2,6 @@ language: python
 
 os:
   - linux
-  - osx
 
 addons:
   apt:
@@ -14,12 +13,6 @@ python:
 
 notifications:
   email: false
-
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      brew update;
-      brew install python;
-    fi
 
 install:
   - pip install pytest pytest-cov coveralls
