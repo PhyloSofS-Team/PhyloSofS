@@ -4,6 +4,11 @@ os:
   - linux
   - osx
 
+addons:
+  apt:
+    packages:
+      - graphviz
+
 python:
   - 2.7
 
@@ -11,6 +16,10 @@ notifications:
   email: false
 
 install:
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    brew update
+    brew install python
+  fi
   - pip install pytest pytest-cov coveralls
   - python setup.py install
 
