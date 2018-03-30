@@ -10,8 +10,8 @@ init:
 
 install:
   # - cinst graphviz
-  - choco install -y pip
-  - choco install -y graphviz
+  - choco install pip
+  - choco install graphviz
   # - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   # - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda
