@@ -19,4 +19,4 @@ install:
   - python setup.py install
 
 script:
-  - py.test --cov=phylosfs --cov-report term-missing
+  - py.test --cov=phylosofs --cov-report term-missing
