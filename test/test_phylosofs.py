@@ -1,3 +1,4 @@
+import phylosofs
 import unittest
 import subprocess
 import filecmp

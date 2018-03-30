@@ -10,6 +10,7 @@ __pycache__/
 phylosofs.egg-info/
 # py.test
 .pytest_cache/
+.coverage
 
 # JUPYTER
 .ipynb_checkpoints
