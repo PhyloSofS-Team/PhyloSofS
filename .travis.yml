@@ -20,7 +20,7 @@ notifications:
 install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py --no-setuptools --no-wheel --ignore-installed; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install pytest pytest-cov coveralls codecov --user --ignore-installed; else python -m pip install pytest pytest-cov coveralls codecov; fi
-  - python setup.py install
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python setup.py install --user --ignore-installed; else python setup.py install; fi
 
 script:
   - py.test --cov=phylosofs --cov-report term-missing
