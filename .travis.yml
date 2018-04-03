@@ -24,8 +24,8 @@ install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install . --user --ignore-installed; else python setup.py install; fi
 
 script:
-  - py.test --cov=phylosofs --cov-report term-missing
+  - python -m pytest --cov=phylosofs --cov-report term-missing
 
 after_success:
-  - coveralls
-  - codecov
+  - python -m coveralls
+  - python -m codecov
