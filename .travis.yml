@@ -6,6 +6,7 @@ matrix:
           sudo: required
           python: 2.7
         - os: osx
+          sudo: required
           language: generic
 
 addons:
@@ -17,7 +18,7 @@ notifications:
   email: false
 
 install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; python get-pip.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py; fi
   - pwd
   - ls
   - python -m pip install pytest pytest-cov
