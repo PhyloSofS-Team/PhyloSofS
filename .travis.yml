@@ -18,7 +18,7 @@ notifications:
   email: false
 
 install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py --no-setuptools --no-wheel; fi
   - pwd
   - ls
   - python -m pip install pytest pytest-cov
