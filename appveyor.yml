@@ -23,7 +23,7 @@ install:
   # - activate test-environment
   - git clone https://github.com/pygraphviz/pygraphviz.git
   - cd pygraphviz
-  - python setup.py install --include-path="C:\graphviz\include" --library-path="C:\graphviz\lib\release\lib"
+  - python setup.py install --include-path="C:\projects\phylosofs-fku85\graphviz\include" --library-path="C:\projects\phylosofs-fku85\graphviz\lib\release\lib"
   - cd ..
   # - pip install pygraphviz --include-path="C:\graphviz\Graphviz2.38\include" --library-path="C:\graphviz\Graphviz2.38\lib\release\lib"
   # - pip install --global-option=build_ext --global-option="-IQ:\include" --global-option="-LQ:\lib\release\lib" pygraphviz
