@@ -6,7 +6,6 @@ matrix:
           sudo: required
           python: 2.7
         - os: osx
-          sudo: required
           language: generic
 
 addons:
@@ -18,7 +17,7 @@ notifications:
   email: false
 
 install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo easy_install pip; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew uninstall python; brew install python; fi
   - python -m pip install pytest pytest-cov
   - python -m pip install coveralls
   - python -m pip install codecov
