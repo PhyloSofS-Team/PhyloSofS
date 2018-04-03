@@ -11,7 +11,10 @@ init:
 install:
   # - cinst graphviz
   - choco install graphviz
-  - subst Q: "C:\\Program Files (x86)\\Graphviz2.38"
+  - mklink /D graphviz "C:\\Program Files (x86)\\Graphviz2.38"
+  - cd
+  - dir
+  ## - subst Q: "C:\\Program Files (x86)\\Graphviz2.38"
   # - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   # - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda
@@ -20,7 +23,7 @@ install:
   # - activate test-environment
   - git clone https://github.com/pygraphviz/pygraphviz.git
   - cd pygraphviz
-  - python setup.py install --include-path="Q:\include" --library-path="Q:\lib\release\lib"
+  - python setup.py install --include-path="C:\graphviz\include" --library-path="C:\graphviz\lib\release\lib"
   - cd ..
   # - pip install pygraphviz --include-path="C:\graphviz\Graphviz2.38\include" --library-path="C:\graphviz\Graphviz2.38\lib\release\lib"
   # - pip install --global-option=build_ext --global-option="-IQ:\include" --global-option="-LQ:\lib\release\lib" pygraphviz
