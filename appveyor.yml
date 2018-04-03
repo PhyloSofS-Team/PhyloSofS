@@ -23,7 +23,8 @@ install:
   ## - python setup.py install --include-path="C:\graphviz\Graphviz2.38\include" --library-path="C:\graphviz\Graphviz2.38\lib\release\lib"
   ## - cd ..
   # - pip install pygraphviz --include-path="C:\graphviz\Graphviz2.38\include" --library-path="C:\graphviz\Graphviz2.38\lib\release\lib"
-  - pip install --global-option=build_ext --global-option="-IQ:\include" --global-option="-LQ:\lib\release\lib" pygraphviz
+  ##- pip install --global-option=build_ext --global-option="-IQ:\include" --global-option="-LQ:\lib\release\lib" pygraphviz
+  - pip install pygraphviz --include-path="Q:\include" --library-path="Q:\lib\release\lib"
   - pip install pytest
   - pip install .
 
