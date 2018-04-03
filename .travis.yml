@@ -17,7 +17,9 @@ notifications:
   email: false
 
 install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew unlink python && brew link python; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; python get-pip.py; fi
+  - pwd
+  - ls
   - python -m pip install pytest pytest-cov
   - python -m pip install coveralls
   - python -m pip install codecov
