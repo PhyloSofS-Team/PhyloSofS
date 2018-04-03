@@ -17,15 +17,12 @@ notifications:
   email: false
 
 install:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then alias pip='pip2' ; fi
-  - pip install pytest pytest-cov
-  - pip install coveralls
-  # - pip install coverage
-  - pip install codecov
+  - python -m pip install pytest pytest-cov
+  - python -m pip install coveralls
+  - python -m pip install codecov
   - python setup.py install
 
 script:
-  # - coverage run test/test_phylosofs.py
   - py.test --cov=phylosofs --cov-report term-missing
 
 after_success:
