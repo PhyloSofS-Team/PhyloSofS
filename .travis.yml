@@ -21,7 +21,7 @@ install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py --no-setuptools --no-wheel --ignore-installed; fi
   - pwd
   - ls
-  - python -m pip install pytest pytest-cov
+  - python -m pip install pytest pytest-cov --ignore-installed
   - python -m pip install coveralls
   - python -m pip install codecov
   - python setup.py install
