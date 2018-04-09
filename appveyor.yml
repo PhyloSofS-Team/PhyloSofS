@@ -14,4 +14,4 @@ install:
   - pip install .
 
 test_script:
-  - py.test
+  - py.test --doctest-modules
