@@ -9,26 +9,7 @@ init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
 
 install:
-  # - cinst graphviz
   - choco install graphviz
-  - mklink /D graphviz "C:\\Program Files (x86)\\Graphviz2.38"
-  - cd
-  - dir
-  ## - subst Q: "C:\\Program Files (x86)\\Graphviz2.38"
-  # - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  # - conda config --set always_yes yes --set changeps1 no
-  # - conda update -q conda
-  # - conda info -a
-  # - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose"
-  # - activate test-environment
-  ## - git clone https://github.com/pygraphviz/pygraphviz.git
-  ## - cd pygraphviz
-  ##- python setup.py install --include-path="C:\projects\phylosofs-fku85\graphviz\include" --library-path="C:\projects\phylosofs-fku85\graphviz\lib\release\lib"
-  ##- cd ..
-  # - pip install pygraphviz --include-path="C:\graphviz\Graphviz2.38\include" --library-path="C:\graphviz\Graphviz2.38\lib\release\lib"
-  # - pip install --global-option=build_ext --global-option="-IQ:\include" --global-option="-LQ:\lib\release\lib" pygraphviz
-  # - pip install pygraphviz --include-path="Q:\include" --library-path="Q:\lib\release\lib"
-  - pip install pygraphviz --install-option="--include-path=C:\projects\phylosofs-fku85\graphviz\include" --install-option="--library-path=C:\projects\phylosofs-fku85\graphviz\lib\release\lib" 
   - pip install pytest
   - pip install .
 

@@ -24,7 +24,7 @@ setup(
     install_requires=[
         "numpy",      # handle transcript tables
         "networkx",   # handle phylogenetic trees
-        "pygraphviz"  # visualization of the phylogenies
+        "pydot"       # visualization of the phylogenies
     ],
     entry_points={
         'console_scripts': [
