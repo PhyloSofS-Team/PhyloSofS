@@ -43,12 +43,7 @@ class Test_PhyloSofS(unittest.TestCase):
         self.assertGreater(len(os.listdir("test/tmp/betterTrees")), 0)
 
     def tearDown(self):
-        for root, dirs, files in os.walk(PATH_TMP):
-            for f in files:
-                os.unlink(os.path.join(root, f))
-            for d in dirs:
-                shutil.rmtree(os.path.join(root, d))
-
+        phylosofs.utils.clear_folder(PATH_TMP)
 
 if __name__ == '__main__':
     unittest.main()

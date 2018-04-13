@@ -16,6 +16,7 @@ import glob
 import random
 import initData
 import pickle as pk
+import utils
 import inferPhylo as ip
 import modelIsoforms as mi
 import argparse
@@ -433,7 +434,8 @@ def main(doPhylo,
                                    '\t' + str(rSurf) + 
                                    '\t' + str(rHydroph) + '\n')
                     os.chdir('..')
-                    os.system('rm -r procheck/')
+                    utils.clear_folder('procheck')
+                    os.rmdir('procheck')
                     os.chdir('..')
                 except:
                     print 'Problem with ' + mydir
