@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (c) 2014-2018: Elodie Laine, Hugues Richard, Adel Ait-hamlat
 # and Diego Javier Zea.
 # This code is part of the phylosofs package and governed by its license.
@@ -16,194 +18,282 @@ import initData
 import pickle as pk
 import inferPhylo as ip
 import modelIsoforms as mi
+import argparse
 
 # CB: birth cost
 # CD: death cost
 # cm: mutation cost
 # SUFF: suffix for the output files
 
-def printUsage():
-    print """Usage: phylosofs
-             Mandatory:
-             ==========
-                        -c            text file containing values for parameters (for molecular modeling part)
-                        -inSeq        text file containing input data: string representing the gene tree in Newick format on the first line,
-                                      and then the list of transcripts for each leave (leaf_name: t1,t2,t3...)
-                        -mode         P and/or M for phylogenetic inference and/or molecular modeling
-             Optional:
-             =========
-                        -b            birth cost (by default: 5)
-                        -d            death cost (by default: 3)
-                        -inStruct     text file Fcontaining input data: either a directory where multifasta files
-                                      are located (one file per species) or a single fasta file with the sequence
-                                      of only one transcript (in that case, the uniq option must be set to TRUE)
-                                      (by default, the current directory is used)
-                        -m            mutation cost (by default: 2)
-                        -ni           number of iterations (by default: 1)
-                        -nt           number of templates to retain (by default: 5)
-                        -noPrune      disable the removal of exons that appear in only one transcript
-                        -o            output directory (by default: $PWD)
-                        -only3D       perform only the 3D modeling step (skip template search)
-                        -onlyQuality  perform only the 3D models quality assessment
-                        -printOnly    perform only the generation of the PDF file enabling to visualize a transcripts'
-                                      phylogeny given as input via the option -topo
-                        -uniq         treat only one transcript whose sequence is taken from the fasta file
-                                      indicated by the -i option
-                        -s            starting score (by default: not considered), if no score is given, the algorithm starts the search
-                                      by the topology corresponding to the maximum number of binary subnodes at each nodes (forest with
-                                      the smallest possible number of trees), otherwise it starts from a randomly chosen topology
-                        -suff         suffix (by default: _bdm_n)
-                        -topo         initial topology (by default: maximum or random topology), or transcripts'
-                                      phylogeny to be printed out (if the -printOnly option is active)"""
+
+def check_argument_groups(parser, arg_dict, group, argument, required):
+    """
+    Check for use of arguments.
+
+    Raise an error if the parser uses an argument that belongs to an argument
+    group (i.e. mode) but the group flag is not used or if the argument is
+    required in the argument group and it's not used.
+    Notes:
+    - argument and group should be strings and should start with - or --
+    - group should be a flag with action 'store_true'
+    - argument shouldn't be a flag, and should be None if it isn't used.
+
+    >>> import argparse
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('--phylo', action='store_true')
+    ...
+    >>> parser.add_argument('--inseq')
+    ...
+    >>> args = parser.parse_args(['--phylo', '--inseq', 'not_none'])
+    >>> check_argument_groups(parser, vars(args), '--group', '--inseq', True)
+    """
+    arg_name = argument.replace("-", "")
+    group_name = group.replace("-", "")
+    if not arg_dict[group_name]:
+        if arg_dict[arg_name] is not None:
+            parser.error("phylosofs requires " + group +
+                         " if " + argument + " is used.")
+    else:
+        if required and arg_dict[arg_name] is None:
+            parser.error("phylosofs requires " + argument +
+                         " if " + group + " is used.")
+    return None
 
 
-def main():
+def parse_command_line():
+    """
+    Parse command line.
 
-    nb_arguments = len(sys.argv)
-    if(nb_arguments < 2):
-        printUsage()
-        exit(1)
+    It uses argparse to parse phylosofs' command line arguments and returns the
+    argparse parser.
+    """
+    parser = argparse.ArgumentParser(
+        prog="phylosofs",
+        description="""
+        PhyloSofS (PHYLOgenies of Splicing isOforms Structures) is a tool
+        to model the evolution and structural impact of alternative
+        splicing events.
+        """,
+        epilog="""
+        If you use it, please cite:
 
+        Ait-hamlat A, Polit L, Richard H, Laine E. Transcripts evolutionary
+        conservation and structural dynamics give insights into the role of
+        alternative splicing for the JNK family. bioRxiv. 2017 Jan 1:119891.
+
+        It has been developed at LCQB (Laboratory of Computational and
+        Quantitative Biology), UMR 7238 CNRS, Sorbonne Université.
+        """,
+    )
+
+    parser.add_argument(
+        '-P', '--phylo',
+        help='Do the phylogenetic inference',
+        action='store_true'
+        )
+    parser.add_argument(
+        '-M', '--model',
+        help='Do the molecular modelling',
+        action='store_true'
+        )
+    parser.add_argument(
+        '--inseq',
+        help='text file containing input data: string representing '
+        'the gene tree in Newick format on the first line, and then '
+        'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
+    )
+    parser.add_argument(
+        '-c',
+        help='text file containing values for parameters '
+        '(for molecular modeling part)'
+    )  # REQUIRED
+    parser.add_argument(
+        '-b',
+        help='birth cost',
+        default=5
+    )
+    parser.add_argument(
+        '-d',
+        help='death cost',
+        default=3
+    )
+    parser.add_argument(
+        '--instruct',
+        help='text file containing input data: either a directory where '
+        'multifasta files are located (one file per species) or a single '
+        'fasta file with the sequence of only one transcript (in that '
+        'case, the unique option must be set to TRUE)',
+        default='.'
+    )
+    parser.add_argument(
+        '-m',
+        help='mutation cost',
+        default=2
+    )
+    parser.add_argument(
+        '--ni',
+        help='number of iterations',
+        default=1
+    )
+    parser.add_argument(
+        '--nt',
+        help='number of templates to retain',
+        default=5
+    )
+    parser.add_argument(
+        '--noprune',
+        help='disable the removal of exons that appear in only one transcript',
+        action='store_true'
+    )
+    parser.add_argument(
+        '-o',
+        help='output directory',
+        default='.'
+    )
+    parser.add_argument(
+        '--only3D',
+        help='perform only the 3D modeling step (skip template search)',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--onlyquality',
+        help='perform only the 3D models quality assessment',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--printonly',
+        help='perform only the generation of the PDF file enabling to '
+        'visualize the transcripts',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--uniq',
+        help='treat only one transcript whose sequence is taken from '
+        'the fasta file indicated by the -i option',
+        action='store_true'
+    )
+    parser.add_argument(
+        '-s',
+        help='starting score (by default: not considered), '
+        'if no score is given, the algorithm starts the search '
+        'by the topology corresponding to the maximum number of '
+        'binary subnodes at each nodes (forest with the smallest '
+        'possible number of trees), otherwise it starts from a '
+        'randomly chosen topology'
+    )
+    parser.add_argument(
+        '--suffix',
+        help='suffix, it is _(birth)(death)(mutation)_(iterations) by '
+        'default, e.g. _532_1'
+    )
+    parser.add_argument(
+        '--topo',
+        help="initial topology (by default: maximum or random topology), "
+        "or transcripts' phylogeny to be printed out "
+        "(if the -printonly option is active)"
+    )
+    parser.add_argument(
+        '--withmemory',
+        action='store_true'
+    )
+
+    args = parser.parse_args()
+
+    if args.phylo is None and args.model is None:
+        parser.error("phylosofs requires --phylo or/and --model flags.")
+
+    arg_dict = vars(args)
+
+    check_argument_groups(parser, arg_dict, '--phylo', '--inseq', True)
+    check_argument_groups(parser, arg_dict, '--model', '-c', True)
+
+    # Check flag arguments
+    if not args.model:
+        if args.only3D:
+            parser.error("phylosofs requires --model if --only3D is used.")
+
+    return args
+
+
+def main(doPhylo,
+         doModel,
+         inputFile,
+         configFile,
+         CB,  # birth cost
+         CD,  # death cost
+         pathTransSeqs,
+         cm,  # mutation cost
+         nbIt,  # number of iterations
+         nbTemp,
+         outputDir,
+         only3D,
+         onlyQuality,
+         starting_score,
+         SUFF,
+         topology_file,
+         uniq,
+         printOnly,
+         withMemory,
+         prune
+         ):
+    """
+    main(args.phylo,
+         args.model,
+         args.inseq,
+         args.c,
+         args.b,
+         args.d,
+         args.instruct,
+         args.m,
+         args.ni,
+         args.nt,
+         args.o,
+         args.only3D,
+         args.onlyquality,
+         args.s,
+         args.suffix,
+         args.topo,
+         args.uniq,
+         args.printonly,
+         args.withmemory,
+         not args.noprune
+         )
+    """
     random.seed()
 
-    doPhylo = False
-    doModel = False
+    if doPhylo:
+        if not os.path.isfile(inputFile):
+            sys.stderr.write("You must give a valid input file for phylogenetic inference.")
 
-    try:
-        mode = sys.argv[sys.argv.index("-mode")+1]
-        if "P" in mode:
-            doPhylo = True
-            try:
-                inputFile = sys.argv[sys.argv.index("-inSeq")+1]
-                os.path.isfile(inputFile)
-            except:
-                sys.stderr.write(
-                    "You must give an existing input text file for ",
-                    "phylogenetic inference. See usage instructions.\n\n")
-                exit(2)
-        if "M" in mode:
-            doModel = True
-            try:
-                configFile = sys.argv[sys.argv.index("-c")+1]
-                os.path.isfile(configFile)
-                HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
-                    HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(
-                        configFile)
-            except:
-                sys.stderr.write(
-                    "You must give an existing configuration file for "
-                    "molecular modeling. See usage instructions\n\n")
-                exit(2)
-    except:
-        sys.stderr.write(
-            "You must give at least one action to be performed by PhyloSofS. "
-            "See usage instructions.\n\n")
-        exit(2)
+    if doModel:
+        if os.path.isfile(configFile):
+            HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
+                HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
+        else:
+            sys.stderr.write("You must give an existing configuration file "
+                             " for molecular modeling. See usage instructions")
 
-    # birth cost
-    try:
-        CB = int(sys.argv[sys.argv.index("-b") + 1])
-    except:
-        CB = 5
-
-    # death cost
-    try:
-        CD = int(sys.argv[sys.argv.index("-d") + 1])
-    except:
-        CD = 3
-
-    try:
-        pathTransSeqs = sys.argv[sys.argv.index("-inStruct")+1]
-    except:
-        pathTransSeqs = "./"
-
-    # mutation cost
-    try:
-        cm = int(sys.argv[sys.argv.index("-m") + 1])
-    except:
-        cm = 2
-
-    # number of iterations
-    try:
-        nbIt = int(sys.argv[sys.argv.index("-ni") + 1])
-    except:
-        nbIt = 1
-
-    try:
-        nbTemp = int(sys.argv[sys.argv.index("-nt")+1])
-    except:
-        nbTemp = 5
-
-    # output directory
-    try:
-        outputDir = os.path.expanduser(sys.argv[sys.argv.index("-o")+1])
-    except:
-        outputDir = "./"
-
-    # only 3D model reconstruction for modeling part
-    try:
-        sys.argv[sys.argv.index("-only3D")]
-        only3D = True
-    except:
-        only3D = False
-
-    # only assess the quality of the 3D models for modeling part
-    try:
-        sys.argv[sys.argv.index("-onlyQuality")]
-        onlyQuality = True
-    except:
-        onlyQuality = False
-
-    # initial score
-    try:
-        initBest = int(sys.argv[sys.argv.index("-s")+1])
+    if starting_score is not None:
+        initBest = starting_score
         slowMode = True
-    except:
+    else:
         initBest = 0
         slowMode = False
 
-    # suffix
-    try:
-        SUFF = sys.argv[sys.argv.index("-suff")+1]
-    except:
-        SUFF = "_"+str(CB)+str(CD)+str(cm)+"_"+str(nbIt)
+    if SUFF is None:
+        SUFF = "_" + str(CB) + str(CD) + str(cm) + "_" + str(nbIt)
 
     # input topology
-    try:
-        f = sys.argv[sys.argv.index("-topo")+1]
-        topoStart = pk.load(open(f, 'rb'))
-    except:
+    if topology_file is not None:
+        topoStart = pk.load(open(topology_file, 'rb'))
+    else:
         topoStart = {}
 
     # only one transcript to be modeled
-    try:
-        sys.argv[sys.argv.index("-uniq")]
-        uniq = True
-        if '.fa' not in pathTransSeqs:
-            sys.stderr.write(
-                'You must give a fasta input file with option -uniq.')
-            exit(2)
-    except:
-        uniq = False
+    if uniq and '.fa' not in pathTransSeqs:
+        sys.stderr.write('You must give a fasta input file with option -uniq.')
+        # TODO: Change or document it
 
-    # print only the solution corresponding to the input topology
-    try:
-        sys.argv[sys.argv.index("-printOnly")]
-        printOnly = True
-    except:
-        printOnly = False
-
-    try:
-        sys.argv[sys.argv.index("-withMemory")]
-        withMemory = True
-    except:
-        withMemory = False
-
-    try:
-        sys.argv[sys.argv.index("-noPrune")]
-        prune = False
-    except:
-        prune = True
 
     ###################### phylogenetic inference ######################
 
@@ -349,4 +439,27 @@ def main():
 
 
 if (__name__ == '__main__'):
-    main()
+    
+    args = parse_command_line()
+
+    main(args.phylo,
+         args.model,
+         args.inseq,
+         args.c,
+         args.b,
+         args.d,
+         args.instruct,
+         args.m,
+         args.ni,
+         args.nt,
+         args.o,
+         args.only3D,
+         args.onlyquality,
+         args.s,
+         args.suffix,
+         args.topo,
+         args.uniq,
+         args.printonly,
+         args.withmemory,
+         not args.noprune
+         )

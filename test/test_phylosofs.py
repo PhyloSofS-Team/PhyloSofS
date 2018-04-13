@@ -15,10 +15,10 @@ class Test_PhyloSofS(unittest.TestCase):
 
     def test_phylosofs(self):
         self.assertEqual(subprocess.call(["python", "phylosofs/phylosofs.py",
-                                          "-mode", "P",
+                                          "-P",
                                           "-o", "test/tmp/",
                                           # It fails with "test/tmp"
-                                          "-inSeq", "dat/JNK3.txt"]), 0)
+                                          "--inseq", "dat/JNK3.txt"]), 0)
         self.assertTrue(filecmp.cmp("test/tmp/treeSearch_532_1.txt",
                                     "test/data/treeSearch_532_1.txt"),
                         "treeSearch_532_1.txt")
@@ -33,10 +33,10 @@ class Test_PhyloSofS(unittest.TestCase):
 
     def test_best_topos_and_trees(self):
         self.assertEqual(subprocess.call(["python", "phylosofs/phylosofs.py",
-                                          "-mode", "P",
+                                          "-P",
                                           "-o", "test/tmp/",
                                           "-s", "100",
-                                          "-inSeq", "dat/JNK3.txt"]), 0)
+                                          "--inseq", "dat/JNK3.txt"]), 0)
         self.assertTrue(os.path.isdir("test/tmp/bestTopos"))
         self.assertTrue(os.path.isdir("test/tmp/betterTrees"))
         self.assertGreater(len(os.listdir("test/tmp/bestTopos")), 0)
