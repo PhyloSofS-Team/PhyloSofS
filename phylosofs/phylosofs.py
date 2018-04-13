@@ -45,7 +45,7 @@ def check_argument_groups(parser, arg_dict, group, argument, required):
     >>> parser.add_argument('--inseq')
     _StoreAction(...)
     >>> args = parser.parse_args(['--phylo', '--inseq', 'not_none'])
-    >>> check_argument_groups(parser, vars(args), '--group', '--inseq', True)
+    >>> check_argument_groups(parser, vars(args), '--phylo', '--inseq', True)
     """
     arg_name = argument.replace("-", "")
     group_name = group.replace("-", "")
