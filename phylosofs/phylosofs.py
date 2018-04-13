@@ -41,9 +41,9 @@ def check_argument_groups(parser, arg_dict, group, argument, required):
     >>> import argparse
     >>> parser = argparse.ArgumentParser()
     >>> parser.add_argument('--phylo', action='store_true')
-    ...
+    _StoreTrueAction(...)
     >>> parser.add_argument('--inseq')
-    ...
+    _StoreAction(...)
     >>> args = parser.parse_args(['--phylo', '--inseq', 'not_none'])
     >>> check_argument_groups(parser, vars(args), '--group', '--inseq', True)
     """
@@ -263,7 +263,8 @@ def main(doPhylo,
 
     if doPhylo:
         if not os.path.isfile(inputFile):
-            sys.stderr.write("You must give a valid input file for phylogenetic inference.")
+            sys.stderr.write("You must give a valid input file for "
+                             "phylogenetic inference.")
 
     if doModel:
         if os.path.isfile(configFile):
