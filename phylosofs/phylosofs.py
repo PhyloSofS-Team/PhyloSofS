@@ -90,12 +90,12 @@ def parse_command_line():
         '-P', '--phylo',
         help='Do the phylogenetic inference',
         action='store_true'
-        )
+    )
     parser.add_argument(
         '-M', '--model',
         help='Do the molecular modelling',
         action='store_true'
-        )
+    )
     parser.add_argument(
         '--inseq',
         help='text file containing input data: string representing '
@@ -295,7 +295,6 @@ def main(doPhylo,
         sys.stderr.write('You must give a fasta input file with option -uniq.')
         # TODO: Change or document it
 
-
     ###################### phylogenetic inference ######################
 
     if doPhylo:
@@ -399,48 +398,49 @@ def main(doPhylo,
 
         # assess the quality of the models
         print 'assess the quality of the models'
-        fOUT = open('quality.sum', 'w')
-        fOUT.write(
-            '# procheck: Ideally, scores should be above -0.5. '
-            'Values below -1.0 may need investigation.\n')
-        fOUT.write('# dope: This is a Z-score; positive scores are likely '
-                   'to be poor models, while scores lower than -1 or so are likely '
-                   'to be native-like.\n')
-        fOUT.write(
-            'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\tcovalent\t'
-            'overall\tdope\trSurf\trHydroph\n')
-        for mydir in dirs[1:]:
-            try:
-                os.chdir(mydir)
+        with open('quality.sum', 'w') as fOUT:
+            fOUT.write(
+                '# procheck: Ideally, scores should be above -0.5. '
+                'Values below -1.0 may need investigation.\n')
+            fOUT.write('# dope: This is a Z-score; positive scores are '
+                       'likely to be poor models, while scores lower '
+                       'than -1 or so are likely to be native-like.\n')
+            fOUT.write(
+                'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\t'
+                'covalent\toverall\tdope\trSurf\trHydroph\n')
+            for mydir in dirs[1:]:
                 try:
-                    os.stat('procheck/')
+                    os.chdir(mydir)
+                    try:
+                        os.stat('procheck/')
+                    except:
+                        os.mkdir('procheck/')
+                    os.chdir('procheck/')
+                    for prot in glob.glob('../*.B99990001.pdb'):
+                        mydir, trans = os.path.split(prot)
+                        pref = trans.split('.')[0]
+                        lenModel = mi.computeLenModel('../'+pref)
+                        lenFull, percentSS = mi.computeSS('../'+pref)
+                        dihedrals, covalent, overall = mi.assessQuality(
+                            PROCHECK, prot, pref)
+                        zscore = mi.assessNormalizedDopeScore(prot)
+                        rSurf, rHydroph = mi.computeRatioSASA(
+                            NACCESS, prot, pref)
+                        fOUT.write(pref + '\t' + str(lenFull) + '\t' +
+                                   str(percentSS) + '\t' + str(lenModel) +
+                                   '\t' + dihedrals + '\t' + covalent +
+                                   '\t' + overall + '\t' + str(zscore) +
+                                   '\t' + str(rSurf) + 
+                                   '\t' + str(rHydroph) + '\n')
+                    os.chdir('..')
+                    os.system('rm -r procheck/')
+                    os.chdir('..')
                 except:
-                    os.mkdir('procheck/')
-                os.chdir('procheck/')
-                for prot in glob.glob('../*.B99990001.pdb'):
-                    mydir, trans = os.path.split(prot)
-                    pref = trans.split('.')[0]
-                    lenModel = mi.computeLenModel('../'+pref)
-                    lenFull, percentSS = mi.computeSS('../'+pref)
-                    dihedrals, covalent, overall = mi.assessQuality(
-                        PROCHECK, prot, pref)
-                    zscore = mi.assessNormalizedDopeScore(prot)
-                    rSurf, rHydroph = mi.computeRatioSASA(NACCESS, prot, pref)
-                    fOUT.write(pref + '\t' + str(lenFull) + '\t' +
-                               str(percentSS) + '\t' + str(lenModel) +
-                               '\t' + dihedrals + '\t' + covalent +
-                               '\t' + overall + '\t' + str(zscore) +
-                               '\t' + str(rSurf) + '\t' + str(rHydroph) + '\n')
-                os.chdir('..')
-                os.system('rm -r procheck/')
-                os.chdir('..')
-            except:
-                print 'Problem with ' + mydir
-        fOUT.close()
+                    print 'Problem with ' + mydir
 
 
 if (__name__ == '__main__'):
-    
+
     args = parse_command_line()
 
     main(args.phylo,
