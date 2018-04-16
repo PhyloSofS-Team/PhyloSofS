@@ -23,13 +23,15 @@ class Test_PhyloSofS(unittest.TestCase):
         self.assertEqual(subprocess.call(command), 0)
         print('Ref\n')
         print(os.stat(os.path.join("test", "data", "treeSearch_532_1.txt")))
-        with open(os.stat(os.path.join("test", "data", "treeSearch_532_1.txt")),'r') as f:
+        with open(os.path.join("test", "data", "treeSearch_532_1.txt"),'r') as f:
             print(f.read())
+
         print('\n')
         print('New\n')
         print(os.stat(os.path.join("test", "tmp","treeSearch_532_1.txt")))
-        with open(os.stat(os.path.join("test", "tmp", "treeSearch_532_1.txt")),'r') as f:
+        with open(os.path.join("test", "tmp", "treeSearch_532_1.txt"),'r') as f:
 	    print(f.read())
+
         print('\n')
         self.assertTrue(filecmp.cmp(os.path.join("test", "tmp",
                                                  "treeSearch_532_1.txt"),
