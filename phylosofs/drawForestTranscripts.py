@@ -82,13 +82,14 @@ def DotAllConfigurations(LT, outdir, prefix="forest_"):
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
     for (i, T) in enumerate(LT):
-        outfile = "%s/%s_%d.dot" % (outdir, prefix, i)
-        outpdf = "%s/%s_%d.pdf" % (outdir, prefix, i)
+        outfile = os.path.join(outdir, "%s_%d.dot" % (prefix, i))
+        outpdf = os.path.join(outdir, "%s_%d.pdf" % (prefix, i))
         ForestToDot(T, outfile)
         command = "dot -Tpdf -o %s %s" % (outpdf, outfile)
         status = subprocess.call(command, shell=True)
         # Do something with the status
     print "Joining of all Topologies pdf is not implemented yet"
+
 
 def _get_node_attributes(pydot_dot, node):
     """
@@ -114,6 +115,7 @@ def _get_node_attributes(pydot_dot, node):
         return node_dict[double_quote_node][0]['attributes']
     else:
         raise KeyError(node + " is not in " + str(node_dict.keys()))
+
 
 def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     """
@@ -169,7 +171,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
             # print T.node[n]['trans'][k]
             fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
             dot_T.add_node(pydot.Node(nlist[k], label="",
-                shape=node_shape, style=node_style, width=node_width, height=node_height))
+                                      shape=node_shape, style=node_style, width=node_width, height=node_height))
             # dot_T.add_node(nlist[k], label="")  # pygraphviz
         fout.write("\n")
         if n > 1:
@@ -192,8 +194,8 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                 # dot_T.add_node(t_death, shape="triangle",
                 #                label="", width='0.3')  # pygraphviz
                 dot_T.add_node(pydot.Node(t_death, label="",
-                    shape="triangle", width='0.3',
-                    style=node_style, height=node_height))
+                                          shape="triangle", width='0.3',
+                                          style=node_style, height=node_height))
                 nlist.append(t_death)
                 # dot_T.add_edge(dad_t, t_death)
                 # i = i + 1
@@ -207,7 +209,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
         # dot_T.add_subgraph(nlist, name="cluster_%d" % (n),  # pygraphviz
         #                    label="", rank=currank)  # "%d" % (n),rank=currank)
         pydot_subgraph = pydot.Subgraph(graph_name="cluster_%d" % (n),
-            label="", rank=currank)
+                                        label="", rank=currank)
         for node in nlist:
             pydot_subgraph.add_node(pydot.Node(node))
         dot_T.add_subgraph(pydot_subgraph)  # "%d" % (n),rank=currank)
@@ -239,9 +241,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                 for (l, r) in T.node[n][i_tr]:
                     sl_t, sr_t = "%d_%d" % (sl, l),  "%d_%d" % (sr, r)
                     dot_T.add_edge(pydot.Edge(dad_t, sl_t,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     dot_T.add_edge(pydot.Edge(dad_t, sr_t,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     # dot_T.add_edges_from([(dad_t, sl_t), (dad_t, sr_t)])  # pygraphviz
                     _testcreate(dad_t, sl_t, forest_nodes)
                     _testcreate(dad_t, sr_t, forest_nodes)
@@ -252,7 +254,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                 for l in T.node[n][i_tr]:
                     sl_t = "%d_%d" % (sl, l)
                     dot_T.add_edge(pydot.Edge(dad_t, sl_t,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     # dot_T.add_edges_from([(dad_t, sl_t)])  # pygraphviz
                     _testcreate(dad_t, sl_t, forest_nodes)
                     # ajoute un noeud square pour les morts
@@ -262,7 +264,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # dot_T.add_node(t_death, shape = "triangle", label = "",
                     #     width='0.3')
                     dot_T.add_edge(pydot.Edge(dad_t, t_death,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     # dot_T.add_edge(dad_t, t_death)  # pygraphviz
                     i = i + 1
                     dad_t = "%d_%d" % (n, i)
@@ -271,7 +273,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                 for r in T.node[n][i_tr]:
                     sr_t = "%d_%d" % (sr, r)
                     dot_T.add_edge(pydot.Edge(dad_t, sr_t,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     # dot_T.add_edges_from([(dad_t, sr_t)])  # pygraphviz
                     _testcreate(dad_t, sr_t, forest_nodes)
                     # ajoute un noeud square pour les morts
@@ -281,7 +283,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # dot_T.add_node(t_death, shape = "triangle",
                     #     label = "", width='0.3')
                     dot_T.add_edge(pydot.Edge(dad_t, t_death,
-                        dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
+                                              dir=edge_dir, minlen=edge_minlen, weight=edge_weight))
                     # dot_T.add_edge(dad_t, t_death)  # pygraphviz
                     i = i + 1
                     dad_t = "%d_%d" % (n, i)
@@ -301,10 +303,10 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     # NetworkX 1.11: nx_agraph is not longer imported from
     ntr_totAll = len(sorted(nx.connected_components(
         nx.nx_pydot.from_pydot(dot_T).to_undirected())))
-        # nx.nx_agraph.from_agraph(dot_T).to_undirected())))  # pygraphviz
+    # nx.nx_agraph.from_agraph(dot_T).to_undirected())))  # pygraphviz
     ntrans = filter(lambda x: len(x) > 1,  nx.connected_components(
         nx.nx_pydot.from_pydot(dot_T).to_undirected()))
-        # nx.nx_agraph.from_agraph(dot_T).to_undirected()))  # pygraphviz
+    # nx.nx_agraph.from_agraph(dot_T).to_undirected()))  # pygraphviz
     ntr_tot = len(ntrans)
     fout2.write("Total number of trees: "+str(ntr_tot)+"\n")
     fout2.write("Total number of deaths: "+str(nbDeaths)+"\n")

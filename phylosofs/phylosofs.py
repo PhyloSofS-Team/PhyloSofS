@@ -385,7 +385,8 @@ def main(doPhylo,
                 os.chdir(mydir)
                 mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
                                    HHMODEL, HHDB, STRUCTDB, ALLPDB, NCPU,
-                                   './'+trans, selTemp, only3D)
+                                   # './'+trans, 
+                                   selTemp, only3D)
                 os.chdir('..')
             else:
                 print dirs
@@ -412,15 +413,12 @@ def main(doPhylo,
             for mydir in dirs[1:]:
                 try:
                     os.chdir(mydir)
-                    try:
-                        os.stat('procheck/')
-                    except:
-                        os.mkdir('procheck/')
-                    os.chdir('procheck/')
+                    utils.makedirifnot('procheck')
+                    os.chdir('procheck')
                     for prot in glob.glob('../*.B99990001.pdb'):
                         mydir, trans = os.path.split(prot)
                         pref = trans.split('.')[0]
-                        lenModel = mi.computeLenModel('../'+pref)
+                        lenModel = mi.computeLenModel('../'+pref) # TODO : Test on windows
                         lenFull, percentSS = mi.computeSS('../'+pref)
                         dihedrals, covalent, overall = mi.assessQuality(
                             PROCHECK, prot, pref)

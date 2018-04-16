@@ -11,3 +11,10 @@ def clear_folder(path):
         for d in dirs:
             shutil.rmtree(os.path.join(root, d))
 
+def makedirifnot(dir):
+    """
+    It creates a new directory if it doesn't exists.
+    """
+    if not exists(dir):
+        makedirs(dir)
+
