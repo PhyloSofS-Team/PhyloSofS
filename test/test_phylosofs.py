@@ -14,7 +14,7 @@ class Test_PhyloSofS(unittest.TestCase):
 
     def test_phylosofs(self):
         path_phylosofs = os.path.join("phylosofs", "phylosofs.py")
-        path_tmp = os.path.join("test", "tmp/")
+        path_tmp = os.path.join("test", "tmp")
         path_data = os.path.join("dat", "JNK3.txt")
         command = ["python", path_phylosofs,
                    "-P",
@@ -46,7 +46,7 @@ class Test_PhyloSofS(unittest.TestCase):
 
     def test_best_topos_and_trees(self):
         path_phylosofs = os.path.join("phylosofs", "phylosofs.py")
-        path_tmp = os.path.join("test", "tmp/")
+        path_tmp = os.path.join("test", "tmp")
         path_data = os.path.join("dat", "JNK3.txt")
         command = ["python", path_phylosofs,
                    "-P",

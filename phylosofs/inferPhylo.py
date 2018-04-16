@@ -50,16 +50,16 @@ def pickRead(s):
 
 
 def drawForest(filename, outputDir):
-    with open(outputDir+filename+".pk", 'rb') as f:
+    with open(os.path.join(outputDir, filename+".pk"), 'rb') as f:
         transU = pk.load(f)
         count = 0
         for i in transU:
-            df.ForestToDot(i, outputDir+filename, count)
-            subprocess.call("dot" + " -Tpdf -o " +
-                            outputDir + filename + "_config" +
-                            str(count) + ".pdf " +
-                            outputDir + filename + "_config" +
-                            str(count) + ".dot", shell=True)
+            df.ForestToDot(i, os.path.join(outputDir, filename), count)
+            subprocess.call(["dot", "-Tpdf", "-o",
+                             os.path.join(outputDir, filename + "_config" +
+                                          str(count) + ".pdf"),
+                             os.path.join(outputDir, filename + "_config" +
+                                          str(count) + ".dot")])
             count = count + 1
 
 # write the output results  the text files
@@ -73,9 +73,9 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
     confs = res2[1]
     treeCost = res2[2]
     Res = []
-    pickPrint(tree, outputDir+"tree" + SUFF + ".pk")
+    pickPrint(tree, os.path.join(outputDir, "tree" + SUFF + ".pk"))
     Tree = transTree(tree, AllExons)
-    with open(outputDir+"final" + SUFF + ".txt", 'w') as ff:
+    with open(os.path.join(outputDir, "final" + SUFF + ".txt"), 'w') as ff:
         ff.write(
             "\n~~~~~~~~   Phylosofs results  :\n\n"
             "   ** exon state for ancestral nodes : \n\n")
@@ -90,7 +90,7 @@ def writeOutput(res, exSt, SUFF, costs, AllExons, outputDir):
                  " ; number of cuts : " + str(res[1]) + "\n")
     for c in confs:
         Res.append(elagTree(tree, c, AllExons))
-    pickPrint(Res, outputDir + "solution" + SUFF + ".pk")
+    pickPrint(Res, os.path.join(outputDir, "solution" + SUFF + ".pk"))
     drawForest("solution" + SUFF, outputDir)
 
     ##################################################
@@ -2874,7 +2874,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
     countTrees = 0
     i = 0
     go = True
-    f = open(outputDir+'treeSearch'+SUFF+'.txt', 'w')
+    f = open(os.path.join(outputDir, 'treeSearch'+SUFF+'.txt'), 'w')
 
     # if no minimum cost is given (default case)
     # the search starts from the topology containing the maximum
