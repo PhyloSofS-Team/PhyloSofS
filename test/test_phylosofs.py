@@ -21,6 +21,12 @@ class Test_PhyloSofS(unittest.TestCase):
                    "-o", path_tmp,
                    "--inseq", path_data]
         self.assertEqual(subprocess.call(command), 0)
+        print('Ref\n')
+        print(os.stat(os.path.join("test", "data","treeSearch_532_1.txt"))) 
+        print('\n')
+        print('New\n')
+        print(os.stat(os.path.join("test", "tmp","treeSearch_532_1.txt")))
+        print('\n')
         self.assertTrue(filecmp.cmp(os.path.join("test", "tmp",
                                                  "treeSearch_532_1.txt"),
                                     os.path.join("test", "data",
