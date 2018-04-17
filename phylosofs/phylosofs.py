@@ -87,38 +87,46 @@ def parse_command_line():
         """,
     )
 
-    parser.add_argument(
+    phylo_args = parser.add_argument_group('Phylogenetic reconstruction', """
+        Arguments used for reconstructing transcripts' phylogenies.
+        """)
+
+    model_args = parser.add_argument_group('Molecular modeling', """
+        Arguments used for modeling the tertiary structures of the isoforms.
+        """)
+
+    phylo_args.add_argument(
         '-P', '--phylo',
         help='Do the phylogenetic inference',
         action='store_true'
     )
-    parser.add_argument(
+    model_args.add_argument(
         '-M', '--model',
         help='Do the molecular modelling',
         action='store_true'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--inseq',
         help='text file containing input data: string representing '
         'the gene tree in Newick format on the first line, and then '
         'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
     )
-    parser.add_argument(
+    model_args.add_argument(
         '-c',
         help='text file containing values for parameters '
         '(for molecular modeling part)'
     )  # REQUIRED
-    parser.add_argument(
+    phylo_args.add_argument(
         '-b',
         help='birth cost',
         default=5
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '-d',
         help='death cost',
         default=3
     )
-    parser.add_argument(
+    model_args.add_argument(
         '--instruct',
         help='text file containing input data: either a directory where '
         'multifasta files are located (one file per species) or a single '
@@ -126,22 +134,22 @@ def parse_command_line():
         'case, the unique option must be set to TRUE)',
         default='.'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '-m',
         help='mutation cost',
         default=2
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--ni',
         help='number of iterations',
         default=1
     )
-    parser.add_argument(
+    model_args.add_argument(
         '--nt',
         help='number of templates to retain',
         default=5
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--noprune',
         help='disable the removal of exons that appear in only one transcript',
         action='store_true'
@@ -151,29 +159,29 @@ def parse_command_line():
         help='output directory',
         default='.'
     )
-    parser.add_argument(
+    model_args.add_argument(
         '--only3D',
         help='perform only the 3D modeling step (skip template search)',
         action='store_true'
     )
-    parser.add_argument(
+    model_args.add_argument(
         '--onlyquality',
         help='perform only the 3D models quality assessment',
         action='store_true'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--printonly',
         help='perform only the generation of the PDF file enabling to '
         'visualize the transcripts',
         action='store_true'
     )
-    parser.add_argument(
+    model_args.add_argument(
         '--uniq',
         help='treat only one transcript whose sequence is taken from '
         'the fasta file indicated by the -i option',
         action='store_true'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '-s',
         help='starting score (by default: not considered), '
         'if no score is given, the algorithm starts the search '
@@ -182,18 +190,18 @@ def parse_command_line():
         'possible number of trees), otherwise it starts from a '
         'randomly chosen topology'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--suffix',
         help='suffix, it is _(birth)(death)(mutation)_(iterations) by '
         'default, e.g. _532_1'
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--topo',
         help="initial topology (by default: maximum or random topology), "
         "or transcripts' phylogeny to be printed out "
         "(if the -printonly option is active)"
     )
-    parser.add_argument(
+    phylo_args.add_argument(
         '--withmemory',
         action='store_true'
     )
@@ -216,7 +224,7 @@ def parse_command_line():
     return args
 
 
-def main(doPhylo,
+def doit(doPhylo,
          doModel,
          inputFile,
          configFile,
@@ -238,7 +246,7 @@ def main(doPhylo,
          prune
          ):
     """
-    main(args.phylo,
+    doit(args.phylo,
          args.model,
          args.inseq,
          args.c,
@@ -385,7 +393,7 @@ def main(doPhylo,
                 os.chdir(mydir)
                 mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
                                    HHMODEL, HHDB, STRUCTDB, ALLPDB, NCPU,
-                                   # './'+trans, 
+                                   # './'+trans,
                                    selTemp, only3D)
                 os.chdir('..')
             else:
@@ -418,7 +426,8 @@ def main(doPhylo,
                     for prot in glob.glob('../*.B99990001.pdb'):
                         mydir, trans = os.path.split(prot)
                         pref = trans.split('.')[0]
-                        lenModel = mi.computeLenModel('../'+pref) # TODO : Test on windows
+                        lenModel = mi.computeLenModel(
+                            '../'+pref)  # TODO : Test on windows
                         lenFull, percentSS = mi.computeSS('../'+pref)
                         dihedrals, covalent, overall = mi.assessQuality(
                             PROCHECK, prot, pref)
@@ -429,7 +438,7 @@ def main(doPhylo,
                                    str(percentSS) + '\t' + str(lenModel) +
                                    '\t' + dihedrals + '\t' + covalent +
                                    '\t' + overall + '\t' + str(zscore) +
-                                   '\t' + str(rSurf) + 
+                                   '\t' + str(rSurf) +
                                    '\t' + str(rHydroph) + '\n')
                     os.chdir('..')
                     utils.clear_folder('procheck')
@@ -439,11 +448,9 @@ def main(doPhylo,
                     print 'Problem with ' + mydir
 
 
-if (__name__ == '__main__'):
-
+def main():
     args = parse_command_line()
-
-    main(args.phylo,
+    doit(args.phylo,
          args.model,
          args.inseq,
          args.c,
@@ -464,3 +471,7 @@ if (__name__ == '__main__'):
          args.withmemory,
          not args.noprune
          )
+
+
+if (__name__ == '__main__'):
+    main()
