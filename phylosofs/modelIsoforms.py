@@ -12,8 +12,8 @@ import os
 import shutil
 import subprocess
 import warnings
-import ConfigParser
-_config = ConfigParser.ConfigParser()
+# import ConfigParser
+# _config = ConfigParser.ConfigParser()
 
 try:
     import modeller
@@ -24,31 +24,31 @@ except ImportError:
                         "https://salilab.org/modeller/"
 
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
-
-
-def init(configFile):
-
-    _config.read(os.path.expanduser(configFile))
-    # upload paths for librairies
-    HHBLITS = _config.get("PROGRAMS", "HHBLITS")
-    ADDSS = _config.get("PROGRAMS", "ADDSS")
-    HHMAKE = _config.get("PROGRAMS", "HHMAKE")
-    HHSEARCH = _config.get("PROGRAMS", "HHSEARCH")
-    HHMODEL = _config.get("PROGRAMS", "HHMODEL")
-    PROCHECK = _config.get("PROGRAMS", "PROCHECK")
-    NACCESS = _config.get("PROGRAMS", "NACCESS")
-    HHDB = _config.get("DATABASES", "HHDB")
-    STRUCTDB = _config.get("DATABASES", "STRUCTDB")
-    ALLPDB = _config.get("DATABASES", "ALLPDB")
-    NCPU = _config.get("OPTIONS", "NCPU")
-    CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
-
-    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
-           STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
-
+# 
+# 
+# def init(configFile):
+# 
+#    _config.read(os.path.expanduser(configFile))
+#    # upload paths for librairies
+#    HHBLITS = _config.get("PROGRAMS", "HHBLITS")
+#    ADDSS = _config.get("PROGRAMS", "ADDSS")
+#    HHMAKE = _config.get("PROGRAMS", "HHMAKE")
+#    HHSEARCH = _config.get("PROGRAMS", "HHSEARCH")
+#    HHMODEL = _config.get("PROGRAMS", "HHMODEL")
+#    PROCHECK = _config.get("PROGRAMS", "PROCHECK")
+#    NACCESS = _config.get("PROGRAMS", "NACCESS")
+#    HHDB = _config.get("DATABASES", "HHDB")
+#    STRUCTDB = _config.get("DATABASES", "STRUCTDB")
+#    ALLPDB = _config.get("DATABASES", "ALLPDB")
+#    NCPU = _config.get("OPTIONS", "NCPU")
+#    CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
+# 
+#    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
+#           STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
+#
 # sys.path.append(STRUCTURE)
 # sys.path.append(SEQUENCE)
-
+#
 # -------------------------------------------------------------------- #
 
 # read a multi fasta file

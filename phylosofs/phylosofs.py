@@ -76,14 +76,12 @@ def parse_command_line():
         splicing events.
         """,
         epilog="""
+        It has been developed at LCQB (Laboratory of Computational and
+        Quantitative Biology), UMR 7238 CNRS, Sorbonne Université.
         If you use it, please cite:
-
         Ait-hamlat A, Polit L, Richard H, Laine E. Transcripts evolutionary
         conservation and structural dynamics give insights into the role of
         alternative splicing for the JNK family. bioRxiv. 2017 Jan 1:119891.
-
-        It has been developed at LCQB (Laboratory of Computational and
-        Quantitative Biology), UMR 7238 CNRS, Sorbonne Université.
         """,
     )
 
@@ -111,11 +109,11 @@ def parse_command_line():
         'the gene tree in Newick format on the first line, and then '
         'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
     )
-    model_args.add_argument(
-        '-c',
-        help='text file containing values for parameters '
-        '(for molecular modeling part)'
-    )  # REQUIRED
+    # model_args.add_argument(
+    #     '-c',
+    #     help='text file containing values for parameters '
+    #     '(for molecular modeling part)'
+    # )  # REQUIRED
     phylo_args.add_argument(
         '-b',
         help='birth cost',
@@ -205,7 +203,67 @@ def parse_command_line():
         '--withmemory',
         action='store_true'
     )
-
+    model_args.add_argument(
+        '--hhblits',
+        help='Path to hhblits',
+        default='hhblits'
+    )
+    model_args.add_argument(
+        '--addss',
+        help='Path to addss.pl',
+        default='addss.pl'
+    )
+    model_args.add_argument(
+        '--hhmake',
+        help='Path to hhmake',
+        default='hhmake'
+    )
+    model_args.add_argument(
+        '--hhsearch',
+        help='Path to hhsearch',
+        default='hhsearch'        
+    )
+    model_args.add_argument(
+        '--hhmodel',
+        help='Path to hhmodel',
+        default='hhmodel'        
+    )
+    model_args.add_argument(
+        '--hhdb',
+        help='Path to the sequence database for the HH-suite, e.g. UniProt',
+        default='uniprot'        
+    )
+    model_args.add_argument(
+        '--structdb',
+        help='Path to the structure databse for the HH-suite, e.g. PDB',
+        default='pdb_hhm_db'        
+    )
+    model_args.add_argument(
+        '--ncpu',
+        help='Number of CPUs',
+        default='1'        
+    )
+    model_args.add_argument(
+        '--contexlib',
+        help='Path to context_data.lib for HH-suite',
+        default='contex_data.lib'        
+    )
+    model_args.add_argument(
+        '--procheck',
+        help='Path to procheck',
+        default='procheck'        
+    )
+    model_args.add_argument(
+        '--naccess',
+        help='Path to naccess',
+        default='naccess'        
+    )
+    model_args.add_argument(
+        '--allpdb',
+        help='Path to all the pdb database',
+        default='allpdb'        
+    )
+ 
     args = parser.parse_args()
 
     if args.phylo is None and args.model is None:
@@ -214,7 +272,7 @@ def parse_command_line():
     arg_dict = vars(args)
 
     check_argument_groups(parser, arg_dict, '--phylo', '--inseq', True)
-    check_argument_groups(parser, arg_dict, '--model', '-c', True)
+    # check_argument_groups(parser, arg_dict, '--model', '-c', True)
 
     # Check flag arguments
     if not args.model:
@@ -227,7 +285,7 @@ def parse_command_line():
 def doit(doPhylo,
          doModel,
          inputFile,
-         configFile,
+         # configFile,
          CB,  # birth cost
          CD,  # death cost
          pathTransSeqs,
@@ -243,13 +301,26 @@ def doit(doPhylo,
          uniq,
          printOnly,
          withMemory,
-         prune
+         prune,
+         # from ex config.txt
+         HHBLITS,
+         ADDSS,
+         HHMAKE,
+         HHSEARCH,
+         HHMODEL,
+         PROCHECK,
+         NACCESS,
+         HHDB,
+         STRUCTDB,
+         ALLPDB,
+         NCPU,
+         CONTEXTLIB
          ):
     """
     doit(args.phylo,
          args.model,
          args.inseq,
-         args.c,
+         # args.c,
          args.b,
          args.d,
          args.instruct,
@@ -265,7 +336,19 @@ def doit(doPhylo,
          args.uniq,
          args.printonly,
          args.withmemory,
-         not args.noprune
+         not args.noprune,
+         args.hhblits,
+         args.addss,
+         args.hhmake,
+         args.hhsearch,
+         args.hhmodel,
+         args.procheck,
+         args.naccess,
+         args.hhdb,
+         args.structdb,
+         args.allpdb,
+         args.ncpu,
+         args.contexlib
          )
     """
     random.seed()
@@ -275,13 +358,13 @@ def doit(doPhylo,
             sys.stderr.write("You must give a valid input file for "
                              "phylogenetic inference.")
 
-    if doModel:
-        if os.path.isfile(configFile):
-            HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
-                HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
-        else:
-            sys.stderr.write("You must give an existing configuration file "
-                             " for molecular modeling. See usage instructions")
+    # if doModel:
+        # if os.path.isfile(configFile):
+        #    HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
+        #        HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
+        # else:
+        #    sys.stderr.write("You must give an existing configuration file "
+        #                     " for molecular modeling. See usage instructions")
 
     if starting_score is not None:
         initBest = starting_score
@@ -453,7 +536,7 @@ def main():
     doit(args.phylo,
          args.model,
          args.inseq,
-         args.c,
+         # args.c,
          args.b,
          args.d,
          args.instruct,
@@ -469,7 +552,19 @@ def main():
          args.uniq,
          args.printonly,
          args.withmemory,
-         not args.noprune
+         not args.noprune,
+         args.hhblits,
+         args.addss,
+         args.hhmake,
+         args.hhsearch,
+         args.hhmodel,
+         args.procheck,
+         args.naccess,
+         args.hhdb,
+         args.structdb,
+         args.allpdb,
+         args.ncpu,
+         args.contexlib
          )
 
 
