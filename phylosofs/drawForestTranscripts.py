@@ -169,9 +169,10 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
         # print T.node[n]
         for k in range(len(nlist)):
             # print T.node[n]['trans'][k]
-            fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
+            fout.write(nlist[k] + ": " + ''.join(T.node[n]['trans'][k]) + "\n")
             dot_T.add_node(pydot.Node(nlist[k], label="",
-                                      shape=node_shape, style=node_style, width=node_width, height=node_height))
+                                      shape=node_shape, style=node_style, 
+                                      width=node_width, height=node_height))
             # dot_T.add_node(nlist[k], label="")  # pygraphviz
         fout.write("\n")
         if n > 1:

@@ -549,6 +549,8 @@ def ex_state(t, priority):
 def toScore(trans, exS, AllExons):
     nExons = range(len(AllExons))
     res = []
+    # print "TRANS toScore --> " + str(trans)
+    # print "AllExons toScore --> " + str(AllExons)
     for i in trans:
         tmp = []
         for e in nExons:
