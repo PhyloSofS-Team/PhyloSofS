@@ -43,13 +43,11 @@ if not os.path.isdir(PATH_TMP):
 class Test_PhyloSofS(unittest.TestCase):
 
     def test_phylosofs(self):
-        path_transcripts = os.path.join("dat", "JNK3.transcripts")
-        path_newick = os.path.join("dat", "JNK3.nwk")
+        path_data = os.path.join("dat", "JNK3.txt")
         command = ["python", PATH_PHYLOSOFS,
                    "-P",
                    "-o", PATH_TMP,
-                   "--intree", path_newick,
-                   "--infile", path_transcripts]
+                   "--inseq", path_data]
         self.assertEqual(subprocess.call(command), 0)
         self.assertTrue(compare_files(path_tmp('treeSearch_532_1.txt'), 
                                       path_dat('treeSearch_532_1.txt')))
@@ -62,15 +60,13 @@ class Test_PhyloSofS(unittest.TestCase):
         self.assertFalse(os.path.isdir(os.path.join("test", "tmp",
                                                     "betterTrees")))
 
-    def test_best_topos_and_trees(self): 
-        path_transcripts = os.path.join("dat", "JNK3.transcripts")
-        path_newick = os.path.join("dat", "JNK3.nwk")
+    def test_best_topos_and_trees(self):
+        path_data = os.path.join("dat", "JNK3.txt")
         command = ["python", PATH_PHYLOSOFS,
                    "-P",
                    "-o", PATH_TMP,
                    "-s", "100",
-                   "--intree", path_newick,
-                   "--infile", path_transcripts]
+                   "--inseq", path_data]
         self.assertEqual(subprocess.call(command), 0)
         self.assertTrue(os.path.isdir(os.path.join("test", "tmp",
                                                    "bestTopos")))

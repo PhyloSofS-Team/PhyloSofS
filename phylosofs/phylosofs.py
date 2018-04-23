@@ -95,22 +95,19 @@ def parse_command_line():
 
     phylo_args.add_argument(
         '-P', '--phylo',
-        help='do the phylogenetic inference',
+        help='Do the phylogenetic inference',
         action='store_true'
     )
     model_args.add_argument(
         '-M', '--model',
-        help='do the molecular modelling',
+        help='Do the molecular modelling',
         action='store_true'
     )
     phylo_args.add_argument(
-        '--intree',
-        help='string representing the gene tree in Newick format'
-    )
-    phylo_args.add_argument(
-        '--infile',
-        help='text file containing the list of transcripts for '
-        'each leave (leaf_name: t1,t2,t3...)'
+        '--inseq',
+        help='text file containing input data: string representing '
+        'the gene tree in Newick format on the first line, and then '
+        'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
     )
     # model_args.add_argument(
     #     '-c',
@@ -133,7 +130,7 @@ def parse_command_line():
         'multifasta files are located (one file per species) or a single '
         'fasta file with the sequence of only one transcript (in that '
         'case, the unique option must be set to TRUE)',
-        default=''
+        default='.'
     )
     phylo_args.add_argument(
         '-m',
@@ -274,8 +271,7 @@ def parse_command_line():
 
     arg_dict = vars(args)
 
-    check_argument_groups(parser, arg_dict, '--phylo', '--infile', True)
-    check_argument_groups(parser, arg_dict, '--phylo', '--intree', True)
+    check_argument_groups(parser, arg_dict, '--phylo', '--inseq', True)
     # check_argument_groups(parser, arg_dict, '--model', '-c', True)
 
     # Check flag arguments
@@ -288,7 +284,6 @@ def parse_command_line():
 
 def doit(doPhylo,
          doModel,
-         inputTree,
          inputFile,
          # configFile,
          CB,  # birth cost
@@ -324,8 +319,7 @@ def doit(doPhylo,
     """
     doit(args.phylo,
          args.model,
-         args.intree,
-         args.infile,
+         args.inseq,
          # args.c,
          args.b,
          args.d,
@@ -360,10 +354,9 @@ def doit(doPhylo,
     random.seed()
 
     if doPhylo:
-        for f in [inputFile, inputTree]:
-            if not os.path.isfile(f):
-                sys.stderr.write(f + " : You must give a valid input "
-                                 "file for phylogenetic inference.")
+        if not os.path.isfile(inputFile):
+            sys.stderr.write("You must give a valid input file for "
+                             "phylogenetic inference.")
 
     # if doModel:
         # if os.path.isfile(configFile):
@@ -423,7 +416,7 @@ def doit(doPhylo,
         costs = (CB, CD, cm)
         costMat = (C0, C1_0, C1_1, C1_2)
 
-        dat, AllExons = initData.initTree(inputTree, inputFile, prune)
+        dat, AllExons = initData.initTree(inputFile, prune)
         print "The exons are:"
         print AllExons
         nExons = range(len(AllExons))
@@ -542,8 +535,7 @@ def main():
     args = parse_command_line()
     doit(args.phylo,
          args.model,
-         args.intree,
-         args.infile,
+         args.inseq,
          # args.c,
          args.b,
          args.d,

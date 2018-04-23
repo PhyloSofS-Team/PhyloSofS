@@ -83,30 +83,25 @@ def convertToGraph(treeStr, transList):
 # and the list of transcripts for current species
 
 
-# TO DO : Ensure correct format
-def readInputDat(intree, infile):
-    with open(intree, 'r') as t:
-        lines = t.readlines()
-        treeStr = lines[0].rstrip()
-
-    with open(infile, 'r') as f:
-        transList = {}
-        for line in f:
-            line = line.rstrip()
-            fields = line.split(';')
-            if len(fields) >= 2:
-                transList[fields[0]] = fields[1:]
-                # transList[fields[0]] = [t.split(',') for t in fields[1:]]
-
+def readInputDat(filename):
+    f = open(filename, 'r')
+    treeStr = f.readline()[:-1]
+    line = f.readline()
+    transList = {}
+    while line != "":
+        line = (line[:-1]).replace(" ", "")
+        i = line.count(":")
+        if i == 1:
+            i = line.find(":")
+            transList[line[:i]] = (line[i+1:len(line)].strip()).split(",")
+        line = f.readline()
+    f.close()
     return(convertToGraph(treeStr, transList))
 
 
 # get the list of all exons appearing in the leaves
 def getExons(transSet):
-    # return transSet.split(',')
-    res = [c for c in transSet.strip() if c != ';' and c != ','] 
-    print "RES getExons --> " + str(res)  # TO DO : Test
-    return res
+    return [c for c in transSet.strip() if c != ':' and c != ',']
 
 # filter based on conservation: remove exons that appear only once
 # be aware that the transcripts containing these exon are not eliminated
@@ -120,7 +115,7 @@ def getExonsPruned(t):
     res = {}
     transSet = getTranscripts(t)
     for tr in transSet:
-        for e in tr.split(','):
+        for e in tr:
             if e in res:
                 res[e] += 1.0
             else:
@@ -133,12 +128,10 @@ def getExonsPruned(t):
             for k in range(len(t.node[n]['trans'])):
                 for e in tbrm:
                     t.node[n]['trans'][k] = \
-                        ','.join([x for x in
-                                  t.node[n]['trans'][k].split(',')
-                                  if x != e])  # .replace(e, '')
-            # t.node[n]['trans'] = list(set(t.node[n]['trans']))
+                        t.node[n]['trans'][k].replace(e, '')
+            t.node[n]['trans'] = list(set(t.node[n]['trans']))
             # print t.node[n]['trans']
-    print "RES getExonsPruned --> " + str(res)
+
     return [i for i in res.keys() if res.get(i) > 1]
 
 # count the number of times an exon appear
@@ -148,7 +141,7 @@ def getExonOccur(transSet):
     res = {}
     # print len(transSet)
     for t in transSet:
-        for e in t.split(','):
+        for e in t:
             if e in res:
                 res[e] += 1.0/len(transSet)
             else:
@@ -173,12 +166,11 @@ def getTranscripts(t):
     leaves = getLeaves(t)
     for l in leaves:
         res = res + t.node[l]['trans']
-    print "RES --> " + str(res)
     return res
 
 
-def initTree(intree, infile, prune):
-    Tree = readInputDat(intree, infile)
+def initTree(filename, prune):
+    Tree = readInputDat(filename)
     if prune:
         exons = getExonsPruned(Tree)
     else:
