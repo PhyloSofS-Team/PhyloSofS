@@ -83,19 +83,20 @@ def convertToGraph(treeStr, transList):
 # and the list of transcripts for current species
 
 
-def readInputDat(filename):
-    f = open(filename, 'r')
-    treeStr = f.readline()[:-1]
-    line = f.readline()
-    transList = {}
-    while line != "":
-        line = (line[:-1]).replace(" ", "")
-        i = line.count(":")
-        if i == 1:
-            i = line.find(":")
-            transList[line[:i]] = (line[i+1:len(line)].strip()).split(",")
-        line = f.readline()
-    f.close()
+# TO DO : Ensure correct format
+def readInputDat(intree, infile):
+    with open(intree, 'r') as t:
+        lines = t.readlines()
+        treeStr = lines[0].rstrip()
+
+    with open(infile, 'r') as f:
+        transList = {}
+        for line in f:
+            line = line.rstrip()
+            fields = line.split(' ')
+            if len(fields) >= 2:
+                transList[fields[0]] = fields[1:]
+
     return(convertToGraph(treeStr, transList))
 
 
@@ -169,8 +170,8 @@ def getTranscripts(t):
     return res
 
 
-def initTree(filename, prune):
-    Tree = readInputDat(filename)
+def initTree(intree, infile, prune):
+    Tree = readInputDat(intree, infile)
     if prune:
         exons = getExonsPruned(Tree)
     else:

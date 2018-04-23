@@ -5,7 +5,7 @@
 # This code is part of the phylosofs package and governed by its license.
 # Please see the LICENSE.txt file included as part of this package.
 
-# Modele d'inference de phylogenies de transcrits
+# Modele d'inference de phylogenies de transcripts
 # Pour etudier l'apparition et la fixation
 # d'evenements d'epissage au cours de l'evolution
 
@@ -95,20 +95,29 @@ def parse_command_line():
 
     phylo_args.add_argument(
         '-P', '--phylo',
-        help='Do the phylogenetic inference',
+        help='do the phylogenetic inference',
         action='store_true'
     )
     model_args.add_argument(
         '-M', '--model',
-        help='Do the molecular modelling',
+        help='do the molecular modelling',
         action='store_true'
     )
     phylo_args.add_argument(
-        '--inseq',
-        help='text file containing input data: string representing '
-        'the gene tree in Newick format on the first line, and then '
-        'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
+        '-n', '--tree',
+        help='string representing the gene tree in Newick format'
     )
+    phylo_args.add_argument(
+        '-t', '--transcripts',
+        help='text file containing the list of transcripts for '
+        'each leave (leaf_name: t1,t2,t3...)'
+    )
+    # phylo_args.add_argument(
+    #     '--inseq',
+    #     help='text file containing input data: string representing '
+    #     'the gene tree in Newick format on the first line, and then '
+    #     'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
+    # )
     # model_args.add_argument(
     #     '-c',
     #     help='text file containing values for parameters '
@@ -130,7 +139,7 @@ def parse_command_line():
         'multifasta files are located (one file per species) or a single '
         'fasta file with the sequence of only one transcript (in that '
         'case, the unique option must be set to TRUE)',
-        default='.'
+        default=''
     )
     phylo_args.add_argument(
         '-m',
@@ -221,49 +230,49 @@ def parse_command_line():
     model_args.add_argument(
         '--hhsearch',
         help='Path to hhsearch',
-        default='hhsearch'        
+        default='hhsearch'
     )
     model_args.add_argument(
         '--hhmodel',
         help='Path to hhmodel',
-        default='hhmodel'        
+        default='hhmodel'
     )
     model_args.add_argument(
         '--hhdb',
         help='Path to the sequence database for the HH-suite, e.g. UniProt',
-        default='uniprot'        
+        default='uniprot'
     )
     model_args.add_argument(
         '--structdb',
         help='Path to the structure databse for the HH-suite, e.g. PDB',
-        default='pdb_hhm_db'        
+        default='pdb_hhm_db'
     )
     model_args.add_argument(
         '--ncpu',
         help='Number of CPUs',
-        default='1'        
+        default='1'
     )
     model_args.add_argument(
         '--contexlib',
         help='Path to context_data.lib for HH-suite',
-        default='contex_data.lib'        
+        default='contex_data.lib'
     )
     model_args.add_argument(
         '--procheck',
         help='Path to procheck',
-        default='procheck'        
+        default='procheck'
     )
     model_args.add_argument(
         '--naccess',
         help='Path to naccess',
-        default='naccess'        
+        default='naccess'
     )
     model_args.add_argument(
         '--allpdb',
         help='Path to all the pdb database',
-        default='allpdb'        
+        default='allpdb'
     )
- 
+
     args = parser.parse_args()
 
     if args.phylo is None and args.model is None:
@@ -271,7 +280,8 @@ def parse_command_line():
 
     arg_dict = vars(args)
 
-    check_argument_groups(parser, arg_dict, '--phylo', '--inseq', True)
+    check_argument_groups(parser, arg_dict, '--phylo', '--transcripts', True)
+    check_argument_groups(parser, arg_dict, '--phylo', '--tree', True)
     # check_argument_groups(parser, arg_dict, '--model', '-c', True)
 
     # Check flag arguments
@@ -284,6 +294,7 @@ def parse_command_line():
 
 def doit(doPhylo,
          doModel,
+         inputTree,
          inputFile,
          # configFile,
          CB,  # birth cost
@@ -319,7 +330,8 @@ def doit(doPhylo,
     """
     doit(args.phylo,
          args.model,
-         args.inseq,
+         args.tree,
+         args.transcripts,
          # args.c,
          args.b,
          args.d,
@@ -354,9 +366,10 @@ def doit(doPhylo,
     random.seed()
 
     if doPhylo:
-        if not os.path.isfile(inputFile):
-            sys.stderr.write("You must give a valid input file for "
-                             "phylogenetic inference.")
+        for f in [inputFile, inputTree]:
+            if not os.path.isfile(f):
+                sys.stderr.write(f + " : You must give a valid input "
+                                 "file for phylogenetic inference.")
 
     # if doModel:
         # if os.path.isfile(configFile):
@@ -364,7 +377,7 @@ def doit(doPhylo,
         #        HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
         # else:
         #    sys.stderr.write("You must give an existing configuration file "
-        #                     " for molecular modeling. See usage instructions")
+        #                     " for molecular modeling. See usage.")
 
     if starting_score is not None:
         initBest = starting_score
@@ -416,7 +429,7 @@ def doit(doPhylo,
         costs = (CB, CD, cm)
         costMat = (C0, C1_0, C1_1, C1_2)
 
-        dat, AllExons = initData.initTree(inputFile, prune)
+        dat, AllExons = initData.initTree(inputTree, inputFile, prune)
         print "The exons are:"
         print AllExons
         nExons = range(len(AllExons))
@@ -535,7 +548,8 @@ def main():
     args = parse_command_line()
     doit(args.phylo,
          args.model,
-         args.inseq,
+         args.tree,
+         args.transcripts,
          # args.c,
          args.b,
          args.d,
