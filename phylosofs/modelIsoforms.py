@@ -24,10 +24,10 @@ except ImportError:
                         "https://salilab.org/modeller/"
 
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
-# 
-# 
+#
+#
 # def init(configFile):
-# 
+#
 #    _config.read(os.path.expanduser(configFile))
 #    # upload paths for librairies
 #    HHBLITS = _config.get("PROGRAMS", "HHBLITS")
@@ -42,7 +42,7 @@ except ImportError:
 #    ALLPDB = _config.get("DATABASES", "ALLPDB")
 #    NCPU = _config.get("OPTIONS", "NCPU")
 #    CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
-# 
+#
 #    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
 #           STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
 #
@@ -104,18 +104,18 @@ def readFastaMul(fic, init=False):
 # en ne retenant que son nom et la sequence
 
 
-def parse(fic):
-    seqs = readFastaMul(fic, True)
-    # nameDir = fic.split("/")
-    # nameDir = nameDir[len(nameDir)-1].split(".")[0]
-    nameDir = os.path.basename(os.path.dirname(fic)).split(".")[0]
-    if not os.path.exists(nameDir):
-        os.makedirs(nameDir)
-    os.chdir(nameDir)
-    writeFastas(seqs)
-    fics = glob.glob('*.fa')
-    os.chdir("..")
-    return fics
+# def parse(fic):
+#     seqs = readFastaMul(fic, True)
+#     # nameDir = fic.split("/")
+#     # nameDir = nameDir[len(nameDir)-1].split(".")[0]
+#     nameDir = os.path.basename(os.path.dirname(fic)).split(".")[0]
+#     if not os.path.exists(nameDir):
+#         os.makedirs(nameDir)
+#     os.chdir(nameDir)
+#     writeFastas(seqs)
+#     fics = glob.glob('*.fa')
+#     os.chdir("..")
+#     return fics
 
 
 def writeFastas(seqs):
@@ -186,18 +186,46 @@ def writePirMul(fic, seqs, borders=[]):
 # extract each transcript sequence
 
 
-def prepareInputs(pathTransSeqs):
-    fics = glob.glob(pathTransSeqs+'/*.fa')
-    for fic in fics:
-        # nameDir = fic.split("/")
-        # nameDir = nameDir[len(nameDir)-1].split(".")[0]
-        nameDir = os.path.basename(os.path.dirname(fic)).split(".")[0]
-        ficsOUT = parse(fic)
-        for f in ficsOUT:
-            nameRTF = os.path.join(pathTransSeqs, f.split(".")[0]+".rtf")
-            if os.path.isfile(nameRTF):
-                # os.system("cp "+nameRTF+" "+nameDir+"/")
-                shutil.copy2(nameRTF, nameDir)
+# def prepareInputs(pathTransSeqs):
+#     files = glob.glob('*.fa') + glob.glob('*.fasta') + glob.glob('*.faa')
+#     for fic in files:
+#         # nameDir = fic.split("/")
+#         # nameDir = nameDir[len(nameDir)-1].split(".")[0]
+#         nameDir = os.path.basename(os.path.dirname(fic)).split(".")[0]
+#         ficsOUT = parse(fic)
+#         for f in ficsOUT:
+#             nameRTF = os.path.join(pathTransSeqs, f.split(".")[0]+".rtf")
+#             # nameRTF = '.'.join(f.split('.')[:-1]) + ".rtf"
+#             if os.path.isfile(nameRTF):
+#                 # os.system("cp "+nameRTF+" "+nameDir+"/")
+#                 shutil.copy2(nameRTF, nameDir)
+#     os.chdir(folder)
+
+
+def prepareInputs(transcriptsdir, outputdir):
+    here = os.getcwd()  # To be able to go back...
+    if os.path.isdir(transcriptsdir):
+        os.chdir(transcriptsdir)
+        files = glob.glob('*.fa') + glob.glob('*.fasta') + glob.glob('*.faa')
+        os.chdir(outputdir)
+        for file in files:
+            path = os.path.join(transcriptsdir, file)
+            seqs = readFastaMul(path, True)
+            namedir = file.split('.')[0]
+            if not os.path.exists(namedir):
+                os.mkdir(namedir)
+            os.chdir(namedir)
+            writeFastas(seqs)
+            ffiles = glob.glob('*.fa')
+            for ff in ffiles:
+                namertf = os.path.join(
+                    transcriptsdir, ff.replace('.fa', '') + ".rtf")
+                if os.path.isfile(namertf):
+                    shutil.copy2(namertf, os.path.join(outputdir, namedir))
+            os.chdir(outputdir)
+    else:
+        print transcriptsdir + " is not a folder (running in " + here + ")."
+    os.chdir(here)
 
 
 # ecrit dans un fichier
@@ -365,7 +393,7 @@ def model3D(fic, ALLPDB):
                 with open(base_name, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
-            splitChainsPDB('pdb'+kn+'.ent', kn, 'pdb')
+            splitChainsPDB('pdb' + kn + '.ent', kn, 'pdb')
     knowns = tuple(knowns)
 
     a = modeller.automodel.automodel(env, alnfile=fic, knowns=knowns,
@@ -411,24 +439,20 @@ def readRTF(filename):
 
 def insertExons(myExons, trans):
 
-    fIN = open(trans+".B99990001.pdb", 'r')
-    lines = fIN.readlines()
-    fIN.close()
-
-    fOUT = open(trans+"_ex.pdb", "w")
-
-    count = -1
-    currRes = ""
-    for line in lines:
-        if line[:4] == "ATOM":
-            residue = line[17:26]
-            if currRes != residue:
-                currRes = residue
-                count = count + 1
-            fOUT.write(line[:54]+"%6.2f" % myExons[count]+line[60:])
-        else:
-            fOUT.write(line)
-    fOUT.close()
+    with open(trans+".B99990001.pdb", 'r') as fIN:
+        lines = fIN.readlines()
+        with open(trans+"_ex.pdb", "w") as fOUT:
+            count = -1
+            currRes = ""
+            for line in lines:
+                if line[:4] == "ATOM":
+                    residue = line[17:26]
+                    if currRes != residue:
+                        currRes = residue
+                        count = count + 1
+                    fOUT.write(line[:54]+"%6.2f" % myExons[count]+line[60:])
+                else:
+                    fOUT.write(line)
 
     return 1
 
@@ -451,7 +475,8 @@ def annotate(trans, borders):
 
 
 def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB,
-                    STRUCTDB, ALLPDB, NCPU, trans, selTemp, only3D):
+                    STRUCTDB, ALLPDB, NCPU, trans, selTemp, only3D,
+                    CONTEXTLIB):
     try:
         tmp = trans[2:].split('.')[0]
         if not only3D:

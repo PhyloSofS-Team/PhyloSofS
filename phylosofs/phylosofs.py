@@ -20,7 +20,7 @@ import utils
 import inferPhylo as ip
 import modelIsoforms as mi
 import argparse
-
+import pdb
 # CB: birth cost
 # CD: death cost
 # cm: mutation cost
@@ -134,7 +134,7 @@ def parse_command_line():
         default=3
     )
     model_args.add_argument(
-        '--instruct',
+        '-i', '--instruct',
         help='text file containing input data: either a directory where '
         'multifasta files are located (one file per species) or a single '
         'fasta file with the sequence of only one transcript (in that '
@@ -365,6 +365,9 @@ def doit(doPhylo,
     """
     random.seed()
 
+    outputDir = os.path.abspath(outputDir)
+    pathTransSeqs = os.path.abspath(pathTransSeqs)
+
     if doPhylo:
         for f in [inputFile, inputTree]:
             if not os.path.isfile(f):
@@ -466,14 +469,14 @@ def doit(doPhylo,
         print "--------------------------------------------"
         print "Running molecular modeling step..."
         print "--------------------------------------------"
-
-        os.chdir(outputDir)
+        # os.chdir(outputDir)
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
             print 'prepare intputs...'
-            mi.prepareInputs(pathTransSeqs)
+            mi.prepareInputs(pathTransSeqs, outputDir)
 
+        os.chdir(outputDir)
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
@@ -485,22 +488,27 @@ def doit(doPhylo,
         if not onlyQuality:
             print 'launch the 3D modelling process'
             if uniq:
+                if not os.path.isfile(pathTransSeqs):
+                    raise ValueError('--instruct should be a file if '
+                                     '--uniq is used')
+
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
                 mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
                                    HHMODEL, HHDB, STRUCTDB, ALLPDB, NCPU,
-                                   # './'+trans,
-                                   selTemp, only3D)
-                os.chdir('..')
+                                   trans, selTemp, only3D, CONTEXTLIB)
+                os.chdir(outputDir)
             else:
-                print dirs
+                print "Molecular modelling in: " + str(dirs[1:])
                 for mydir in dirs[1:]:
                     os.chdir(mydir)
-                    for trans in glob.glob('./*.fa'):
+                    for trans in glob.glob('*.fa') + glob.glob('*.fasta') +\
+                            glob.glob('*.faa'):
                         mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
                                            HHMODEL, HHDB, STRUCTDB, ALLPDB,
-                                           NCPU, trans, selTemp, only3D)
-                    os.chdir('..')
+                                           NCPU, trans, selTemp, only3D,
+                                           CONTEXTLIB)
+                    os.chdir(outputDir)
 
         # assess the quality of the models
         print 'assess the quality of the models'
@@ -522,9 +530,9 @@ def doit(doPhylo,
                     for prot in glob.glob('../*.B99990001.pdb'):
                         mydir, trans = os.path.split(prot)
                         pref = trans.split('.')[0]
-                        lenModel = mi.computeLenModel(
-                            '../'+pref)  # TODO : Test on windows
-                        lenFull, percentSS = mi.computeSS('../'+pref)
+                        path_pref = os.path.join('..', pref)
+                        lenModel = mi.computeLenModel(path_pref)
+                        lenFull, percentSS = mi.computeSS(path_pref)
                         dihedrals, covalent, overall = mi.assessQuality(
                             PROCHECK, prot, pref)
                         zscore = mi.assessNormalizedDopeScore(prot)
@@ -539,7 +547,7 @@ def doit(doPhylo,
                     os.chdir('..')
                     utils.clear_folder('procheck')
                     os.rmdir('procheck')
-                    os.chdir('..')
+                    os.chdir(outputDir)
                 except:
                     print 'Problem with ' + mydir
 
