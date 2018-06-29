@@ -1250,8 +1250,6 @@ def adaptDistTab(t, x, xt, forVals, ind0, paraT, n, ax):
 # which determines the number of paths with maximum capacity
 # with the constraint that each intermediate node must appear in only one path
 # returns true if the number of paths is higher or equal to n(=bn)
-
-
 def maxAssign(n, dim, forVals):
     # print("max assign")
     l = len(forVals)
