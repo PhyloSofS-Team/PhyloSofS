@@ -162,7 +162,7 @@ def parse_command_line():
         action='store_true'
     )
     parser.add_argument(
-        '-o',
+        '-o', '--outputdir',
         help='output directory',
         default='.'
     )
@@ -219,8 +219,9 @@ def parse_command_line():
     )
     model_args.add_argument(
         '--addss',
-        help='Path to addss.pl',
-        default='addss.pl'
+        help="Path to the hhsuite script addss.pl, "
+        "in unix you can try 'locate addss.pl' to find it.",
+        default=''
     )
     model_args.add_argument(
         '--hhmake',
@@ -239,13 +240,14 @@ def parse_command_line():
     )
     model_args.add_argument(
         '--hhdb',
-        help='Path to the sequence database for the HH-suite, e.g. UniProt',
-        default='uniprot'
+        help="Path to the sequence database for the HH-suite, "
+        "e.g. Uniclust30",
+        default=''
     )
     model_args.add_argument(
         '--structdb',
-        help='Path to the structure databse for the HH-suite, e.g. PDB',
-        default='pdb_hhm_db'
+        help='Path to the structure database for the HH-suite, e.g. PDB',
+        default=''
     )
     model_args.add_argument(
         '--ncpu',
@@ -254,8 +256,9 @@ def parse_command_line():
     )
     model_args.add_argument(
         '--contexlib',
-        help='Path to context_data.lib for HH-suite',
-        default='contex_data.lib'
+        help="Path to context_data.lib for hhsuite, "
+        "in unix you can try 'locate context_data.lib' to find it.",
+        default=''
     )
     model_args.add_argument(
         '--procheck',
@@ -339,7 +342,7 @@ def doit(doPhylo,
          args.m,
          args.ni,
          args.nt,
-         args.o,
+         args.outputdir,
          args.only3D,
          args.onlyquality,
          args.s,
@@ -469,14 +472,14 @@ def doit(doPhylo,
         print "--------------------------------------------"
         print "Running molecular modeling step..."
         print "--------------------------------------------"
-        # os.chdir(outputDir)
+        os.chdir(outputDir)
+        
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
             print 'prepare intputs...'
             mi.prepareInputs(pathTransSeqs, outputDir)
 
-        os.chdir(outputDir)
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
@@ -565,7 +568,7 @@ def main():
          args.m,
          args.ni,
          args.nt,
-         args.o,
+         args.outputdir,
          args.only3D,
          args.onlyquality,
          args.s,
