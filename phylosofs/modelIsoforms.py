@@ -464,7 +464,8 @@ def insertExons(myExons, trans):
 
 def annotate(trans, borders):
     try:
-        tmp = trans[2:].split('.')[0]
+        # tmp = trans[2:].split('.')[0]
+        tmp = os.path.splitext(trans)[0]
         myExons = readRTF(tmp + '.rtf')
         start = borders[2] - borders[0]
         end = len(myExons) - (borders[1] - borders[3] + 1)
@@ -480,7 +481,8 @@ def annotate(trans, borders):
 def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
                     ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB):
     try:
-        tmp = trans[2:].split('.')[0]
+        # tmp = trans[2:].split('.')[0]  # 'example.fa' --> 'ample'
+        tmp = os.path.splitext(trans)[0]  # 'example.fa' --> 'example'
         if not only3D:
             # look for homologs and create the MSA alignment
             subprocess.call([

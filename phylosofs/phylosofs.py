@@ -468,7 +468,6 @@ def doit(doPhylo,
 
     ###################### molecular modeling ######################
     if doModel:
-
         print "--------------------------------------------"
         print "Running molecular modeling step..."
         print "--------------------------------------------"
@@ -485,9 +484,14 @@ def doit(doPhylo,
         for i in range(nbTemp):
             selTemp += str(i+1)
             selTemp += " "
+        # NOTE: for nbTemp == 5 this block generates '1 2 3 4 5 '
 
         # perform the whole 3D modelling process
+        
         dirs = [x[0] for x in os.walk('.')]
+        # NOTE: dirs is at leat ['.'] and it has subfolders, 
+        # e.g. ['.', './folder', './folder/subfolder']
+
         if not onlyQuality:
             print 'launch the 3D modelling process'
             if uniq:
