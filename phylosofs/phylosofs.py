@@ -213,31 +213,37 @@ def parse_command_line():
         action='store_true'
     )
     model_args.add_argument(
-        '--hhblits',
-        help='Path to hhblits',
-        default='hhblits'
-    )
-    model_args.add_argument(
-        '--addss',
-        help="Path to the hhsuite script addss.pl, "
-        "in unix you can try 'locate addss.pl' to find it.",
+        '--hhlib',
+        help='Path to the hh-suite',
         default=''
     )
-    model_args.add_argument(
-        '--hhmake',
-        help='Path to hhmake',
-        default='hhmake'
-    )
-    model_args.add_argument(
-        '--hhsearch',
-        help='Path to hhsearch',
-        default='hhsearch'
-    )
-    model_args.add_argument(
-        '--hhmodel',
-        help='Path to hhmodel',
-        default='hhmodel'
-    )
+    # model_args.add_argument(
+    #     '--hhblits',
+    #     help='Path to hhblits',
+    #     default='hhblits'
+    # )
+    # model_args.add_argument(
+    #     '--addss',
+    #     help="Path to the hhsuite script addss.pl, "
+    #     "in unix you can try 'locate addss.pl' to find it.",
+    #     default=''
+    # )
+    # model_args.add_argument(
+    #     '--hhmake',
+    #     help='Path to hhmake',
+    #     default='hhmake'
+    # )
+    # model_args.add_argument(
+    #     '--hhsearch',
+    #     help='Path to hhsearch',
+    #     default='hhsearch'
+    # )
+    # model_args.add_argument(
+    #     '--hhmakemodel',
+    #     help="Path to the hhsuite script hhmakemodel.pl"
+    #     "in unix you can try 'locate addss.pl' to find it.",
+    #     default=''
+    # )
     model_args.add_argument(
         '--hhdb',
         help="Path to the sequence database for the HH-suite, "
@@ -254,12 +260,12 @@ def parse_command_line():
         help='Number of CPUs',
         default='1'
     )
-    model_args.add_argument(
-        '--contexlib',
-        help="Path to context_data.lib for hhsuite, "
-        "in unix you can try 'locate context_data.lib' to find it.",
-        default=''
-    )
+    # model_args.add_argument(
+    #     '--contexlib',
+    #     help="Path to context_data.lib for hhsuite, "
+    #     "in unix you can try 'locate context_data.lib' to find it.",
+    #     default=''
+    # )
     model_args.add_argument(
         '--procheck',
         help='Path to procheck',
@@ -295,6 +301,20 @@ def parse_command_line():
     return args
 
 
+def choose_path(hhlib, program):
+    """
+    Return the first executable path between hhlib/build/bin/program and
+    hhlib/bin/program
+    """
+    paths = [os.path.join(hhlib, "build", "bin", program),
+             os.path.join(hhlib, "bin", program)]
+    for path in paths:
+        if os.path.isfile(path) and os.access(path, os.X_OK):
+            return path
+    raise Exception("hhlib is %s, but %s aren't executable paths for "
+                    "program %s" % (hhlib, paths, program))
+
+
 def doit(doPhylo,
          doModel,
          inputTree,
@@ -316,19 +336,20 @@ def doit(doPhylo,
          printOnly,
          withMemory,
          prune,
+         HHLIB,
          # from ex config.txt
-         HHBLITS,
-         ADDSS,
-         HHMAKE,
-         HHSEARCH,
-         HHMODEL,
+         # HHBLITS,
+         # ADDSS,
+         # HHMAKE,
+         # HHSEARCH,
+         # HHMODEL,
          PROCHECK,
          NACCESS,
          HHDB,
          STRUCTDB,
          ALLPDB,
-         NCPU,
-         CONTEXTLIB
+         NCPU
+         # CONTEXTLIB
          ):
     """
     doit(args.phylo,
@@ -352,18 +373,19 @@ def doit(doPhylo,
          args.printonly,
          args.withmemory,
          not args.noprune,
-         args.hhblits,
-         args.addss,
-         args.hhmake,
-         args.hhsearch,
-         args.hhmodel,
+         args.hhlib,
+         # args.hhblits,
+         # args.addss,
+         # args.hhmake,
+         # args.hhsearch,
+         # args.hhmakemodel,
          args.procheck,
          args.naccess,
          args.hhdb,
          args.structdb,
          args.allpdb,
          args.ncpu,
-         args.contexlib
+         # args.contexlib
          )
     """
     random.seed()
@@ -472,7 +494,16 @@ def doit(doPhylo,
         print "Running molecular modeling step..."
         print "--------------------------------------------"
         os.chdir(outputDir)
-        
+
+        HHBLITS = choose_path(HHLIB, 'hhblits')
+        HHMAKE = choose_path(HHLIB, 'hhmake')
+        HHSEARCH = choose_path(HHLIB, 'hhsearch')
+
+        HHMODEL = os.path.join(HHLIB, 'scripts', 'hhmakemodel.pl')
+        ADDSS = os.path.join(HHLIB, 'scripts', 'addss.pl')
+
+        CONTEXTLIB = os.path.join(HHLIB, 'data', 'context_data.lib')
+
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
@@ -582,18 +613,19 @@ def main():
          args.printonly,
          args.withmemory,
          not args.noprune,
-         args.hhblits,
-         args.addss,
-         args.hhmake,
-         args.hhsearch,
-         args.hhmodel,
+         args.hhlib,
+         # args.hhblits,
+         # args.addss,
+         # args.hhmake,
+         # args.hhsearch,
+         # args.hhmakemodel,
          args.procheck,
          args.naccess,
          args.hhdb,
          args.structdb,
          args.allpdb,
-         args.ncpu,
-         args.contexlib
+         args.ncpu
+         # args.contexlib
          )
 
 

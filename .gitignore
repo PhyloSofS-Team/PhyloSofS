@@ -11,8 +11,9 @@ phylosofs.egg-info/
 # py.test
 .pytest_cache/
 .coverage
-
-# JUPYTER
+# pycharm
+.idea/
+# jupyter
 .ipynb_checkpoints
 
 # VIM
