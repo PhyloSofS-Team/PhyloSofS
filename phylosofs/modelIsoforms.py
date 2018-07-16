@@ -548,6 +548,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
         ])  # "-P", "20"
     # create the alignment for modeller
     run_external_program([HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir",
+                          "-d", ALLPDB,
                           "-m", selTemp])
     # treat the alignment file to remove N- and C-terminal loops
     
