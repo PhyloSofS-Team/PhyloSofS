@@ -13,11 +13,13 @@ import shutil
 import subprocess
 import warnings
 import gzip
+import pdb
 # import ConfigParser
 # _config = ConfigParser.ConfigParser()
 
 try:
     import modeller
+    from modeller import automodel
     _modeller_message = ""
 except ImportError:
     warnings.warn('modeller is not installed', ImportWarning)
@@ -145,7 +147,8 @@ def treatAli(fic):
         while allTirets:
             i += valInc[k]
             allTirets = True
-            s = 1
+            s = 0  # NOTE: This was 1, but that created an infinite loop
+            # when nbSeqs was 1... Was there a reson for s = 1?
             while s < nbSeqs and allTirets:
                 allTirets = (seqs[s][1][i] == '-')
                 s += 1
@@ -395,8 +398,8 @@ def model3D(fic, ALLPDB):
 
             splitChainsPDB('pdb' + kn + '.ent', kn, 'pdb')
     knowns = tuple(knowns)
-
-    a = modeller.automodel.automodel(
+    pdb.set_trace()
+    a = automodel.automodel(
         env, alnfile=fic, knowns=knowns, sequence=seq)
     a.starting_model = 1  # index of the first model
     a.ending_model = 1  # index of the last model
@@ -547,6 +550,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
     run_external_program([HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir",
                           "-m", selTemp])
     # treat the alignment file to remove N- and C-terminal loops
+    
     borders = treatAli(tmp + '.pir')
     # generate the 3D models with Modeller
     model3D(tmp + '.pir', ALLPDB)
