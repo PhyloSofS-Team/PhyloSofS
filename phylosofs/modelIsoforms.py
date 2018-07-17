@@ -205,6 +205,7 @@ def writePirMul(fic, seqs, borders=[]):
 #                 shutil.copy2(nameRTF, nameDir)
 #     os.chdir(folder)
 
+
 def prepareInputs(transcriptsdir, outputdir):
     here = os.getcwd()  # To be able to go back...
     if os.path.isdir(transcriptsdir):
@@ -221,14 +222,15 @@ def prepareInputs(transcriptsdir, outputdir):
             writeFastas(seqs)
             ffiles = glob.glob('*.fa')
             for ff in ffiles:
-                namertf = os.path.join(
-                    transcriptsdir, ff.replace('.fa', '') + ".rtf")
+                namertf = os.path.join(transcriptsdir,
+                                       ff.replace('.fa', '') + ".rtf")
                 if os.path.isfile(namertf):
                     shutil.copy2(namertf, os.path.join(outputdir, namedir))
             os.chdir(outputdir)
     else:
         print transcriptsdir + " is not a folder (running in " + here + ")."
     os.chdir(here)
+
 
 # ecrit dans un fichier
 def writeToFile(name, chaine):
@@ -241,7 +243,7 @@ def writeToFile(name, chaine):
 
 
 def splitChainsPDB(fic, code, ext):
-
+    pdb.set_trace()
     rfile = open(fic, "r")
 
     # os.system("rm "+fic+"_* 2> err.txt")
@@ -367,28 +369,31 @@ def computeRatioSASA(NACCESS, prot, pref):
     return nsurf / n, nhydophsurf / nhydroph
 
 
-def model3D(fic, ALLPDB):
+def model3D(fic, ALLPDB, pdb_extension='.pdb'):
     if _modeller_message != "":
         raise ImportError(_modeller_message)
 
+    seqs = readFastaMul(fic)
+
+    if len(seqs) < 2:
+        raise Exception("There aren't template sequences in %s." % fic)
+
+    seq = seqs[0][0].split('\n')[0]
+    seq = seq.split(';')[1]
+    
     modeller.log.verbose()  # request verbose output
     env = modeller.environ()  # create a new MODELLER environment to build ...
     # ... this model in
 
-    seqs = readFastaMul(fic)
-    seq = seqs[0][0].split('\n')[0]
-    seq = seq.split(';')[1]
-
     knowns = []
-
     for i in range(1, len(seqs)):
         tmp = seqs[i][0].split('\n')[0]
         tmp = tmp.split(';')[1]
         knowns.append(tmp)
         kn = tmp.split('_')[0]
-        base_name = 'pdb' + kn + '.ent'
+        base_name = 'pdb' + kn + pdb_extension
         nam = base_name + '.gz'
-        if not os.path.isfile('pdb' + kn + '.ent'):
+        if not os.path.isfile('pdb' + kn + pdb_extension):
             # shutil.copyfile(ALLPDB + nam, "./" + nam)
             shutil.copy2(ALLPDB + nam, nam)
             # os.system("gunzip ./" + nam)
@@ -396,11 +401,9 @@ def model3D(fic, ALLPDB):
                 with open(base_name, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
-            splitChainsPDB('pdb' + kn + '.ent', kn, 'pdb')
+            splitChainsPDB('pdb' + kn + pdb_extension, kn, 'pdb')
     knowns = tuple(knowns)
-    pdb.set_trace()
-    a = automodel.automodel(
-        env, alnfile=fic, knowns=knowns, sequence=seq)
+    a = automodel.automodel(env, alnfile=fic, knowns=knowns, sequence=seq)
     a.starting_model = 1  # index of the first model
     a.ending_model = 1  # index of the last model
     # (determines how many models to calculate)
@@ -480,6 +483,7 @@ def annotate(trans, borders):
         res = 0
     return res
 
+
 def run_external_program(command_list):
     """
     Use subprocess to print and run the command_list.
@@ -541,17 +545,17 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
         # search for homologs
         run_external_program([
             HHSEARCH, "-cpu", NCPU, "-v", "1", "-i", tmp + ".hhm", "-d",
-            STRUCTDB, "-o", tmp + ".hhr", "-p", "20", "-Z",
-            "100", "-B", "100", "-seq", "1", "-aliw", "80", "-local",
-            "-ssm", "2", "-norealign", "-sc", "1", "-dbstrlen", "10000",
-            "-cs", CONTEXTLIB
+            STRUCTDB, "-o", tmp + ".hhr", "-p", "20", "-Z", "100", "-B", "100",
+            "-seq", "1", "-aliw", "80", "-local", "-ssm", "2", "-norealign",
+            "-sc", "1", "-dbstrlen", "10000", "-cs", CONTEXTLIB
         ])  # "-P", "20"
     # create the alignment for modeller
-    run_external_program([HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir",
-                          "-d", ALLPDB,
-                          "-m", selTemp])
+    run_external_program([
+        HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir", "-d", ALLPDB, "-m",
+        selTemp
+    ])
     # treat the alignment file to remove N- and C-terminal loops
-    
+
     borders = treatAli(tmp + '.pir')
     # generate the 3D models with Modeller
     model3D(tmp + '.pir', ALLPDB)
