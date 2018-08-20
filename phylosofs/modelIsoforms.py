@@ -205,7 +205,6 @@ def writePirMul(fic, seqs, borders=[]):
 #                 shutil.copy2(nameRTF, nameDir)
 #     os.chdir(folder)
 
-
 def prepareInputs(transcriptsdir, outputdir):
     here = os.getcwd()  # To be able to go back...
     if os.path.isdir(transcriptsdir):
@@ -243,7 +242,6 @@ def writeToFile(name, chaine):
 
 
 def splitChainsPDB(fic, code, ext):
-    pdb.set_trace()
     rfile = open(fic, "r")
 
     # os.system("rm "+fic+"_* 2> err.txt")
@@ -369,7 +367,7 @@ def computeRatioSASA(NACCESS, prot, pref):
     return nsurf / n, nhydophsurf / nhydroph
 
 
-def model3D(fic, ALLPDB, pdb_extension='.pdb'):
+def model3D(fic, ALLPDB, pdb_extension='.ent'):
     if _modeller_message != "":
         raise ImportError(_modeller_message)
 
@@ -390,18 +388,18 @@ def model3D(fic, ALLPDB, pdb_extension='.pdb'):
         tmp = seqs[i][0].split('\n')[0]
         tmp = tmp.split(';')[1]
         knowns.append(tmp)
-        kn = tmp.split('_')[0]
+        kn = tmp.split('_')[0].lower()
         base_name = 'pdb' + kn + pdb_extension
-        nam = base_name + '.gz'
+        nam = base_name  # + '.gz'
         if not os.path.isfile('pdb' + kn + pdb_extension):
             # shutil.copyfile(ALLPDB + nam, "./" + nam)
-            shutil.copy2(ALLPDB + nam, nam)
-            # os.system("gunzip ./" + nam)
-            with gzip.open(nam, 'rb') as f_in:
-                with open(base_name, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+            shutil.copy2(os.path.join(ALLPDB, nam), nam)
+            # # os.system("gunzip ./" + nam)
+            # with gzip.open(nam, 'rb') as f_in:
+            #     with open(base_name, 'wb') as f_out:
+            #         shutil.copyfileobj(f_in, f_out)
 
-            splitChainsPDB('pdb' + kn + pdb_extension, kn, 'pdb')
+            # splitChainsPDB('pdb' + kn + pdb_extension, kn, 'pdb')
     knowns = tuple(knowns)
     a = automodel.automodel(env, alnfile=fic, knowns=knowns, sequence=seq)
     a.starting_model = 1  # index of the first model
@@ -467,19 +465,24 @@ def insertExons(myExons, trans):
 
 # annotate the generated PDBs with exon information
 
-
 def annotate(trans, borders):
     try:
         # tmp = trans[2:].split('.')[0]
         tmp = os.path.splitext(trans)[0]
-        myExons = readRTF(tmp + '.rtf')
-        start = borders[2] - borders[0]
-        end = len(myExons) - (borders[1] - borders[3] + 1)
-        myExons = myExons[start:end]
-        insertExons(myExons, tmp)
+        rtf_file = tmp + '.rtf'
+        if os.path.isfile(rtf_file):
+            myExons = readRTF(tmp + '.rtf')
+            start = borders[2] - borders[0]
+            end = len(myExons) - (borders[1] - borders[3] + 1)
+            myExons = myExons[start:end]
+            insertExons(myExons, tmp)
+        else:
+            warnings.warn('There is not ' + rtf_file + ' file!')
+
         res = 1
-    except:
-        print 'Error: could not annotate the 3D model for ' + tmp
+    except Exception as e:
+        print('Error: could not annotate the 3D model for ' + tmp + ':\n    ' +
+              str(e))
         res = 0
     return res
 
@@ -549,7 +552,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-seq", "1", "-aliw", "80", "-local", "-ssm", "2", "-norealign",
             "-sc", "1", "-dbstrlen", "10000", "-cs", CONTEXTLIB
         ])  # "-P", "20"
-    # create the alignment for modeller
+        # create the alignment for modeller
     run_external_program([
         HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir", "-d", ALLPDB, "-m",
         selTemp
