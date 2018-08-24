@@ -382,7 +382,7 @@ def model3D(fic, ALLPDB, pdb_extension='.ent'):
     modeller.log.verbose()  # request verbose output
     env = modeller.environ()  # create a new MODELLER environment to build ...
     # ... this model in
-
+    env.io.atom_files_directory = ['.', ALLPDB]
     knowns = []
     for i in range(1, len(seqs)):
         tmp = seqs[i][0].split('\n')[0]
