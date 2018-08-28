@@ -539,7 +539,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
         # look for homologous and create the MSA alignment
         run_external_program([
             HHBLITS, "-cpu", NCPU, "-i", trans, "-d", HHDB, "-oa3m",
-            tmp + ".a3m", "-n", "1"
+            tmp + ".a3m", "-n", "3"
         ])
         # add secondary structure prediction to the MSA
         run_external_program([ADDSS, tmp + ".a3m"])
