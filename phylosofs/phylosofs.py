@@ -126,11 +126,13 @@ def parse_command_line():
     phylo_args.add_argument(
         '-b',
         help='birth cost',
+        type=int,
         default=5
     )
     phylo_args.add_argument(
         '-d',
         help='death cost',
+        type=int,
         default=3
     )
     model_args.add_argument(
@@ -144,16 +146,19 @@ def parse_command_line():
     phylo_args.add_argument(
         '-m',
         help='mutation cost',
+        type=int,
         default=2
     )
     phylo_args.add_argument(
         '--ni',
         help='number of iterations',
+        type=int,
         default=1
     )
     model_args.add_argument(
         '--nt',
         help='number of templates to retain',
+        type=int,
         default=5
     )
     phylo_args.add_argument(
