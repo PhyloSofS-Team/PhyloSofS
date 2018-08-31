@@ -159,7 +159,7 @@ def parse_command_line():
         '--nt',
         help='number of templates to retain',
         type=int,
-        default=5
+        default=10
     )
     phylo_args.add_argument(
         '--noprune',
@@ -224,7 +224,7 @@ def parse_command_line():
     )
     # model_args.add_argument(
     #     '--hhblits',
-    #     help='Path to hhblits',
+    #     help='Path to hhblits',ple sequence alignments (MSAs) by iterative sequence searching
     #     default='hhblits'
     # )
     # model_args.add_argument(
@@ -241,7 +241,7 @@ def parse_command_line():
     # model_args.add_argument(
     #     '--hhsearch',
     #     help='Path to hhsearch',
-    #     default='hhsearch'
+    #     default='hhsearch'ple sequence alignments (MSAs) by iterative sequence searching
     # )
     # model_args.add_argument(
     #     '--hhmakemodel',
@@ -523,9 +523,9 @@ def doit(doPhylo,
         # NOTE: for nbTemp == 5 this block generates '1 2 3 4 5 '
 
         # perform the whole 3D modelling process
-        
+
         dirs = [x[0] for x in os.walk('.')]
-        # NOTE: dirs is at leat ['.'] and it has subfolders, 
+        # NOTE: dirs is at leat ['.'] and it has subfolders,
         # e.g. ['.', './folder', './folder/subfolder']
 
         if not onlyQuality:

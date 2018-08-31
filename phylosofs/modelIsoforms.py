@@ -378,7 +378,7 @@ def model3D(fic, ALLPDB, pdb_extension='.ent'):
 
     seq = seqs[0][0].split('\n')[0]
     seq = seq.split(';')[1]
-    
+
     modeller.log.verbose()  # request verbose output
     env = modeller.environ()  # create a new MODELLER environment to build ...
     # ... this model in
@@ -538,24 +538,54 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
     if not only3D:
         # look for homologous and create the MSA alignment
         run_external_program([
-            HHBLITS, "-cpu", NCPU, "-i", trans, "-d", HHDB, "-oa3m",
-            tmp + ".a3m", "-n", "3"
+            HHBLITS,
+            "-cpu", NCPU,
+            "-i", trans,
+            "-d", HHDB,
+            # "-all",  # show all sequences in result MSA; do not filter result MSA
+            "-id", "100",  # maximum pairwise sequence identity
+            "-cov", "80",  # minimum coverage with master sequence (%)
+            "-oa3m", tmp + ".a3m",
+            "-n", "3"
         ])
         # add secondary structure prediction to the MSA
         run_external_program([ADDSS, tmp + ".a3m"])
         # generate a hidden Markov model (HMM) from the MSA
-        run_external_program([HHMAKE, "-i", tmp + ".a3m"])
+        run_external_program([HHMAKE,
+            "-i", tmp + ".a3m",
+            "-cov", "80",  # minimum coverage with master sequence (%)
+            "-id", "100"  # maximum pairwise sequence identity
+            ])
         # search for homologs
         run_external_program([
-            HHSEARCH, "-cpu", NCPU, "-v", "1", "-i", tmp + ".hhm", "-d",
-            STRUCTDB, "-o", tmp + ".hhr", "-p", "20", "-Z", "100", "-B", "100",
-            "-seq", "1", "-aliw", "80", "-local", "-ssm", "2", "-norealign",
-            "-sc", "1", "-dbstrlen", "10000", "-cs", CONTEXTLIB
+            HHSEARCH,
+            "-cpu", NCPU,
+            "-v", "1",
+            "-i", tmp + ".hhm",
+            "-d", STRUCTDB,
+            "-o", tmp + ".hhr",
+            "-p", "20",
+            "-Z", "100",
+            "-B", "100",
+            "-seq", "1",
+            "-aliw", "80",
+            "-local",
+            "-ssm", "2",
+            "-norealign",
+            "-sc", "1",
+            "-dbstrlen", "10000",
+            "-cov", "80",  # minimum coverage with master sequence (%)
+            # "-all",  # show all sequences in result MSA; do not filter result MSA
+            "-id", "100",  # maximum pairwise sequence identity
+            "-cs", CONTEXTLIB
         ])  # "-P", "20"
         # create the alignment for modeller
     run_external_program([
-        HHMODEL, "-i", tmp + ".hhr", "-pir", tmp + ".pir", "-d", ALLPDB, "-m",
-        selTemp
+        HHMODEL, "-i", tmp + ".hhr",
+                 "-pir", tmp + ".pir",
+                 "-d", ALLPDB,
+                 "-m", selTemp
+                 # -q file use the full-length query sequence in the alignment file
     ])
     # treat the alignment file to remove N- and C-terminal loops
 
