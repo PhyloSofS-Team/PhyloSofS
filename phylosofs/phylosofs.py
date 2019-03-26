@@ -27,6 +27,7 @@ import pdb
 # SUFF: suffix for the output files
 
 
+
 def check_argument_groups(parser, arg_dict, group, argument, required):
     """
     Check for use of arguments.
@@ -119,9 +120,9 @@ def parse_command_line():
     #     'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
     # )
     # model_args.add_argument(
-    #     '-c',
-    #     help='text file containing values for parameters '
-    #     '(for molecular modeling part)'
+         # '-c',
+         # help='text file containing values for parameters '
+         # '(for molecular modeling part)'
     # )  # REQUIRED
     phylo_args.add_argument(
         '-b',
@@ -296,14 +297,18 @@ def parse_command_line():
 
     check_argument_groups(parser, arg_dict, '--phylo', '--transcripts', True)
     check_argument_groups(parser, arg_dict, '--phylo', '--tree', True)
-    # check_argument_groups(parser, arg_dict, '--model', '-c', True)
-
+    #check_argument_groups(parser, arg_dict, '--model', '-c', True)
     # Check flag arguments
     if not args.model:
         if args.only3D:
             parser.error("phylosofs requires --model if --only3D is used.")
 
+    if args.model:
+        if not args.instruct:
+            parser.error("phylosofs requires an input fasta file if --model is used.")
+
     return args
+
 
 
 def choose_path(hhlib, program):
@@ -342,18 +347,17 @@ def doit(doPhylo,
          withMemory,
          prune,
          HHLIB,
-         # from ex config.txt
+         # PROCHECK,
+         # NACCESS,
+         HHDB,
+         STRUCTDB,
+         ALLPDB,
+         NCPU,
          # HHBLITS,
          # ADDSS,
          # HHMAKE,
          # HHSEARCH,
          # HHMODEL,
-         PROCHECK,
-         NACCESS,
-         HHDB,
-         STRUCTDB,
-         ALLPDB,
-         NCPU
          # CONTEXTLIB
          ):
     """
@@ -498,21 +502,26 @@ def doit(doPhylo,
         print "--------------------------------------------"
         print "Running molecular modeling step..."
         print "--------------------------------------------"
+        HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(HHLIB)
+        #for HHSUITE perl scripts
+        # TODO : This is definitely ugly and need some rework.
+        os.environ['HHLIB'] =  HHLIB+'/build'
         os.chdir(outputDir)
-
-        HHBLITS = choose_path(HHLIB, 'hhblits')
-        HHMAKE = choose_path(HHLIB, 'hhmake')
-        HHSEARCH = choose_path(HHLIB, 'hhsearch')
-
-        HHMODEL = os.path.join(HHLIB, 'scripts', 'hhmakemodel.pl')
-        ADDSS = os.path.join(HHLIB, 'scripts', 'addss.pl')
-
-        CONTEXTLIB = os.path.join(HHLIB, 'data', 'context_data.lib')
+        # HHBLITS = choose_path(HHLIB, 'hhblits')
+        # HHMAKE = choose_path(HHLIB, 'hhmake')
+        # HHSEARCH = choose_path(HHLIB, 'hhsearch')
+        #
+        # HHMODEL = os.path.join(HHLIB, 'scripts', 'hhmakemodel.pl')
+        # ADDSS = os.path.join(HHLIB, 'scripts', 'addss.pl')
+        #
+        # CONTEXTLIB = os.path.join(HHLIB, 'data', 'context_data.lib')
+        #print(HHBLITS +'\n'+ HHMAKE +'\n'+ HHSEARCH +'\n'+ HHMODEL +'\n'+ ADDSS +'\n'+ CONTEXTLIB)
 
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
             print 'prepare intputs...'
+            print(pathTransSeqs, outputDir)
             mi.prepareInputs(pathTransSeqs, outputDir)
 
         # determine the number of templates that will be retained
@@ -597,6 +606,7 @@ def doit(doPhylo,
 
 def main():
     args = parse_command_line()
+    #print(args.hhlib + '\n' + HHBLITS +'\n'+ HHMAKE +'\n'+ HHSEARCH +'\n'+ HHMODEL +'\n'+ ADDSS +'\n'+ CONTEXTLIB)
     doit(args.phylo,
          args.model,
          args.tree,
@@ -619,20 +629,19 @@ def main():
          args.withmemory,
          not args.noprune,
          args.hhlib,
-         # args.hhblits,
-         # args.addss,
-         # args.hhmake,
-         # args.hhsearch,
-         # args.hhmakemodel,
-         args.procheck,
-         args.naccess,
+         # args.procheck,
+         # args.naccess,
          args.hhdb,
          args.structdb,
          args.allpdb,
-         args.ncpu
-         # args.contexlib
+         args.ncpu,
+         # HHBLITS,
+         # ADDSS,
+         # HHMAKE,
+         # HHSEARCH,
+         # HHMODEL,
+         # CONTEXTLIB
          )
-
 
 if (__name__ == '__main__'):
     main()
