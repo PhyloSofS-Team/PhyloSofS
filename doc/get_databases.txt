@@ -1,0 +1,130 @@
+get the databases HHDB, STRUCTDB and ALLPDB for PhyloSofS:
+
+The first 2 are on the HH-Suite documentation:
+https://github.com/soedinglab/hh-suite
+
+And can be found here:
+http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/
+
+The HHDB are Uniprot and Uniclust files, while the STRUCTDB are all named pdb70_...
+
+Make sure to have some space in you computer before downloading and uncompressing them. (around 130 - 150 Go)
+
+The ALLPDB database consists of several steps:
+First, you need to download every files in .ent. This can be done with Rsync
+for this step, the script used was taken from 
+http://www.wwpdb.org/download/downloads
+
+rsync -rlpt -v -z --delete --port=33444 \
+rsync.rcsb.org::ftp_data/structures/divided/pdb/ ./pdb
+
+Next, you need to unzip them (using gunzip)
+and the move every .ent file in the same folder.
+
+for i in `ls`;
+do 
+  for j in `ls $i`;
+  do 
+    gunzip ./$i/$j;
+  done;
+done
+
+for i in `ls`;
+do 
+  for j in `ls $i`;
+  do 
+    mv ./$i/$j <your destination folder>;
+  done;
+done
+
+
+Then, you also need to download every .PDB file from the PDB. You can get a list of every PDB ID by clicking the total PDB files (next to the logo) and then select a custom report -> list selected PDB IDS. With this you can download them with a simple wget. I reccoment splitting the file containing the IDS and launching multiples wget at the same time, as this step can be quite long, depending on your internet connexion. Make sure to have a lot of storage space for this one (~300Go)
+
+Script to launch the Wget :
+
+#!/bin/bash
+for i in `cat $1`;
+do
+#	echo $i
+	[ ! -e $i.pdb ] && `wget https://files.rcsb.org/download/$i.pdb` #--header "Referer: https://files.rcsb.org"
+	sleep .1
+done
+
+launch it with ./<name.sh> <pdbID file.txt>
+
+Once downloaded, you need to split the chains of every PDB file. The code is provided below (taken from PhyloSofS)
+
+#!/usr/bin/env python2
+import sys
+import glob
+
+def splitChainsPDB(fic, code, ext):
+    rfile = open(fic, "r")
+
+    # os.system("rm "+fic+"_* 2> err.txt")
+    for file in glob.glob(fic + "_*"):
+        os.remove(file)
+
+    lines = rfile.readlines()
+    nbLines = len(lines)
+
+    ligne = ""
+    count = 0
+
+    while count < nbLines:
+
+        while not ligne.startswith("ATOM") and (count < nbLines):
+            try:
+                ligne = lines[count]
+            except:  # TODO : Try not to use try here or use a better except.
+                print "can't read line"
+            count += 1
+
+        if count < nbLines:
+            chain = ligne[21]
+            ficOUT = code + "_" + chain + '.' + ext
+            wfile2 = open(ficOUT, "w")
+            wfile2.writelines(ligne)
+            try:
+                ligne = lines[count]
+            except:  # TODO : Try not to use try here or use a better except.
+                print "can't read line"
+            count += 1
+            while (ligne[21] == chain) and ((ligne.startswith("ATOM")) or
+                                            (ligne.startswith("HETATM")) or
+                                            (ligne.startswith("ANISOU"))) and \
+                  (count < nbLines):
+                wfile2.writelines(ligne)
+                try:
+                    ligne = lines[count]
+                except:  # TODO : Try not to use try or use a better except.
+                    print "can't read line"
+                count += 1
+            wfile2.close()
+
+splitChainsPDB(sys.argv[1], sys.argv[2], 'pdb')
+
+
+Then, run it on the ALLPDB folder. This step can be very long. 
+for i in `find -type f -name '*.pdb'`; do ./split_chain.py $i ${i%????}; done
+
+Next, you need to rename every PDB_Chain.PDB file to lowercase for Modeller (very fast with mmv)
+
+mmv  \*_*.pdb \#l1_#2.pdb
+
+If you don't have mmv, you can loop through the folder and rename every file individually, but it will be very long.
+
+
+
+To use them with phyloSofS, just put them after the arguments:
+--hhdb
+--structdb
+--allpdb
+
+Be careful, for  hhdb and structdb, you need to provide the path for the database, but also the basename of the files in the database.
+
+The database PDB70_14Sep16 contains 15 files starting with pdb70.
+path will be:
+--structdb <path_to_the_folder>/pdb70
+
+It is the same with HHDB. For ALLPDB, you need to give the path to the folder only, without the ending "/".
