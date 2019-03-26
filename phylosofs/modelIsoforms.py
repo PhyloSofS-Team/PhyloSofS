@@ -8,14 +8,14 @@
 # module to reconstruct 3D models of isoforms
 
 import glob
-import os
+import os, sys
 import shutil
 import subprocess
 import warnings
 import gzip
 import pdb
-# import ConfigParser
-# _config = ConfigParser.ConfigParser()
+import ConfigParser
+_config = ConfigParser.ConfigParser()
 
 try:
     import modeller
@@ -29,26 +29,50 @@ except ImportError:
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
 #
 #
-# def init(configFile):
-#
-#    _config.read(os.path.expanduser(configFile))
-#    # upload paths for librairies
-#    HHBLITS = _config.get("PROGRAMS", "HHBLITS")
-#    ADDSS = _config.get("PROGRAMS", "ADDSS")
-#    HHMAKE = _config.get("PROGRAMS", "HHMAKE")
-#    HHSEARCH = _config.get("PROGRAMS", "HHSEARCH")
-#    HHMODEL = _config.get("PROGRAMS", "HHMODEL")
-#    PROCHECK = _config.get("PROGRAMS", "PROCHECK")
-#    NACCESS = _config.get("PROGRAMS", "NACCESS")
-#    HHDB = _config.get("DATABASES", "HHDB")
-#    STRUCTDB = _config.get("DATABASES", "STRUCTDB")
-#    ALLPDB = _config.get("DATABASES", "ALLPDB")
-#    NCPU = _config.get("OPTIONS", "NCPU")
-#    CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
-#
-#    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
-#           STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
-#
+def init(configFile):
+
+   _config.read(os.path.expanduser(configFile))
+   # upload paths for librairies
+   HHBLITS = _config.get("PROGRAMS", "HHBLITS")
+   ADDSS = _config.get("PROGRAMS", "ADDSS")
+   HHMAKE = _config.get("PROGRAMS", "HHMAKE")
+   HHSEARCH = _config.get("PROGRAMS", "HHSEARCH")
+   HHMODEL = _config.get("PROGRAMS", "HHMODEL")
+   PROCHECK = _config.get("PROGRAMS", "PROCHECK")
+   NACCESS = _config.get("PROGRAMS", "NACCESS")
+   HHDB = _config.get("DATABASES", "HHDB")
+   STRUCTDB = _config.get("DATABASES", "STRUCTDB")
+   ALLPDB = _config.get("DATABASES", "ALLPDB")
+   NCPU = _config.get("OPTIONS", "NCPU")
+   CONTEXTLIB = _config.get("DATA", "CONTEXTLIB")
+
+   return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS, HHDB,
+          STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
+
+# This function takes as an argument a directory path to the hh-suite
+# and gets every executable paths
+def getProgramPath(HHLIB):
+    #HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
+    HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB=('','','','','','')
+    for root, dirs, files in os.walk(HHLIB, topdown=False):
+        for name in files:
+            program = os.path.join(root, name)
+            if(program.split("/")[-2:]==['bin', 'hhblits']):
+                HHBLITS = program
+            elif(program.split("/")[-1]=='addss.pl' and program.split("/")[-3]=='build'):
+                ADDSS = program
+            elif(program.split("/")[-2:]==['bin', 'hhmake']):
+                HHMAKE = program
+            elif(program.split("/")[-2:]==['bin', 'hhsearch']):
+                HHSEARCH = program
+            elif(program.split("/")[-1]=='hhmakemodel.pl' and program.split("/")[-3]=='build' ):
+                HHMODEL = program
+            elif(program.split("/")[-1]=='context_data.lib'):
+                CONTEXTLIB = program
+    if ((HHBLITS=='') or (ADDSS=='') or (HHMAKE=='') or (HHSEARCH=='') or (HHMODEL=='') or (CONTEXTLIB=='')):
+        print('Could not locate the HHSUITE directory, please check your --hhlib argument')
+        sys.exit(1)
+    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB)
 # sys.path.append(STRUCTURE)
 # sys.path.append(SEQUENCE)
 #
@@ -225,6 +249,7 @@ def prepareInputs(transcriptsdir, outputdir):
                                        ff.replace('.fa', '') + ".rtf")
                 if os.path.isfile(namertf):
                     shutil.copy2(namertf, os.path.join(outputdir, namedir))
+
             os.chdir(outputdir)
     else:
         print transcriptsdir + " is not a folder (running in " + here + ")."
@@ -536,6 +561,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
     # tmp = trans[2:].split('.')[0]  # 'example.fa' --> 'ample'
     tmp = os.path.splitext(trans)[0]  # 'example.fa' --> 'example'
     if not only3D:
+        pass
         # look for homologous and create the MSA alignment
         run_external_program([
             HHBLITS,
@@ -548,14 +574,20 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-oa3m", tmp + ".a3m",
             "-n", "3"
         ])
+
+
         # add secondary structure prediction to the MSA
-        run_external_program([ADDSS, tmp + ".a3m"])
+        # currently not working
+        #run_external_program([ADDSS, tmp + ".a3m"])
+
+
         # generate a hidden Markov model (HMM) from the MSA
         run_external_program([HHMAKE,
-            "-i", tmp + ".a3m",
-            "-cov", "80",  # minimum coverage with master sequence (%)
-            "-id", "100"  # maximum pairwise sequence identity
-            ])
+             "-i", tmp + ".a3m",
+             "-cov", "80",  # minimum coverage with master sequence (%)
+             "-id", "100"  # maximum pairwise sequence identity
+             ])
+
         # search for homologs
         run_external_program([
             HHSEARCH,
@@ -579,6 +611,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-id", "100",  # maximum pairwise sequence identity
             "-cs", CONTEXTLIB
         ])  # "-P", "20"
+
         # create the alignment for modeller
     run_external_program([
         HHMODEL, "-i", tmp + ".hhr",
@@ -587,12 +620,12 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
                  "-m", selTemp
                  # -q file use the full-length query sequence in the alignment file
     ])
+    
     # treat the alignment file to remove N- and C-terminal loops
-
     borders = treatAli(tmp + '.pir')
     # generate the 3D models with Modeller
     model3D(tmp + '.pir', ALLPDB)
-    annotate(trans, borders)
+    #annotate(trans, borders)
     res = 1
     # except:  # TODO : Too general except
     #     print 'Error: could not build the 3D model for ' + tmp
