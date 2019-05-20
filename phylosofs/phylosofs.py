@@ -25,7 +25,7 @@ import pdb
 # CD: death cost
 # cm: mutation cost
 # SUFF: suffix for the output files
-
+import time
 
 
 def check_argument_groups(parser, arg_dict, group, argument, required):
@@ -469,8 +469,10 @@ def doit(doPhylo,
         dat, AllExons = initData.initTree(inputTree, inputFile, prune)
         print "The exons are:"
         print AllExons
-        nExons = range(len(AllExons))
-        print nExons
+        # nExons = range(1, len(AllExons)+1)
+        # print nExons
+        # nExons = [str(i) for i in nExons]
+        # print(type(nExons))
 
         if topoStart == {}:
             res = ip.bestTopology(dat, AllExons, nbIt, costs, costMat,
@@ -504,18 +506,8 @@ def doit(doPhylo,
         print "--------------------------------------------"
         HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(HHLIB)
         #for HHSUITE perl scripts
-        # TODO : This is definitely ugly and need some rework.
         os.environ['HHLIB'] =  HHLIB+'/build'
         os.chdir(outputDir)
-        # HHBLITS = choose_path(HHLIB, 'hhblits')
-        # HHMAKE = choose_path(HHLIB, 'hhmake')
-        # HHSEARCH = choose_path(HHLIB, 'hhsearch')
-        #
-        # HHMODEL = os.path.join(HHLIB, 'scripts', 'hhmakemodel.pl')
-        # ADDSS = os.path.join(HHLIB, 'scripts', 'addss.pl')
-        #
-        # CONTEXTLIB = os.path.join(HHLIB, 'data', 'context_data.lib')
-        #print(HHBLITS +'\n'+ HHMAKE +'\n'+ HHSEARCH +'\n'+ HHMODEL +'\n'+ ADDSS +'\n'+ CONTEXTLIB)
 
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
@@ -605,6 +597,7 @@ def doit(doPhylo,
 
 
 def main():
+    start = time.time()
     args = parse_command_line()
     #print(args.hhlib + '\n' + HHBLITS +'\n'+ HHMAKE +'\n'+ HHSEARCH +'\n'+ HHMODEL +'\n'+ ADDSS +'\n'+ CONTEXTLIB)
     doit(args.phylo,
@@ -642,6 +635,8 @@ def main():
          # HHMODEL,
          # CONTEXTLIB
          )
+    end = time.time()
+    print("finished in {} seconds".format(end-start))
 
 if (__name__ == '__main__'):
     main()

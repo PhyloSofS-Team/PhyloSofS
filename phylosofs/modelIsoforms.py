@@ -65,7 +65,7 @@ def getProgramPath(HHLIB):
                 HHMAKE = program
             elif(program.split("/")[-2:]==['bin', 'hhsearch']):
                 HHSEARCH = program
-            elif(program.split("/")[-1]=='hhmakemodel.pl' and program.split("/")[-3]=='build' ):
+            elif(program.split("/")[-1]=='hhmakemodel.py' and program.split("/")[-3]=='build' ):
                 HHMODEL = program
             elif(program.split("/")[-1]=='context_data.lib'):
                 CONTEXTLIB = program
@@ -147,7 +147,8 @@ def readFastaMul(fic, init=False):
 
 def writeFastas(seqs):
     for seq in seqs:
-        with open(seq[0] + ".fa", 'w') as f:
+        # there is many replaces to avoid problems later, with the JPred API for example (allows only letters, numbers and underscores in the name)
+        with open((seq[0].replace('/', '_').replace(" ", "_").replace("|", "_").replace("-", "_").replace("=", "_"))[0:40] + ".fa", 'w') as f:
             f.write('>' + seq[0] + '\n')
             i = 0
             while i < len(seq[1]):
@@ -237,7 +238,7 @@ def prepareInputs(transcriptsdir, outputdir):
         os.chdir(outputdir)
         for file in files:
             path = os.path.join(transcriptsdir, file)
-            seqs = readFastaMul(path, True)
+            seqs = readFastaMul(path, False)
             namedir = file.split('.')[0]
             if not os.path.exists(namedir):
                 os.mkdir(namedir)
@@ -392,7 +393,7 @@ def computeRatioSASA(NACCESS, prot, pref):
     return nsurf / n, nhydophsurf / nhydroph
 
 
-def model3D(fic, ALLPDB, pdb_extension='.ent'):
+def model3D(fic, ALLPDB, pdb_extension='.cif'):
     if _modeller_message != "":
         raise ImportError(_modeller_message)
 
@@ -414,9 +415,9 @@ def model3D(fic, ALLPDB, pdb_extension='.ent'):
         tmp = tmp.split(';')[1]
         knowns.append(tmp)
         kn = tmp.split('_')[0].lower()
-        base_name = 'pdb' + kn + pdb_extension
+        base_name = kn + pdb_extension
         nam = base_name  # + '.gz'
-        if not os.path.isfile('pdb' + kn + pdb_extension):
+        if not os.path.isfile(kn + pdb_extension):
             # shutil.copyfile(ALLPDB + nam, "./" + nam)
             shutil.copy2(os.path.join(ALLPDB, nam), nam)
             # # os.system("gunzip ./" + nam)
@@ -568,24 +569,21 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-cpu", NCPU,
             "-i", trans,
             "-d", HHDB,
-            # "-all",  # show all sequences in result MSA; do not filter result MSA
+            "-neff" , "11", # skip further search iterations when diversity Neff of query MSA becomes larger than neffmax
+            "-all",  # show all sequences in result MSA; do not filter result MSA
             "-id", "100",  # maximum pairwise sequence identity
-            "-cov", "80",  # minimum coverage with master sequence (%)
+            "-cov", "20",  # minimum coverage with master sequence (%)
             "-oa3m", tmp + ".a3m",
-            "-n", "3"
+            "-n", "3",
+            #"-maxfilt", "50000"
         ])
-
-
-        # add secondary structure prediction to the MSA
-        # currently not working
-        #run_external_program([ADDSS, tmp + ".a3m"])
-
 
         # generate a hidden Markov model (HMM) from the MSA
         run_external_program([HHMAKE,
              "-i", tmp + ".a3m",
-             "-cov", "80",  # minimum coverage with master sequence (%)
-             "-id", "100"  # maximum pairwise sequence identity
+             "-cov", "50",  # minimum coverage with master sequence (%)
+             "-id", "100",  # maximum pairwise sequence identity
+             "-neff", "11"
              ])
 
         # search for homologs
@@ -601,33 +599,59 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-B", "100",
             "-seq", "1",
             "-aliw", "80",
-            "-local",
+            "-loc",
+            "-maxres", "37000",
             "-ssm", "2",
             "-norealign",
             "-sc", "1",
-            "-dbstrlen", "10000",
-            "-cov", "80",  # minimum coverage with master sequence (%)
-            # "-all",  # show all sequences in result MSA; do not filter result MSA
+            "-cov", "50",  # minimum coverage with master sequence (%)
+            "-all",  # show all sequences in result MSA; do not filter result MSA
             "-id", "100",  # maximum pairwise sequence identity
             "-cs", CONTEXTLIB
-        ])  # "-P", "20"
+        ])
+    # create the alignment for MODELLER
+        run_external_program(["python3",
+                HHMODEL, tmp + ".hhr",
+                ALLPDB,
+                tmp + ".pir",
+                "./"#,
+                #"-v"
+                #"-e", "0.1"
+                #"-m", "1","2","3","4","5","6","7","8","9","10" #10 templates only for now to avoid templates duplicates
+                #"-m", selTemp
+                # -q file use the full-length query sequence in the alignment file
+                ])
 
-        # create the alignment for modeller
-    run_external_program([
-        HHMODEL, "-i", tmp + ".hhr",
-                 "-pir", tmp + ".pir",
-                 "-d", ALLPDB,
-                 "-m", selTemp
-                 # -q file use the full-length query sequence in the alignment file
-    ])
-    
+
+    # split the alignment for a template summary
+        for i in range(1,6):
+            run_external_program(["python3",
+                    HHMODEL, tmp + ".hhr",
+                    ALLPDB,
+                    tmp + "_" + str(i) + ".pir",
+                    "./",
+                    "-m", str(i)
+                    ])
+
     # treat the alignment file to remove N- and C-terminal loops
-    borders = treatAli(tmp + '.pir')
+    #borders = treatAli(tmp + '.pir')
+
+    # write a summary of : number of templates, name of the templates and coverage in the .pir file
+        run_external_program(["/home/labeeuw/Documents/softwares/julia-1.1.0/bin/julia",
+        "--inline=no",
+        "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots.jl",
+        tmp])
+    #summaryPirFile(tmp + '.pir')
+
+    # Create files for secondary structures and solvent accessibility using JPred 4 API
+    run_external_program(["python",
+    "./jpred_api_test.py", tmp+".pir"])
+
     # generate the 3D models with Modeller
-    model3D(tmp + '.pir', ALLPDB)
-    #annotate(trans, borders)
-    res = 1
-    # except:  # TODO : Too general except
-    #     print 'Error: could not build the 3D model for ' + tmp
-    #     res = 0
+    try:
+        model3D(tmp + '.pir', ALLPDB)
+        res = 0
+     except:  # TODO : Too general except
+         print 'Error: could not build the 3D model for ' + tmp
+         res = 1
     return res
