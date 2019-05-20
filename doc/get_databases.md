@@ -53,9 +53,9 @@ If you used wget, no need to decompress and move the files, as they should be in
 ## use with PhyloSofS
 -----
 To use these databases with phylosofs, put them after the arguments:
-    * --db
-    * --structdb
-    * --allpdb
+    * --db  
+    * --structdb  
+    * --allpdb  
 Be careful, for HHDB and STRUCTDB, you need to provide the path for the database, but also the basename of the files in the database.
 
 The database pdb70_from_mmcif_latest contains files starting with pdb70. To use it with PhyloSofS, the argument should be:
