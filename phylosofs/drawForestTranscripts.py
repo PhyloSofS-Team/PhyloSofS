@@ -88,7 +88,7 @@ def DotAllConfigurations(LT, outdir, prefix="forest_"):
         command = "dot -Tpdf -o %s %s" % (outpdf, outfile)
         status = subprocess.call(command, shell=True)
         # Do something with the status
-    print "Joining of all Topologies pdf is not implemented yet"
+    print("Joining of all Topologies pdf is not implemented yet")
 
 
 def _get_node_attributes(pydot_dot, node):
@@ -162,13 +162,13 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     #      level for the structure nodes under the transcript node
     fout = open(fileout+"_config"+str(iconf)+".info", "w")
     fout2 = open(fileout+"_config"+str(iconf)+".sum", "w")
-    # print nodes
+    # print(nodes)
     for n in sorted(nx.topological_sort(T)):
         # create as many nodes as transcripts for the given configuration
         nlist = ["%d_%d" % (n, i) for i in range(ntranscripts(T, n))]
-        # print T.node[n]
+        # print(T.node[n])
         for k in range(len(nlist)):
-            # print T.node[n]['trans'][k]
+            # print(T.node[n]['trans'][k])
             fout.write(nlist[k]+": "+T.node[n]['trans'][k]+"\n")
             dot_T.add_node(pydot.Node(nlist[k], label="",
                                       shape=node_shape, style=node_style, width=node_width, height=node_height))
@@ -178,19 +178,19 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
             parent = nx_utils.predecessors(T, n)[0]
             if sorted(nx_utils.successors(T, parent)).index(n) == 0:
                 choice = RIGHT
-                # print "I'm right", n, "my parent is", parent,
-                #     T.node[parent][RIGHT]
+                # print("I'm right", n, "my parent is", parent,
+                #     T.node[parent][RIGHT])
             else:
                 choice = LEFT
-                # print "I'm left", n, "my parent is", parent,
-                #     T.node[parent][LEFT]
+                # print("I'm left", n, "my parent is", parent,
+                #     T.node[parent][LEFT])
             for l in T.node[parent][choice]:
                 # sl_t = "%d_%d" % (sl,l)
                 # ajoute un noeud square pour les morts
                 # Pbme, il est pas du bon côté
                 t_death = "%d_%d_death" % (n, l)
                 nbDeaths = nbDeaths + 1
-                # print t_death
+                # print(t_death)
                 # dot_T.add_node(t_death, shape="triangle",
                 #                label="", width='0.3')  # pygraphviz
                 dot_T.add_node(pydot.Node(t_death, label="",
@@ -225,9 +225,9 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
         a = [i for (i, x) in enumerate(
             [s not in d, e not in d]) if x]
         if len(a) > 0:
-            print "**** Error when creating edge from %s to %s *****" % (s, e)
+            print("**** Error when creating edge from {} to {} *****".format(s, e))
             for x in a:
-                print "%s does not exist" % ([s, e][x])
+                print("%s does not exist" % ([s, e][x]))
     # Drawing all the edges from the internal nodes
     for n in filter(lambda x: nx_utils.get_out_degree(T, x) > 0,
                     nx.topological_sort(T)):
@@ -260,7 +260,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # ajoute un noeud square pour les morts
                     # Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sr, l)
-                    # print t_death
+                    # print(t_death)
                     # dot_T.add_node(t_death, shape = "triangle", label = "",
                     #     width='0.3')
                     dot_T.add_edge(pydot.Edge(dad_t, t_death,
@@ -279,7 +279,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
                     # ajoute un noeud square pour les morts
                     # Pbme, il est pas du bon côté
                     t_death = "%d_%d_death" % (sl, r)
-                    # print t_death
+                    # print(t_death)
                     # dot_T.add_node(t_death, shape = "triangle",
                     #     label = "", width='0.3')
                     dot_T.add_edge(pydot.Edge(dad_t, t_death,
@@ -295,17 +295,17 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
     # getting all sets of transcripts which are related
     # (same connected component)
     # and print them with the same color symbol
-    # print "Nodes of dot_T"
-    # print dot_T.nodes()
-    # print "edges"
-    # print dot_T.edges()
+    # print("Nodes of dot_T")
+    # print(dot_T.nodes())
+    # print("edges")
+    # print(dot_T.edges())
 
     # NetworkX 1.11: nx_agraph is not longer imported from
     ntr_totAll = len(sorted(nx.connected_components(
         nx.nx_pydot.from_pydot(dot_T).to_undirected())))
     # nx.nx_agraph.from_agraph(dot_T).to_undirected())))  # pygraphviz
-    ntrans = filter(lambda x: len(x) > 1,  nx.connected_components(
-        nx.nx_pydot.from_pydot(dot_T).to_undirected()))
+    ntrans = list(filter(lambda x: len(x) > 1,  nx.connected_components(
+        nx.nx_pydot.from_pydot(dot_T).to_undirected())))
     # nx.nx_agraph.from_agraph(dot_T).to_undirected()))  # pygraphviz
     ntr_tot = len(ntrans)
     fout2.write("Total number of trees: "+str(ntr_tot)+"\n")

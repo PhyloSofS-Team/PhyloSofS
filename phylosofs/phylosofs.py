@@ -10,6 +10,7 @@
 # d'evenements d'epissage au cours de l'evolution
 
 from __future__ import division
+
 import sys
 import os
 import glob
@@ -441,9 +442,9 @@ def doit(doPhylo,
 
     if doPhylo:
 
-        print "--------------------------------------------"
-        print "Running phylogenetic reconstruction step..."
-        print "--------------------------------------------"
+        print("--------------------------------------------")
+        print("Running phylogenetic reconstruction step...")
+        print("--------------------------------------------")
 
         bestAssign = []
         bestScore = 10000
@@ -467,8 +468,8 @@ def doit(doPhylo,
         costMat = (C0, C1_0, C1_1, C1_2)
 
         dat, AllExons = initData.initTree(inputTree, inputFile, prune)
-        print "The exons are:"
-        print AllExons
+        print("The exons are:")
+        print(AllExons)
         # nExons = range(1, len(AllExons)+1)
         # print nExons
         # nExons = [str(i) for i in nExons]
@@ -497,13 +498,13 @@ def doit(doPhylo,
                 ip.writeOutput((tree, res[2], res[3]), exSt,
                                SUFF, costs, AllExons, outputDir)
         else:
-            print "No suitable topology could be found."
+            print("No suitable topology could be found.")
 
     ###################### molecular modeling ######################
     if doModel:
-        print "--------------------------------------------"
-        print "Running molecular modeling step..."
-        print "--------------------------------------------"
+        print("--------------------------------------------")
+        print("Running molecular modeling step...")
+        print("--------------------------------------------")
         HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(HHLIB)
         #for HHSUITE perl scripts
         os.environ['HHLIB'] =  HHLIB+'/build'
@@ -512,7 +513,7 @@ def doit(doPhylo,
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
-            print 'prepare intputs...'
+            print("prepare intputs...")
             print(pathTransSeqs, outputDir)
             mi.prepareInputs(pathTransSeqs, outputDir)
 
@@ -530,7 +531,7 @@ def doit(doPhylo,
         # e.g. ['.', './folder', './folder/subfolder']
 
         if not onlyQuality:
-            print 'launch the 3D modelling process'
+            print("launch the 3D modelling process")
             if uniq:
                 if not os.path.isfile(pathTransSeqs):
                     raise ValueError('--instruct should be a file if '
@@ -543,7 +544,7 @@ def doit(doPhylo,
                                    trans, selTemp, only3D, CONTEXTLIB)
                 os.chdir(outputDir)
             else:
-                print "Molecular modelling in: " + str(dirs[1:])
+                print("Molecular modelling in: {}".format(str(dirs[1:])))
                 for mydir in dirs[1:]:
                     os.chdir(mydir)
                     for trans in glob.glob('*.fa') + glob.glob('*.fasta') +\
@@ -555,7 +556,7 @@ def doit(doPhylo,
                     os.chdir(outputDir)
 
         # assess the quality of the models
-        print 'assess the quality of the models'
+        print('assess the quality of the models')
         with open('quality.sum', 'w') as fOUT:
             fOUT.write(
                 '# procheck: Ideally, scores should be above -0.5. '
@@ -593,7 +594,7 @@ def doit(doPhylo,
                     os.rmdir('procheck')
                     os.chdir(outputDir)
                 except:
-                    print 'Problem with ' + mydir
+                    print('Problem with ' + mydir)
 
 
 def main():

@@ -1,3 +1,4 @@
+# coding: utf8
 # Copyright (c) 2014-2018: Adel Ait-hamlat, Diego Javier Zea and Elodie Laine.
 # This code is part of the phylosofs package and governed by its license.
 # Please see the LICENSE.txt file included as part of this package.
@@ -9,6 +10,7 @@
 # initialisation of the data
 
 from __future__ import division
+
 import networkx as nx
 import nx_utils
 

@@ -14,8 +14,8 @@ import subprocess
 import warnings
 import gzip
 import pdb
-import ConfigParser
-_config = ConfigParser.ConfigParser()
+import configparser
+_config = configparser.ConfigParser()
 
 try:
     import modeller
@@ -253,7 +253,7 @@ def prepareInputs(transcriptsdir, outputdir):
 
             os.chdir(outputdir)
     else:
-        print transcriptsdir + " is not a folder (running in " + here + ")."
+        print(transcriptsdir + " is not a folder (running in " + here + ").")
     os.chdir(here)
 
 
@@ -286,7 +286,7 @@ def splitChainsPDB(fic, code, ext):
             try:
                 ligne = lines[count]
             except:  # TODO : Try not to use try here or use a better except.
-                print "can't read line"
+                print("can't read line")
             count += 1
 
         if count < nbLines:
@@ -297,7 +297,7 @@ def splitChainsPDB(fic, code, ext):
             try:
                 ligne = lines[count]
             except:  # TODO : Try not to use try here or use a better except.
-                print "can't read line"
+                print("can't read line")
             count += 1
             while (ligne[21] == chain) and ((ligne.startswith("ATOM")) or
                                             (ligne.startswith("HETATM")) or
@@ -307,7 +307,7 @@ def splitChainsPDB(fic, code, ext):
                 try:
                     ligne = lines[count]
                 except:  # TODO : Try not to use try or use a better except.
-                    print "can't read line"
+                    print("can't read line")
                 count += 1
             wfile2.close()
 
@@ -544,16 +544,57 @@ def run_external_program(command_list):
     """
     str_command = subprocess.list2cmdline(command_list)
     horizontal_bar = "─" * 75
-    print ""
-    print "┌%s" % (horizontal_bar)
-    print "│ RUNNING: %s" % (str_command)
-    print ""
+    print("")
+    print("┌%s" % (horizontal_bar))
+    print("│ RUNNING: %s" % (str_command))
+    print("")
     exit_code = subprocess.call(command_list)
-    print ""
-    print "│ FINISHED WITH EXIT CODE: %s" % (exit_code)
-    print "└%s" % (horizontal_bar)
-    print ""
+    print("")
+    print("│ FINISHED WITH EXIT CODE: %s" % (exit_code))
+    print("└%s" % (horizontal_bar))
+    print("")
     return exit_code
+
+def summaryPirFile(fic):
+    with open(fic, 'r') as file:
+        pir_text = file.readlines()
+        # to force cast types
+        alns = {}
+        headerlist = []
+        desc = []
+        seq = []
+        coverage = []
+        for line in pir_text:
+            if '>'in line:
+                header = ''
+                header1 = line
+            elif ':' in line:
+                header2 = line
+                header = header1 + header2
+                header.replace('\n', '')
+                desc.append(line)
+                alns[header]=''
+            else:
+                alns[header]+=line
+        for k in alns:
+            headerlist.append(k)
+            seq.append(alns[k])
+        queryseq = len(seq[0])-seq[0].count('\n')-seq[0].count('-')
+        line= 'number of templates : {}\n'.format(len(seq)-1)
+        line += 'sequence name | coverage\n'
+        seq[0] = seq[0].replace('\n', '')
+        for i in range(len(seq)):
+            a = 0
+            seq[i] = seq[i].replace('\n', '')
+            for j in range(len(seq[0])):
+                if(seq[0][j] != '-' and seq[i][j] != '-'):
+                    a += 1
+            coverage.append(a/float(len(seq[0])-seq[0].count('-'))*100)
+            line+= '{} | {}\n'.format(headerlist[i].split('\n')[0], coverage[i])
+        result = open('templates_coverage_'+os.path.basename(file.name[:-4]+'.txt'), 'w+')
+        result.write(line)
+        result.close()
+
 
 
 def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
@@ -615,11 +656,9 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
                 ALLPDB,
                 tmp + ".pir",
                 "./"#,
-                #"-v"
+                #"-v", # verbose mode
                 #"-e", "0.1"
-                #"-m", "1","2","3","4","5","6","7","8","9","10" #10 templates only for now to avoid templates duplicates
-                #"-m", selTemp
-                # -q file use the full-length query sequence in the alignment file
+                #"-m", "1","2","3","4","5","6","7","8","9","10"
                 ])
 
 
@@ -641,17 +680,17 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
         "--inline=no",
         "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots.jl",
         tmp])
-    #summaryPirFile(tmp + '.pir')
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     run_external_program(["python",
     "./jpred_api_test.py", tmp+".pir"])
 
     # generate the 3D models with Modeller
-    try:
+    try
         model3D(tmp + '.pir', ALLPDB)
-        res = 0
-     except:  # TODO : Too general except
-         print 'Error: could not build the 3D model for ' + tmp
-         res = 1
+    #annotate(trans, borders)
+    res = 1
+    except:  # TODO : Too general except
+         print('Error: could not build the 3D model for ' + tmp)
+         res = 0
     return res
