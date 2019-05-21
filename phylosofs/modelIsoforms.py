@@ -683,14 +683,15 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     run_external_program(["python",
-    "./jpred_api_test.py", tmp+".pir"])
+    "../jpred_api_test.py", tmp+".pir"])
 
     # generate the 3D models with Modeller
-    try
+    try:
         model3D(tmp + '.pir', ALLPDB)
     #annotate(trans, borders)
-    res = 1
-    except:  # TODO : Too general except
+        res = 0
+    except Exception as e:
          print('Error: could not build the 3D model for ' + tmp)
-         res = 0
+         print("reason : {}".format(e))
+         res = 1
     return res
