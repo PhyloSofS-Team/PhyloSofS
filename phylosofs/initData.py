@@ -12,7 +12,7 @@
 from __future__ import division
 
 import networkx as nx
-import nx_utils
+from . import nx_utils
 
 # find where to split the string
 # or substring representing a binary tree or subtree
@@ -33,8 +33,9 @@ def findSplit(treeStr):
             if i == -1:
                 start = i
             else:
-                start = i+1
-    return(index)
+                start = i + 1
+    return (index)
+
 
 # Given a string representing a tree in Newick format,
 # and a list of transcripts
@@ -53,7 +54,7 @@ def convertToGraph(treeStr, transList):
     treeStr = treeStr[1:-1]
     indexSplit = findSplit(treeStr)
     assert indexSplit > 0, "Incorrect tree"
-    treeList = [treeStr[0:indexSplit], treeStr[indexSplit+1:len(treeStr)]]
+    treeList = [treeStr[0:indexSplit], treeStr[indexSplit + 1:len(treeStr)]]
     ancSuc = [treeList]
     while len(anc) > 0:
         newAnc = []
@@ -61,7 +62,7 @@ def convertToGraph(treeStr, transList):
         for a in range(len(anc)):
             assert len(ancSuc[a]) == 2, "Incorrect tree"
             for i in range(2):
-                curr = curr+1
+                curr = curr + 1
                 edgesList.append((anc[a], curr))
                 if ancSuc[a][i].count(",") == 0:
                     leafs[ancSuc[a][i]] = curr
@@ -71,14 +72,15 @@ def convertToGraph(treeStr, transList):
                     indexSplit = findSplit(tmp)
                     assert indexSplit > 0, "Incorrect tree"
                     newAncSuc.append(
-                        [tmp[0:indexSplit], tmp[indexSplit+1:len(tmp)]])
+                        [tmp[0:indexSplit], tmp[indexSplit + 1:len(tmp)]])
         anc = newAnc
         ancSuc = newAncSuc
     treeGraph = nx.DiGraph()
     treeGraph.add_edges_from(edgesList)
     for s in transList.keys():
         treeGraph.node[leafs[s]]['trans'] = transList[s]
-    return(treeGraph)
+    return (treeGraph)
+
 
 # read input data from a text file
 # that contains the geen tree in Newick format (string)
@@ -99,12 +101,13 @@ def readInputDat(intree, infile):
             if len(fields) >= 2:
                 transList[fields[0]] = fields[1:]
 
-    return(convertToGraph(treeStr, transList))
+    return (convertToGraph(treeStr, transList))
 
 
 # get the list of all exons appearing in the leaves
 def getExons(transSet):
     return [c for c in transSet.strip() if c != ':' and c != ',']
+
 
 # filter based on conservation: remove exons that appear only once
 # be aware that the transcripts containing these exon are not eliminated
@@ -137,6 +140,7 @@ def getExonsPruned(t):
 
     return [i for i in res.keys() if res.get(i) > 1]
 
+
 # count the number of times an exon appear
 
 
@@ -146,10 +150,11 @@ def getExonOccur(transSet):
     for t in transSet:
         for e in t:
             if e in res:
-                res[e] += 1.0/len(transSet)
+                res[e] += 1.0 / len(transSet)
             else:
-                res[e] = 1.0/len(transSet)
+                res[e] = 1.0 / len(transSet)
     return res
+
 
 # get the leaves of the tree (indices)
 
@@ -160,6 +165,7 @@ def getLeaves(t):
         if nx_utils.successors(t, n) == []:
             res.add(n)
     return res
+
 
 # get all the transcripts at the leaves
 
@@ -178,4 +184,4 @@ def initTree(intree, infile, prune):
         exons = getExonsPruned(Tree)
     else:
         exons = getExons(getTranscripts(Tree))
-    return(Tree, exons)
+    return (Tree, exons)

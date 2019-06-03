@@ -15,18 +15,19 @@ import sys
 import os
 import glob
 import random
-import initData
 import pickle as pk
-import utils
-import inferPhylo as ip
-import modelIsoforms as mi
+import time
 import argparse
-import pdb
+
 # CB: birth cost
 # CD: death cost
 # cm: mutation cost
 # SUFF: suffix for the output files
-import time
+
+from . import initData
+from . import inferPhylo as ip
+from . import modelIsoforms as mi
+from . import utils
 
 
 def check_argument_groups(parser, arg_dict, group, argument, required):
@@ -54,12 +55,12 @@ def check_argument_groups(parser, arg_dict, group, argument, required):
     group_name = group.replace("-", "")
     if not arg_dict[group_name]:
         if arg_dict[arg_name] is not None:
-            parser.error("phylosofs requires " + group +
-                         " if " + argument + " is used.")
+            parser.error("phylosofs requires " + group + " if " + argument +
+                         " is used.")
     else:
         if required and arg_dict[arg_name] is None:
-            parser.error("phylosofs requires " + argument +
-                         " if " + group + " is used.")
+            parser.error("phylosofs requires " + argument + " if " + group +
+                         " is used.")
     return None
 
 
@@ -87,33 +88,33 @@ def parse_command_line():
         """,
     )
 
-    phylo_args = parser.add_argument_group('Phylogenetic reconstruction', """
+    phylo_args = parser.add_argument_group(
+        'Phylogenetic reconstruction', """
         Arguments used for reconstructing transcripts' phylogenies.
         """)
 
-    model_args = parser.add_argument_group('Molecular modeling', """
+    model_args = parser.add_argument_group(
+        'Molecular modeling', """
         Arguments used for modeling the tertiary structures of the isoforms.
         """)
 
+    phylo_args.add_argument('-P',
+                            '--phylo',
+                            help='do the phylogenetic inference',
+                            action='store_true')
+    model_args.add_argument('-M',
+                            '--model',
+                            help='do the molecular modelling',
+                            action='store_true')
     phylo_args.add_argument(
-        '-P', '--phylo',
-        help='do the phylogenetic inference',
-        action='store_true'
-    )
-    model_args.add_argument(
-        '-M', '--model',
-        help='do the molecular modelling',
-        action='store_true'
-    )
+        '-n',
+        '--tree',
+        help='string representing the gene tree in Newick format')
     phylo_args.add_argument(
-        '-n', '--tree',
-        help='string representing the gene tree in Newick format'
-    )
-    phylo_args.add_argument(
-        '-t', '--transcripts',
+        '-t',
+        '--transcripts',
         help='text file containing the list of transcripts for '
-        'each leave (leaf_name: t1,t2,t3...)'
-    )
+        'each leave (leaf_name: t1,t2,t3...)')
     # phylo_args.add_argument(
     #     '--inseq',
     #     help='text file containing input data: string representing '
@@ -121,80 +122,55 @@ def parse_command_line():
     #     'the list of transcripts for each leave (leaf_name: t1,t2,t3...)'
     # )
     # model_args.add_argument(
-         # '-c',
-         # help='text file containing values for parameters '
-         # '(for molecular modeling part)'
+    # '-c',
+    # help='text file containing values for parameters '
+    # '(for molecular modeling part)'
     # )  # REQUIRED
-    phylo_args.add_argument(
-        '-b',
-        help='birth cost',
-        type=int,
-        default=5
-    )
-    phylo_args.add_argument(
-        '-d',
-        help='death cost',
-        type=int,
-        default=3
-    )
+    phylo_args.add_argument('-b', help='birth cost', type=int, default=5)
+    phylo_args.add_argument('-d', help='death cost', type=int, default=3)
     model_args.add_argument(
-        '-i', '--instruct',
+        '-i',
+        '--instruct',
         help='text file containing input data: either a directory where '
         'multifasta files are located (one file per species) or a single '
         'fasta file with the sequence of only one transcript (in that '
         'case, the unique option must be set to TRUE)',
-        default=''
-    )
-    phylo_args.add_argument(
-        '-m',
-        help='mutation cost',
-        type=int,
-        default=2
-    )
-    phylo_args.add_argument(
-        '--ni',
-        help='number of iterations',
-        type=int,
-        default=1
-    )
-    model_args.add_argument(
-        '--nt',
-        help='number of templates to retain',
-        type=int,
-        default=10
-    )
+        default='')
+    phylo_args.add_argument('-m', help='mutation cost', type=int, default=2)
+    phylo_args.add_argument('--ni',
+                            help='number of iterations',
+                            type=int,
+                            default=1)
+    model_args.add_argument('--nt',
+                            help='number of templates to retain',
+                            type=int,
+                            default=10)
     phylo_args.add_argument(
         '--noprune',
         help='disable the removal of exons that appear in only one transcript',
-        action='store_true'
-    )
-    parser.add_argument(
-        '-o', '--outputdir',
-        help='output directory',
-        default='.'
-    )
+        action='store_true')
+    parser.add_argument('-o',
+                        '--outputdir',
+                        help='output directory',
+                        default='.')
     model_args.add_argument(
         '--only3D',
         help='perform only the 3D modeling step (skip template search)',
-        action='store_true'
-    )
+        action='store_true')
     model_args.add_argument(
         '--onlyquality',
         help='perform only the 3D models quality assessment',
-        action='store_true'
-    )
+        action='store_true')
     phylo_args.add_argument(
         '--printonly',
         help='perform only the generation of the PDF file enabling to '
         'visualize the transcripts',
-        action='store_true'
-    )
+        action='store_true')
     model_args.add_argument(
         '--uniq',
         help='treat only one transcript whose sequence is taken from '
         'the fasta file indicated by the -i option',
-        action='store_true'
-    )
+        action='store_true')
     phylo_args.add_argument(
         '-s',
         help='starting score (by default: not considered), '
@@ -202,28 +178,18 @@ def parse_command_line():
         'by the topology corresponding to the maximum number of '
         'binary subnodes at each nodes (forest with the smallest '
         'possible number of trees), otherwise it starts from a '
-        'randomly chosen topology'
-    )
+        'randomly chosen topology')
     phylo_args.add_argument(
         '--suffix',
         help='suffix, it is _(birth)(death)(mutation)_(iterations) by '
-        'default, e.g. _532_1'
-    )
+        'default, e.g. _532_1')
     phylo_args.add_argument(
         '--topo',
         help="initial topology (by default: maximum or random topology), "
         "or transcripts' phylogeny to be printed out "
-        "(if the -printonly option is active)"
-    )
-    phylo_args.add_argument(
-        '--withmemory',
-        action='store_true'
-    )
-    model_args.add_argument(
-        '--hhlib',
-        help='Path to the hh-suite',
-        default=''
-    )
+        "(if the -printonly option is active)")
+    phylo_args.add_argument('--withmemory', action='store_true')
+    model_args.add_argument('--hhlib', help='Path to the hh-suite', default='')
     # model_args.add_argument(
     #     '--hhblits',
     #     help='Path to hhblits',ple sequence alignments (MSAs) by iterative sequence searching
@@ -255,39 +221,27 @@ def parse_command_line():
         '--hhdb',
         help="Path to the sequence database for the HH-suite, "
         "e.g. Uniclust30",
-        default=''
-    )
+        default='')
     model_args.add_argument(
         '--structdb',
         help='Path to the structure database for the HH-suite, e.g. PDB',
-        default=''
-    )
-    model_args.add_argument(
-        '--ncpu',
-        help='Number of CPUs',
-        default='1'
-    )
+        default='')
+    model_args.add_argument('--ncpu', help='Number of CPUs', default='1')
     # model_args.add_argument(
     #     '--contexlib',
     #     help="Path to context_data.lib for hhsuite, "
     #     "in unix you can try 'locate context_data.lib' to find it.",
     #     default=''
     # )
-    model_args.add_argument(
-        '--procheck',
-        help='Path to procheck',
-        default='procheck'
-    )
-    model_args.add_argument(
-        '--naccess',
-        help='Path to naccess',
-        default='naccess'
-    )
-    model_args.add_argument(
-        '--allpdb',
-        help='Path to all the pdb database',
-        default='allpdb'
-    )
+    model_args.add_argument('--procheck',
+                            help='Path to procheck',
+                            default='procheck')
+    model_args.add_argument('--naccess',
+                            help='Path to naccess',
+                            default='naccess')
+    model_args.add_argument('--allpdb',
+                            help='Path to all the pdb database',
+                            default='allpdb')
 
     args = parser.parse_args()
 
@@ -306,10 +260,10 @@ def parse_command_line():
 
     if args.model:
         if not args.instruct:
-            parser.error("phylosofs requires an input fasta file if --model is used.")
+            parser.error(
+                "phylosofs requires an input fasta file if --model is used.")
 
     return args
-
 
 
 def choose_path(hhlib, program):
@@ -317,8 +271,10 @@ def choose_path(hhlib, program):
     Return the first executable path between hhlib/build/bin/program and
     hhlib/bin/program
     """
-    paths = [os.path.join(hhlib, "build", "bin", program),
-             os.path.join(hhlib, "bin", program)]
+    paths = [
+        os.path.join(hhlib, "build", "bin", program),
+        os.path.join(hhlib, "bin", program)
+    ]
     for path in paths:
         if os.path.isfile(path) and os.access(path, os.X_OK):
             return path
@@ -326,41 +282,42 @@ def choose_path(hhlib, program):
                     "program %s" % (hhlib, paths, program))
 
 
-def doit(doPhylo,
-         doModel,
-         inputTree,
-         inputFile,
-         # configFile,
-         CB,  # birth cost
-         CD,  # death cost
-         pathTransSeqs,
-         cm,  # mutation cost
-         nbIt,  # number of iterations
-         nbTemp,
-         outputDir,
-         only3D,
-         onlyQuality,
-         starting_score,
-         SUFF,
-         topology_file,
-         uniq,
-         printOnly,
-         withMemory,
-         prune,
-         HHLIB,
-         # PROCHECK,
-         # NACCESS,
-         HHDB,
-         STRUCTDB,
-         ALLPDB,
-         NCPU,
-         # HHBLITS,
-         # ADDSS,
-         # HHMAKE,
-         # HHSEARCH,
-         # HHMODEL,
-         # CONTEXTLIB
-         ):
+def doit(
+        doPhylo,
+        doModel,
+        inputTree,
+        inputFile,
+        # configFile,
+        CB,  # birth cost
+        CD,  # death cost
+        pathTransSeqs,
+        cm,  # mutation cost
+        nbIt,  # number of iterations
+        nbTemp,
+        outputDir,
+        only3D,
+        onlyQuality,
+        starting_score,
+        SUFF,
+        topology_file,
+        uniq,
+        printOnly,
+        withMemory,
+        prune,
+        HHLIB,
+        # PROCHECK,
+        # NACCESS,
+        HHDB,
+        STRUCTDB,
+        ALLPDB,
+        NCPU,
+        # HHBLITS,
+        # ADDSS,
+        # HHMAKE,
+        # HHSEARCH,
+        # HHMODEL,
+        # CONTEXTLIB
+):
     """
     doit(args.phylo,
          args.model,
@@ -410,12 +367,12 @@ def doit(doPhylo,
                                  "file for phylogenetic inference.")
 
     # if doModel:
-        # if os.path.isfile(configFile):
-        #    HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
-        #        HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
-        # else:
-        #    sys.stderr.write("You must give an existing configuration file "
-        #                     " for molecular modeling. See usage.")
+    # if os.path.isfile(configFile):
+    #    HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, PROCHECK, NACCESS,\
+    #        HHDB, STRUCTDB, ALLPDB, NCPU, CONTEXTLIB = mi.init(configFile)
+    # else:
+    #    sys.stderr.write("You must give an existing configuration file "
+    #                     " for molecular modeling. See usage.")
 
     if starting_score is not None:
         initBest = starting_score
@@ -491,12 +448,12 @@ def doit(doPhylo,
             distTabs = ip.leafScoreTabs(dat, exSt, costMat, AllExons)
             if printOnly:
                 tree = topoStart
-                ip.writeOutput((tree, 0, 0), exSt, SUFF,
-                               costs, AllExons, outputDir)
+                ip.writeOutput((tree, 0, 0), exSt, SUFF, costs, AllExons,
+                               outputDir)
             else:
                 tree = ip.leafAssign(res[0], exSt, distTabs, costMat, AllExons)
-                ip.writeOutput((tree, res[2], res[3]), exSt,
-                               SUFF, costs, AllExons, outputDir)
+                ip.writeOutput((tree, res[2], res[3]), exSt, SUFF, costs,
+                               AllExons, outputDir)
         else:
             print("No suitable topology could be found.")
 
@@ -505,9 +462,10 @@ def doit(doPhylo,
         print("--------------------------------------------")
         print("Running molecular modeling step...")
         print("--------------------------------------------")
-        HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(HHLIB)
-        #for HHSUITE perl scripts
-        os.environ['HHLIB'] =  HHLIB+'/build'
+        HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(
+            HHLIB)
+        # for HHSUITE perl scripts
+        os.environ['HHLIB'] = HHLIB + '/build'
         os.chdir(outputDir)
 
         # create as many directories as fasta input files
@@ -520,7 +478,7 @@ def doit(doPhylo,
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
-            selTemp += str(i+1)
+            selTemp += str(i + 1)
             selTemp += " "
         # NOTE: for nbTemp == 5 this block generates '1 2 3 4 5 '
 
@@ -539,9 +497,9 @@ def doit(doPhylo,
 
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
-                mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
-                                   HHMODEL, HHDB, STRUCTDB, ALLPDB, NCPU,
-                                   trans, selTemp, only3D, CONTEXTLIB)
+                mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL,
+                                   HHDB, STRUCTDB, ALLPDB, NCPU, trans,
+                                   selTemp, only3D, CONTEXTLIB)
                 os.chdir(outputDir)
             else:
                 print("Molecular modelling in: {}".format(str(dirs[1:])))
@@ -558,15 +516,13 @@ def doit(doPhylo,
         # assess the quality of the models
         print('assess the quality of the models')
         with open('quality.sum', 'w') as fOUT:
-            fOUT.write(
-                '# procheck: Ideally, scores should be above -0.5. '
-                'Values below -1.0 may need investigation.\n')
+            fOUT.write('# procheck: Ideally, scores should be above -0.5. '
+                       'Values below -1.0 may need investigation.\n')
             fOUT.write('# dope: This is a Z-score; positive scores are '
                        'likely to be poor models, while scores lower '
                        'than -1 or so are likely to be native-like.\n')
-            fOUT.write(
-                'transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\t'
-                'covalent\toverall\tdope\trSurf\trHydroph\n')
+            fOUT.write('transcript\tlenFull\tpercentSS\tlenModel\tdihedrals\t'
+                       'covalent\toverall\tdope\trSurf\trHydroph\n')
             for mydir in dirs[1:]:
                 try:
                     os.chdir(mydir)
@@ -585,10 +541,9 @@ def doit(doPhylo,
                             NACCESS, prot, pref)
                         fOUT.write(pref + '\t' + str(lenFull) + '\t' +
                                    str(percentSS) + '\t' + str(lenModel) +
-                                   '\t' + dihedrals + '\t' + covalent +
-                                   '\t' + overall + '\t' + str(zscore) +
-                                   '\t' + str(rSurf) +
-                                   '\t' + str(rHydroph) + '\n')
+                                   '\t' + dihedrals + '\t' + covalent + '\t' +
+                                   overall + '\t' + str(zscore) + '\t' +
+                                   str(rSurf) + '\t' + str(rHydroph) + '\n')
                     os.chdir('..')
                     utils.clear_folder('procheck')
                     os.rmdir('procheck')
@@ -601,43 +556,45 @@ def main():
     start = time.time()
     args = parse_command_line()
     #print(args.hhlib + '\n' + HHBLITS +'\n'+ HHMAKE +'\n'+ HHSEARCH +'\n'+ HHMODEL +'\n'+ ADDSS +'\n'+ CONTEXTLIB)
-    doit(args.phylo,
-         args.model,
-         args.tree,
-         args.transcripts,
-         # args.c,
-         args.b,
-         args.d,
-         args.instruct,
-         args.m,
-         args.ni,
-         args.nt,
-         args.outputdir,
-         args.only3D,
-         args.onlyquality,
-         args.s,
-         args.suffix,
-         args.topo,
-         args.uniq,
-         args.printonly,
-         args.withmemory,
-         not args.noprune,
-         args.hhlib,
-         # args.procheck,
-         # args.naccess,
-         args.hhdb,
-         args.structdb,
-         args.allpdb,
-         args.ncpu,
-         # HHBLITS,
-         # ADDSS,
-         # HHMAKE,
-         # HHSEARCH,
-         # HHMODEL,
-         # CONTEXTLIB
-         )
+    doit(
+        args.phylo,
+        args.model,
+        args.tree,
+        args.transcripts,
+        # args.c,
+        args.b,
+        args.d,
+        args.instruct,
+        args.m,
+        args.ni,
+        args.nt,
+        args.outputdir,
+        args.only3D,
+        args.onlyquality,
+        args.s,
+        args.suffix,
+        args.topo,
+        args.uniq,
+        args.printonly,
+        args.withmemory,
+        not args.noprune,
+        args.hhlib,
+        # args.procheck,
+        # args.naccess,
+        args.hhdb,
+        args.structdb,
+        args.allpdb,
+        args.ncpu,
+        # HHBLITS,
+        # ADDSS,
+        # HHMAKE,
+        # HHSEARCH,
+        # HHMODEL,
+        # CONTEXTLIB
+    )
     end = time.time()
-    print("finished in {} seconds".format(end-start))
+    print("finished in {} seconds".format(end - start))
+
 
 if (__name__ == '__main__'):
     main()
