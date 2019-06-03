@@ -1,1 +1,1 @@
-from .phylosofs import *
+from . import *

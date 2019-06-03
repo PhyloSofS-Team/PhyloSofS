@@ -23,16 +23,16 @@ def compare_files(fpath1, fpath2):
 
 def path_tmp(filename):
     "Return the path to test/tmp/filename using os.path.join()."
-    return os.path.join(".", "tmp", filename)
+    return os.path.abspath(os.path.join(".", "tmp", filename))
 
 
 def path_dat(filename):
     "Return the path to test/data/filename using os.path.join()."
-    return os.path.join(".", "data", filename)
+    return os.apth.abspath(os.path.join(".", "data", filename))
 
 
-PATH_TMP = os.path.join(".", "tmp")  # os.path.join("test", "tmp")
-PATH_PHYLOSOFS = "phylosofs.exe"  # os.path.join("phylosofs", "phylosofs.py")
+PATH_TMP = os.path.abspath(os.path.join(".", "tmp"))  # os.path.join("test", "tmp")
+PATH_PHYLOSOFS = os.path.abspath(os.path.join("..", "phylosofs", "phylosofs.py"))
 
 if not os.path.isdir(PATH_TMP):
     os.mkdir(PATH_TMP)
@@ -40,8 +40,8 @@ if not os.path.isdir(PATH_TMP):
 
 class Test_PhyloSofS(unittest.TestCase):
     def test_phylosofs(self):
-        path_transcripts = os.path.join("..", "dat", "JNK3.transcripts")
-        path_newick = os.path.join("..", "dat", "JNK3.nwk")
+        path_transcripts = os.path.abspath(os.path.join("..", "dat", "JNK3.transcripts"))
+        path_newick = os.path.abspath(os.path.join("..", "dat", "JNK3.nwk"))
         command = [
             # "python",
             PATH_PHYLOSOFS,
@@ -68,8 +68,8 @@ class Test_PhyloSofS(unittest.TestCase):
                                                     "betterTrees")))
 
     def test_best_topos_and_trees(self):
-        path_transcripts = os.path.join("..", "dat", "JNK3.transcripts")
-        path_newick = os.path.join("..", "dat", "JNK3.nwk")
+        path_transcripts = os.path.abspath(os.path.join("..", "dat", "JNK3.transcripts"))
+        path_newick = os.path.abspath(os.path.join("..", "dat", "JNK3.nwk"))
         command = [
             # "python",
             PATH_PHYLOSOFS,
@@ -84,12 +84,12 @@ class Test_PhyloSofS(unittest.TestCase):
             path_transcripts
         ]
         self.assertEqual(subprocess.call(command), 0)
-        self.assertTrue(os.path.isdir(os.path.join(".", "tmp", "bestTopos")))
-        self.assertTrue(os.path.isdir(os.path.join(".", "tmp", "betterTrees")))
+        self.assertTrue(os.path.isdir(os.path.abspath(os.path.join(".", "tmp", "bestTopos"))))
+        self.assertTrue(os.path.isdir(os.path.abspath(os.path.join(".", "tmp", "betterTrees"))))
         self.assertGreater(
-            len(os.listdir(os.path.join(".", "tmp", "bestTopos"))), 0)
+            len(os.listdir(os.path.abspath(os.path.join(".", "tmp", "bestTopos"))), 0))
         self.assertGreater(
-            len(os.listdir(os.path.join(".", "tmp", "betterTrees"))), 0)
+            len(os.listdir(os.path.abspath(os.path.join(".", "tmp", "betterTrees"))), 0))
 
     def tearDown(self):
         phylosofs.utils.clear_folder(PATH_TMP)
