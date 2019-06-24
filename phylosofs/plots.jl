@@ -299,3 +299,11 @@ p4 = @df df3 bar(:numberOfDeciles, :nbOfTemplates,
 p = plot(p1,p4,p2,p3,layout=(2,2), size = (1500,1500))
 savefig(p, "$(query_name)_plots.pdf")
 CSV.write("$(query_name).csv", df)
+# remove every pdb.gz files downloaded so that modeller doesn't try to use them
+# instead of the cif files
+files = readdir()
+for i in files
+    if endswith(i, "pdb.gz")
+        rm(i)
+    end
+end

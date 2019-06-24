@@ -9,12 +9,15 @@
 
 import glob
 import os, sys
+import pathlib
 import shutil
 import subprocess
 import warnings
 import gzip
 import pdb
 import configparser
+import numpy as np
+from collections import OrderedDict
 _config = configparser.ConfigParser()
 
 try:
@@ -127,6 +130,105 @@ def readFastaMul(fic, init=False):
             res.append((name, seq))
     return res
 
+
+# parse a 'transcripts.pir' file form the ThoxAxe output
+# and transforms it to be usable easily by PhyloSofS
+def parseFromThorAxe(pathTransSeqs, outputDir):
+    f = open(pathTransSeqs+"/transcripts.pir")
+    sequences = {}
+    lengths = {}
+    exonsSeq = {}
+    for line in f:
+        if line.startswith(">"):
+            header = line
+            seq = ""
+        elif line.endswith("*\n"):
+            sequences[header] = line
+        else:
+            # we can also use the 3rd column of the header, but this seems to be easier
+            # and is fast
+            exonsSeq[header] = line
+            line = line[:-1] #remove the \n at the end
+            exons_lengths = []
+            character = ""
+            for i in range(len(line)):
+                if character != line[i]:
+                    exons_lengths.append(i+1)
+                    character = line[i]
+            exons_lengths.append(len(line)) #at the the lengths the end of the sequence
+            lengths[header] = exons_lengths
+    for i in sequences:
+        if "ENSG0" in i: # take only the human transcripts
+            j = '_'.join(i.split()[0:2]).replace('>P1;', '')
+            pathlib.Path(outputDir+'/'+j).mkdir(parents=True, exist_ok=True)
+
+            with open(outputDir+'/'+j+'/'+j+'.fasta', 'w+') as file:
+                file.write(i)
+                file.write(sequences[i][:-2]+'\n')#remove the "*\n" at the end
+
+            with open(outputDir+'/'+j+'/'+j+'.exons_lengths.txt', 'w+') as file:
+                file.write(i)
+                file.write(' '.join(str(j) for j in lengths[i])+'\n')
+
+            with open(outputDir+'/'+j+'/'+j+'_annotated.pir', 'w+') as file:
+                file.write(i)
+                file.write(exonsSeq[i])
+                file.write(sequences[i])
+                file.write(len(exonsSeq[i][:-1])*'0')
+
+# Parse the sequence from the output pir with the annotations on what to take
+# for the iterative version of hhblits:
+# 0: never ran, so no templates found
+# 1: hhblits ran, templates found
+# 2: hhblits ran once, no templates found (or bad ones)
+# 3: hhblits ran a second time with another fragment, still no templates found --> stop iteration
+# The function returns True if the iterations should stop, otherwise returns False.
+def parseFromPirAnnotated(name):
+    with open("./"+name+"_annotated.pir", "r") as f:
+        lines = f.readlines()
+    try:
+        first = next(index for index, value in enumerate(lines[3]) if (value=='0' or value=='2'))
+    except:# no 0 on 2 in the sequence, no more runs to do
+        return True
+    for i in range(first,len(lines[3])):
+        if all([lines[3][i]!= '0',lines[3][i]!= '2']):
+            last_contiguous_0 = i
+            break
+        last_contiguous_0 = len(lines[3])
+    a = np.array(list(lines[1][first:last_contiguous_0]))
+    header = ' '.join(lines[0].split()[0:2]) + ' ' + ''.join(OrderedDict.fromkeys(a).keys())
+
+    exons_lengths = []
+    character = ""
+    line = lines[1][first:last_contiguous_0]
+    for i in range(len(line)):
+        if character != line[i]:
+            exons_lengths.append(i+1)
+            character = line[i]
+    exons_lengths.append(len(line)+1) #at the the lengths the end of the sequence
+
+
+    if name+'.fasta' in os.listdir():
+        os.remove(name+'.fasta')
+    elif name+'.exons_lengths.txt' in os.listdir():
+        os.remove(name+'.exons_lengths.txt')
+
+
+    # writing of the fasta
+    with open(name+'.fasta', 'w') as f:
+        f.write(header+'\n')
+        f.write(lines[2][first:last_contiguous_0])
+
+
+    # writing of the exons_lengths
+    with open(name+'.exons_lengths.txt', 'w') as f:
+        f.write(header+'\n')
+        f.write(' '.join(str(j) for j in exons_lengths)+'\n')
+
+    if len(lines[2][first:last_contiguous_0]) < 7:
+        return True
+    else:
+        return False
 
 # a partir d'une banque de transcrit, ecrit chaque transcrit dans un fichier
 # en ne retenant que son nom et la sequence
@@ -408,7 +510,7 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
     modeller.log.verbose()  # request verbose output
     env = modeller.environ()  # create a new MODELLER environment to build ...
     # ... this model in
-    env.io.atom_files_directory = ['.', ALLPDB]
+    env.io.atom_files_directory = ['.']#['.', ALLPDB]
     knowns = []
     for i in range(1, len(seqs)):
         tmp = seqs[i][0].split('\n')[0]
@@ -512,6 +614,17 @@ def annotate(trans, borders):
         res = 0
     return res
 
+def modify_query_name(pirfile):
+    # changes the name "UKNP" of the query in the .pir file
+    # hhmakemodel.py puts 'UKNP as the sequence name if it does not
+    # find a structure file for it, resulting on a 'UNKP.pdb' by modeller
+    # Here we change the name beforehand to avoid this issue
+    with open(pirfile,'r') as f:
+        filedata = f.read()
+    newname = pathlib.Path(pirfile).stem
+    newdata = filedata.replace("UKNP",newname)
+    with open(pirfile,'w') as f:
+        f.write(newdata)
 
 def run_external_program(command_list):
     """
@@ -555,50 +668,9 @@ def run_external_program(command_list):
     print("")
     return exit_code
 
-def summaryPirFile(fic):
-    with open(fic, 'r') as file:
-        pir_text = file.readlines()
-        # to force cast types
-        alns = {}
-        headerlist = []
-        desc = []
-        seq = []
-        coverage = []
-        for line in pir_text:
-            if '>'in line:
-                header = ''
-                header1 = line
-            elif ':' in line:
-                header2 = line
-                header = header1 + header2
-                header.replace('\n', '')
-                desc.append(line)
-                alns[header]=''
-            else:
-                alns[header]+=line
-        for k in alns:
-            headerlist.append(k)
-            seq.append(alns[k])
-        queryseq = len(seq[0])-seq[0].count('\n')-seq[0].count('-')
-        line= 'number of templates : {}\n'.format(len(seq)-1)
-        line += 'sequence name | coverage\n'
-        seq[0] = seq[0].replace('\n', '')
-        for i in range(len(seq)):
-            a = 0
-            seq[i] = seq[i].replace('\n', '')
-            for j in range(len(seq[0])):
-                if(seq[0][j] != '-' and seq[i][j] != '-'):
-                    a += 1
-            coverage.append(a/float(len(seq[0])-seq[0].count('-'))*100)
-            line+= '{} | {}\n'.format(headerlist[i].split('\n')[0], coverage[i])
-        result = open('templates_coverage_'+os.path.basename(file.name[:-4]+'.txt'), 'w+')
-        result.write(line)
-        result.close()
-
-
 
 def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
-                    ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB):
+                    ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB, it):
     # try:
     # tmp = trans[2:].split('.')[0]  # 'example.fa' --> 'ample'
     tmp = os.path.splitext(trans)[0]  # 'example.fa' --> 'example'
@@ -610,19 +682,19 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-cpu", NCPU,
             "-i", trans,
             "-d", HHDB,
-            "-neff" , "11", # skip further search iterations when diversity Neff of query MSA becomes larger than neffmax
+            "-neffmax" , "11", # skip further search iterations when diversity Neff of query MSA becomes larger than neffmax
             "-all",  # show all sequences in result MSA; do not filter result MSA
             "-id", "100",  # maximum pairwise sequence identity
-            "-cov", "20",  # minimum coverage with master sequence (%)
+            "-cov", "80",  # minimum coverage with master sequence (%)
             "-oa3m", tmp + ".a3m",
-            "-n", "3",
+            "-n", "3"
             #"-maxfilt", "50000"
         ])
 
         # generate a hidden Markov model (HMM) from the MSA
         run_external_program([HHMAKE,
              "-i", tmp + ".a3m",
-             "-cov", "50",  # minimum coverage with master sequence (%)
+             "-cov", "80",  # minimum coverage with master sequence (%)
              "-id", "100",  # maximum pairwise sequence identity
              "-neff", "11"
              ])
@@ -645,53 +717,58 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-ssm", "2",
             "-norealign",
             "-sc", "1",
-            "-cov", "50",  # minimum coverage with master sequence (%)
+            "-cov", "80",  # minimum coverage with master sequence (%)
             "-all",  # show all sequences in result MSA; do not filter result MSA
             "-id", "100",  # maximum pairwise sequence identity
             "-cs", CONTEXTLIB
         ])
-    # create the alignment for MODELLER
+    # create the alignment for MODELLER and change the query name
         run_external_program(["python3",
                 HHMODEL, tmp + ".hhr",
                 ALLPDB,
-                tmp + ".pir",
-                "./"#,
-                #"-v", # verbose mode
-                #"-e", "0.1"
+                tmp + "_"  + str(it) +".pir",
+                "./",
                 #"-m", "1","2","3","4","5","6","7","8","9","10"
                 ])
 
+        # modify the query name in the alignment file
+        # 'UKNP' --> tmp_name
+        modify_query_name(tmp + "_"  + str(it) +".pir")
 
     # split the alignment for a template summary
-        for i in range(1,6):
-            run_external_program(["python3",
-                    HHMODEL, tmp + ".hhr",
-                    ALLPDB,
-                    tmp + "_" + str(i) + ".pir",
-                    "./",
-                    "-m", str(i)
-                    ])
+        # for i in range(1,6):
+        #     run_external_program(["python3",
+        #             HHMODEL, tmp + ".hhr",
+        #             ALLPDB,
+        #             tmp + "_" + str(i) + ".pir",
+        #             "./",
+        #             "-m", str(i)
+        #             ])
 
     # treat the alignment file to remove N- and C-terminal loops
     #borders = treatAli(tmp + '.pir')
 
-    # write a summary of : number of templates, name of the templates and coverage in the .pir file
-        run_external_program(["/home/labeeuw/Documents/softwares/julia-1.1.0/bin/julia",
-        "--inline=no",
-        "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots.jl",
-        tmp])
+    # analysis of the templates
+    run_external_program(["/home/labeeuw/Documents/softwares/julia-1.1.0/bin/julia",
+    "--inline=no",
+    "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots_with_exons.jl",
+    tmp,
+    str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
-    run_external_program(["python",
-    "../jpred_api_test.py", tmp+".pir"])
+    # run_external_program(["python",
+    # "../../jpred_api_test.py", tmp+".pir"])
 
     # generate the 3D models with Modeller
     try:
-        model3D(tmp + '.pir', ALLPDB)
+        #model3D(tmp + "_"  + str(it) + '.pir', ALLPDB)
     #annotate(trans, borders)
         res = 0
     except Exception as e:
          print('Error: could not build the 3D model for ' + tmp)
          print("reason : {}".format(e))
          res = 1
+    #res = 0
+
+
     return res
