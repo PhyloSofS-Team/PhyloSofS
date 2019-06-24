@@ -16,7 +16,7 @@ import string
 import subprocess
 import os
 
-from . import nx_utils
+import nx_utils
 
 # TODO list of features:
 # fix coloring in the exons

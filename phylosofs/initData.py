@@ -12,7 +12,7 @@
 from __future__ import division
 
 import networkx as nx
-from . import nx_utils
+import nx_utils
 
 # find where to split the string
 # or substring representing a binary tree or subtree

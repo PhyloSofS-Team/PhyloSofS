@@ -22,8 +22,8 @@ import math as M
 import pickle as pk
 import warnings
 
-from . import drawForestTranscripts as df
-from . import nx_utils
+import drawForestTranscripts as df
+import nx_utils
 
 ##################################################
 
