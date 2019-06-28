@@ -170,6 +170,10 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
                 file.write(i)
                 file.write(' '.join(str(j) for j in lengths[i])+'\n')
 
+            with open(outputDir+'/'+j+'/'+j+'_1.exons_lengths.txt', 'w+') as file:
+                file.write(i)
+                file.write(' '.join(str(j) for j in lengths[i])+'\n')
+
             with open(outputDir+'/'+j+'/'+j+'_annotated.pir', 'w+') as file:
                 file.write(i)
                 file.write(exonsSeq[i])
@@ -183,7 +187,7 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
 # 2: hhblits ran once, no templates found (or bad ones)
 # 3: hhblits ran a second time with another fragment, still no templates found --> stop iteration
 # The function returns True if the iterations should stop, otherwise returns False.
-def parseFromPirAnnotated(name):
+def parseFromPirAnnotated(name, it):
     with open("./"+name+"_annotated.pir", "r") as f:
         lines = f.readlines()
     try:
@@ -222,6 +226,10 @@ def parseFromPirAnnotated(name):
 
     # writing of the exons_lengths
     with open(name+'.exons_lengths.txt', 'w') as f:
+        f.write(header+'\n')
+        f.write(' '.join(str(j) for j in exons_lengths)+'\n')
+
+    with open(name+'_'+str(it)+'.exons_lengths.txt', 'w') as f:
         f.write(header+'\n')
         f.write(' '.join(str(j) for j in exons_lengths)+'\n')
 
@@ -706,7 +714,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
             "-v", "1",
             "-i", tmp + ".hhm",
             "-d", STRUCTDB,
-            "-o", tmp + ".hhr",
+            "-o", tmp + "_" + str(it)+ ".hhr",
             "-p", "20",
             "-Z", "100",
             "-B", "100",
@@ -724,7 +732,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
         ])
     # create the alignment for MODELLER and change the query name
         run_external_program(["python3",
-                HHMODEL, tmp + ".hhr",
+                HHMODEL, tmp + "_" + str(it)+ ".hhr",
                 ALLPDB,
                 tmp + "_"  + str(it) +".pir",
                 "./",

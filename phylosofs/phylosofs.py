@@ -294,6 +294,8 @@ def doit(doPhylo,
     if uniq and '.fa' not in pathTransSeqs:
         sys.stderr.write('You must give a fasta input file with option -uniq.')
         # TODO: Change or document it
+        # uniq is deprecated : to do a signle file, just give a trascript.pir
+        # with only 1 sequence in it
 
     ###################### phylogenetic inference ######################
 
@@ -418,7 +420,7 @@ def doit(doPhylo,
                                                HHMODEL, HHDB, STRUCTDB, ALLPDB,
                                                NCPU, trans, selTemp, only3D,
                                                CONTEXTLIB, it)
-                            stop = mi.parseFromPirAnnotated(name)
+                            stop = mi.parseFromPirAnnotated(name, it)
                             it += 1
                             if it ==20: # stop with the infinite loop, temporary solution
                                 stop = True

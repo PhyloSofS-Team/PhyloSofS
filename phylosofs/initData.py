@@ -12,6 +12,7 @@
 from __future__ import division
 
 import networkx as nx
+import re
 import nx_utils
 
 # find where to split the string
@@ -92,6 +93,11 @@ def readInputDat(intree, infile):
     with open(intree, 'r') as t:
         lines = t.readlines()
         treeStr = lines[0].rstrip()
+        # remove the distances from ThorAxe output
+        toremove = re.findall(r":\d+\.\d+", treeStr)
+        for i in toremove:
+            treeStr = treeStr.replace(i, '')
+        treeStr = treeStr.replace(';', '')
 
     with open(infile, 'r') as f:
         transList = {}
