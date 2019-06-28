@@ -229,7 +229,7 @@ def parseFromPirAnnotated(name, it):
         f.write(header+'\n')
         f.write(' '.join(str(j) for j in exons_lengths)+'\n')
 
-    with open(name+'_'+str(it)+'.exons_lengths.txt', 'w') as f:
+    with open(name+'_'+str(it+1)+'.exons_lengths.txt', 'w') as f:
         f.write(header+'\n')
         f.write(' '.join(str(j) for j in exons_lengths)+'\n')
 

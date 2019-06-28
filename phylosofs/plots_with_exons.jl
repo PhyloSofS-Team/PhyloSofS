@@ -23,7 +23,7 @@ function get_exons(query_name)
     return df
 end
 
-function get_infos_from_msa_new(df, msa_total)
+function get_infos_from_msa_new(df, msa_total ,index_debut)
     fragment_templates= Int64[]
     fragment_identity_mean = Float64[]
     fragment_identity_max = Float64[]
@@ -31,55 +31,66 @@ function get_infos_from_msa_new(df, msa_total)
     alltemplates = []
     index= 1
     loop_end = 0
-    global len=0
-    stop = false
-    for i in 1:size(exons,1)
+    global pstart=1
+    npos = length(msa_total[1,:])
+    nposFrag = 1000
+    s = 1
+    global i = 1
+    while s < index_debut 
+        s = s + df.length[i]
+        global i += 1
+    end
+    if s > index_debut
+        global i -= 1
+        nposFrag = s -index_debut
+    end
+    loop_start = i
+    goon = true
+    while goon && i <= size(df,1)
+        println(i)
         identityliste = Float64[]
         templateWellAligned = 0
         templatesIndex = []
-        if stop == true
-            break
+        pend = pstart+df.length[i]-1
+        if nposFrag < df.length[i]
+            pend = pstart + nposFrag -1
         end
-        global truc = 0
-        for j in len+1:length(msa_total[1,:])
-            if j == size(msa_total, 2)
-                stop = true
-                tostore = j
-                break
-            end
-            if msa_total[1,j] != gap
-                global truc =  truc + 1
-            end
-            if truc == exons.length[i]
-                global tostore = j
-                break
+        if pend > npos 
+            pend = npos
+            goon = false
+        end
+        fragment = msa_total[2:nsequences(msa_total),pstart:pend]
+        nposFrag = length(fragment[1,:])
+        println("gaps = ")
+        println()
+        cov = 100 .* coverage(fragment) * nposFrag / df.length[i]
+        println(cov[1,:])
+        for k in 1:length(cov)
+            if cov[k] >= 50
+                templateWellAligned += 1
+                push!(templatesIndex, names(cov)[1][k])
+                push!(alltemplates, names(cov)[1][k])
             end
         end
-            fragment = msa_total[2:nsequences(msa_total),len+1:tostore]
-            cov = 100 .* coverage(fragment)
-            for k in 1:length(cov)
-                if cov[k] >= 50
-                    templateWellAligned += 1
-                    push!(templatesIndex, names(cov)[1][k])
-                    push!(alltemplates, names(cov)[1][k])
-                end
-            end
-            push!(fragment_templates_names, templatesIndex)
-            push!(fragment_templates, length(templatesIndex))
-            for l in templatesIndex
-                push!(identityliste, percentidentity(fragment[1,:], fragment[l,:]))
-            end
-            if(isempty(identityliste)) # to avoid LOADERROR when trying to do mean() or max() of an empty vector
-                push!(fragment_identity_mean, 0)
-                push!(fragment_identity_max, 0)
-            else
-                push!(fragment_identity_mean, mean(identityliste))
-                push!(fragment_identity_max, maximum(identityliste))
-            end
-            loop_end = i
-        global len = tostore
+        push!(fragment_templates_names, templatesIndex)
+        push!(fragment_templates, length(templatesIndex))
+        for l in templatesIndex
+            push!(identityliste, percentidentity(fragment[1,:], fragment[l,:]))
+        end
+        if(isempty(identityliste)) # to avoid LOADERROR when trying to do mean() or max() of an empty vector
+            push!(fragment_identity_mean, 0)
+            push!(fragment_identity_max, 0)
+        else
+            push!(fragment_identity_mean, mean(identityliste))
+            push!(fragment_identity_max, maximum(identityliste))
+        end
+        loop_end = i
+        global pstart = pstart + df.length[i]
+        global i+= 1
+        nposFrag = 1000
     end
-    return fragment_templates, fragment_identity_mean, fragment_identity_max, fragment_templates_names, alltemplates, loop_end
+    println(loop_start)
+    return fragment_templates, fragment_identity_mean, fragment_identity_max, fragment_templates_names, alltemplates, loop_end, loop_start
 end
 
 gap=Residue('-')
@@ -88,8 +99,21 @@ iteration = ARGS[2]
 exons = DataFrame(symbol = Char[], length = Int[])
 exons_filtered = DataFrame(symbol = Char[], length = Int[])
 exons = get_exons(query_name)
+# println(exons)
 exons_filtered = filter(row -> row[:length] > 7, exons)
-msa_total = read("$(query_name)_$(iteration).pir", PIR,)
+msa_total = read("$(query_name)_$(iteration).pir", PIR)
+setreference!(msa_total, 1)
+adjustreference!(msa_total)
+debut_msa = msa_total[1,1:10]
+debut_msa = join(string.(debut_msa))
+println(debut_msa)
+open("$(query_name).fasta","r") do f
+    global seq_lines = readlines(f)
+end
+sequence = seq_lines[2]
+println(sequence)
+index_debut = findfirst(debut_msa, sequence)
+println(index_debut.start)
 df = DataFrame(exonNumber = Int[], nbTemp = Int[], meanIdentity = Float64[], maxIdentity = Float64[],color = String[],  legend = String[], templatesnames = [])#, meanRmsd = Float64[])
 fragments_identity_mean = Float64[]
 fragments_identity_max = Float64[]
@@ -97,19 +121,19 @@ mean_rmsd = Float64[]
 fragments_templates= Int64[]
 fragments_templates_names = []
 alltemplates = []
-fragments_templates, fragments_identity_mean, fragments_identity_max, fragments_templates_names, alltemplates, loop_end = get_infos_from_msa_new(exons, msa_total)
+fragments_templates, fragments_identity_mean, fragments_identity_max, fragments_templates_names, alltemplates, loop_end , loop_start= get_infos_from_msa_new(exons, msa_total, index_debut.start)
 n = exons_filtered.symbol
 global it = 0
-for i in 1:loop_end
+for i in 1:loop_end-loop_start+1
     if exons.length[i] > 7
         if(fragments_identity_max[i] < 25)
-            push!(df, (it+1, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "red","0-24.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
+            push!(df, (loop_start+it, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "red","0-24.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
         elseif ((fragments_identity_max[i] >=25) && (fragments_identity_max[i] <50))
-            push!(df, (it+1, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "orange","25-49.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
+            push!(df, (loop_start+it, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "orange","25-49.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
         elseif ((fragments_identity_max[i] >=50) && (fragments_identity_max[i] <75))
-            push!(df, (it+1, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "blue","50-74.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
+            push!(df, (loop_start+it, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "blue","50-74.99%", fragments_templates_names[i]))#, mean_rmsd[i]))
         else
-            push!(df, (it+1, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "green","75-100%", fragments_templates_names[i]))#, mean_rmsd[i]))
+            push!(df, (loop_start+it, fragments_templates[i], fragments_identity_mean[i], fragments_identity_max[i], "green","75-100%", fragments_templates_names[i]))#, mean_rmsd[i]))
         end
         global it +=1
     end
@@ -118,9 +142,9 @@ total_length = 0
 iterative_number = DataFrame( symbol = Char[], number = Char[])
 for i in 1:it
     if (fragments_identity_max[i] > 25)
-        push!(iterative_number, (exons.symbol[i], '1'))
+        push!(iterative_number, (exons.symbol[loop_start+i-1], '1'))
     else
-        push!(iterative_number, (exons.symbol[i], '2'))
+        push!(iterative_number, (exons.symbol[loop_start+i-1], '2'))
     end
 end
 df2 = DataFrame(name = [], nb = [])
@@ -145,8 +169,8 @@ end
 p1 = @df df bar(:exonNumber, :nbTemp,color = :color, group = :legend, bar_width=0.9,
     title = "Number of templates by exons",
     xlabel = "Exons",
-    xlim = (0,size(df,1)+1),
-    xticks = (1:1:size(df,1)+3, n[1:size(df,1)]),
+    xlim = (0,size(exons,1)+1),
+    xticks = (1:1:size(df,1)+3, exons.symbol),
     ylabel="Number of templates",
     ylim = (0,maximum(:nbTemp)+1),
     yticks = 0:5:maximum(:nbTemp),
@@ -163,6 +187,10 @@ p = plot(p1,p4,size = (1280, 720))
 savefig(p, "$(query_name)_$(iteration)_plots.pdf")
 CSV.write("$(query_name)_$(iteration)_plot1.csv", df)
 CSV.write("$(query_name)_$(iteration)_plot_2.csv", df2)
+
+
+
+
 open("$(query_name)_annotated.pir","r") do f
     global lines = readlines(f)
 end
