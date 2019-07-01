@@ -12,7 +12,7 @@ You need to decompress them.
 
 The ALLPDB database consists of downloading every PDB contained in PDB. The steps needed to create this database are explained below:
 
-First, download every .cif files from PDB. This can be done with [rsync](https://doc.ubuntu-fr.org/rsync). The command for rsync was taken from [the pdb website](https://doc.ubuntu-fr.org/rsync)
+First, download every .cif files from PDB. This can be done with [rsync](https://doc.ubuntu-fr.org/rsync). The command for rsync was taken from [the pdb website](https://www.rcsb.org/pages/download/ftp)
 
 ```
 rsync -rlpt -v -z --delete rsync.ebi.ac.uk::pub/databases/pdb/data/structures/divided/mmCIF/ ./mmCIF
