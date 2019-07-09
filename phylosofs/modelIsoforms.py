@@ -165,6 +165,10 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
             with open(outputDir+'/'+j+'/'+j+'.fasta', 'w+') as file:
                 file.write(i)
                 file.write(sequences[i][:-2]+'\n')#remove the "*\n" at the end
+            
+            with open(outputDir+'/'+j+'/'+j+'_1.fa', 'w+') as file:
+                file.write(i)
+                file.write(sequences[i][:-2]+'\n')#remove the "*\n" at the end
 
             with open(outputDir+'/'+j+'/'+j+'.exons_lengths.txt', 'w+') as file:
                 file.write(i)
@@ -223,6 +227,9 @@ def parseFromPirAnnotated(name, it):
         f.write(header+'\n')
         f.write(lines[2][first:last_contiguous_0])
 
+    with open(name+'_'+str(it+1)+'.fa', 'w') as f:
+        f.write(header+'\n')
+        f.write(lines[2][first:last_contiguous_0])
 
     # writing of the exons_lengths
     with open(name+'.exons_lengths.txt', 'w') as f:
@@ -678,7 +685,7 @@ def run_external_program(command_list):
 
 
 def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
-                    ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB, it):
+                    ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB, it, JULIA):
     # try:
     # tmp = trans[2:].split('.')[0]  # 'example.fa' --> 'ample'
     tmp = os.path.splitext(trans)[0]  # 'example.fa' --> 'example'
@@ -757,7 +764,7 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
     #borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    run_external_program(["/home/labeeuw/Documents/softwares/julia-1.1.0/bin/julia",
+    run_external_program([JULIA,
     "--inline=no",
     "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots_with_exons.jl",
     tmp,
