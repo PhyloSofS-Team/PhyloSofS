@@ -151,17 +151,14 @@ def parse_command_line():
                             "(if the -printonly option is active)")
     phylo_args.add_argument('--withmemory',
                             action='store_true')
-    model_args.add_argument(
-                            '--hhlib',
+    model_args.add_argument('--hhlib',
                             help='Path to the hh-suite',
                             default='')
-    model_args.add_argument(
-                            '--hhdb',
+    model_args.add_argument('--hhdb',
                             help="Path to the sequence database for the HH-suite, "
                             "e.g. Uniclust30",
                             default='')
-    model_args.add_argument(
-                            '--structdb',
+    model_args.add_argument('--structdb',
                             help='Path to the structure database for the HH-suite, e.g. PDB',
                             default='')
     model_args.add_argument('--ncpu',
@@ -170,6 +167,9 @@ def parse_command_line():
     model_args.add_argument('--allpdb',
                             help='Path to all the pdb database (in cif format)',
                             default='allpdb')
+    model_args.add_argument('--julia',
+                            help='Path to to the julia executables (julia 1.11)',
+                            default='julia')
 
     args = parser.parse_args()
 
@@ -232,6 +232,7 @@ def doit(doPhylo,
          HHDB,
          STRUCTDB,
          ALLPDB,
+         JULIA,
          NCPU,
          ):
     """
@@ -410,8 +411,7 @@ def doit(doPhylo,
                 print("Molecular modelling in: {}".format(str(dirs[1:])))
                 for mydir in dirs[1:]:
                     os.chdir(mydir)
-                    for trans in glob.glob('*.fa') + glob.glob('*.fasta') +\
-                            glob.glob('*.faa'):
+                    for trans in glob.glob('*.fasta') + glob.glob('*.faa'):
                         stop = False
                         name = os.path.splitext(trans)[0]
                         it = 1
@@ -419,10 +419,10 @@ def doit(doPhylo,
                             mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
                                                HHMODEL, HHDB, STRUCTDB, ALLPDB,
                                                NCPU, trans, selTemp, only3D,
-                                               CONTEXTLIB, it)
+                                               CONTEXTLIB, it, JULIA)
                             stop = mi.parseFromPirAnnotated(name, it)
                             it += 1
-                            if it ==20: # stop with the infinite loop, temporary solution
+                            if it ==41: # stop with the infinite loop, temporary solution
                                 stop = True
                         with open("number_of_loops.txt", "w") as f:
                             f.write(str(it-1))
@@ -495,6 +495,7 @@ def main():
          args.hhdb,
          args.structdb,
          args.allpdb,
+         args.julia,
          args.ncpu
     )
     end = time.time()
