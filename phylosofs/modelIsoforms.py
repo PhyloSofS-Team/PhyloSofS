@@ -56,14 +56,12 @@ def init(configFile):
 # and gets every executable paths
 def getProgramPath(HHLIB):
     #HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
-    HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB=('','','','','','')
+    HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB=('','','','','')
     for root, dirs, files in os.walk(HHLIB, topdown=False):
         for name in files:
             program = os.path.join(root, name)
             if(program.split("/")[-2:]==['bin', 'hhblits']):
                 HHBLITS = program
-            elif(program.split("/")[-1]=='addss.pl' and program.split("/")[-3]=='build'):
-                ADDSS = program
             elif(program.split("/")[-2:]==['bin', 'hhmake']):
                 HHMAKE = program
             elif(program.split("/")[-2:]==['bin', 'hhsearch']):
@@ -72,10 +70,10 @@ def getProgramPath(HHLIB):
                 HHMODEL = program
             elif(program.split("/")[-1]=='context_data.lib'):
                 CONTEXTLIB = program
-    if ((HHBLITS=='') or (ADDSS=='') or (HHMAKE=='') or (HHSEARCH=='') or (HHMODEL=='') or (CONTEXTLIB=='')):
+    if ((HHBLITS=='') or (HHMAKE=='') or (HHSEARCH=='') or (HHMODEL=='') or (CONTEXTLIB=='')):
         print('Could not locate the HHSUITE directory, please check your --hhlib argument')
         sys.exit(1)
-    return(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB)
+    return(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB)
 # sys.path.append(STRUCTURE)
 # sys.path.append(SEQUENCE)
 #
@@ -684,7 +682,7 @@ def run_external_program(command_list):
     return exit_code
 
 
-def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
+def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
                     ALLPDB, NCPU, trans, selTemp, only3D, CONTEXTLIB, it, JULIA):
     # try:
     # tmp = trans[2:].split('.')[0]  # 'example.fa' --> 'ample'
@@ -764,11 +762,8 @@ def runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB,
     #borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    run_external_program([JULIA,
-    "--inline=no",
-    "/home/labeeuw/Documents/PhyloSofS/PhyloSofS/phylosofs/plots_with_exons.jl",
-    tmp,
-    str(it)])
+    run_external_program([JULIA, "--inline=no", "../../plots_with_exons.jl",
+                        tmp, str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     # run_external_program(["python",

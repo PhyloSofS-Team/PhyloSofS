@@ -365,7 +365,7 @@ def doit(doPhylo,
         print("--------------------------------------------")
         print("Running molecular modeling step...")
         print("--------------------------------------------")
-        HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(
+        HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(
         HHLIB)
         os.chdir(outputDir)
 
@@ -403,7 +403,7 @@ def doit(doPhylo,
 
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
-                mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL,
+                mi.runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL,
                                    HHDB, STRUCTDB, ALLPDB, NCPU, trans,
                                    selTemp, only3D, CONTEXTLIB)
                 os.chdir(outputDir)
@@ -414,9 +414,10 @@ def doit(doPhylo,
                     for trans in glob.glob('*.fasta') + glob.glob('*.faa'):
                         stop = False
                         name = os.path.splitext(trans)[0]
+                        print("name : {}".format(name))
                         it = 1
                         while not stop:
-                            mi.runModelProcess(HHBLITS, ADDSS, HHMAKE, HHSEARCH,
+                            mi.runModelProcess(HHBLITS, HHMAKE, HHSEARCH,
                                                HHMODEL, HHDB, STRUCTDB, ALLPDB,
                                                NCPU, trans, selTemp, only3D,
                                                CONTEXTLIB, it, JULIA)
@@ -426,6 +427,9 @@ def doit(doPhylo,
                                 stop = True
                         with open("number_of_loops.txt", "w") as f:
                             f.write(str(it-1))
+                        # Plot reconstruction 
+                        mi.run_external_program([JULIA, "--inline=no",
+                            "../../reconstruc_plot.jl",name])
                     os.chdir(outputDir)
 
         # assess the quality of the models
