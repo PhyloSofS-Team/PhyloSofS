@@ -13,6 +13,9 @@ three-dimensional structures of the produced protein isoforms.
 The phylogenetic reconstruction algorithm relies on a combinatorial approach
 and the maximum parsimony principle. The generation of the isoforms' 3D models
 is performed using comparative modeling.  
+
+#### Case study
+
 PhyloSofS was applied to the c-Jun N-terminal kinase (JNK) family
 (60 transcripts in 7 species). It enabled to date the appearance of an
 alternative splicing event (ASE) resulting in substrate affinity modulation in
@@ -22,9 +25,6 @@ inducing a large deletion, yet conserved across several species. The resulting
 isoform is stable in solution and could play a role in the cell. More details
 about this case study, together with the algorithm description, can be found in
 the **PhyloSofS' preprint** [available at *bioRxiv*](https://www.biorxiv.org/content/early/2017/03/23/119891).  
-PhyloSofS has broad applicability and can be used, for example, to study
-transcripts diversity between different individuals, e.g. patients affected by
-a particular disease.
 
 ## Installation
 
