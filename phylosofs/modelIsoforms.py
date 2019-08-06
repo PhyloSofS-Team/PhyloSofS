@@ -155,6 +155,7 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
                     character = line[i]
             exons_lengths.append(len(line)) #at the the lengths the end of the sequence
             lengths[header] = exons_lengths
+    print(lengths)
     for i in sequences:
         if "ENSG0" in i: # take only the human transcripts
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
@@ -238,7 +239,7 @@ def parseFromPirAnnotated(name, it):
         f.write(header+'\n')
         f.write(' '.join(str(j) for j in exons_lengths)+'\n')
 
-    if len(lines[2][first:last_contiguous_0]) < 7:
+    if len(lines[2][first:last_contiguous_0]) < 5:
         return True
     else:
         return False

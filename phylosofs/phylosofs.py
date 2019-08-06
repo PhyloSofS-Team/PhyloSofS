@@ -328,6 +328,8 @@ def doit(doPhylo,
         costMat = (C0, C1_0, C1_1, C1_2)
 
         dat, AllExons = initData.initTree(inputTree, inputFile, prune)
+        with open(inputFile, "r") as f:
+            alltrans = f.readlines() 
         print("The exons are:")
         print(AllExons)
         # nExons = range(1, len(AllExons)+1)
@@ -430,6 +432,15 @@ def doit(doPhylo,
                         # Plot reconstruction 
                         mi.run_external_program([JULIA, "--inline=no",
                             "../../reconstruc_plot.jl",name])
+                        # pir reconstruction    
+                        # mi.run_external_program([JULIA, "--inline=no",
+                        #    "../../reconstruct_pir.jl",name])
+                        # modeller
+                        # try:
+                        #     mi.model3D(name + "_reconstructed.pir", ALLPDB)
+                        # except Exception as e:
+                        #     print('Error: could not build the 3D model for ' + name)
+                        #     print("reason : {}".format(e))
                     os.chdir(outputDir)
 
         # assess the quality of the models

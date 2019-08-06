@@ -47,7 +47,7 @@ function get_exons(query_name)
     return df
 end
 
-function get_infos(exons, msa_total ,index_debut, alignment)
+function get_infos(exons, msa_total , alignment)
     new_f2p = Dict( v => k for (k, v) in f2p )
     fragment_templates= Int64[]
     fragment_identity_mean = Float64[]
@@ -161,15 +161,10 @@ exons_filtered = filter(row -> row[:length] > 7, exons)
 msa_total = read("$(query_name)_$(iteration).pir", PIR, deletefullgaps=false)
 setreference!(msa_total, 1)
 adjustreference!(msa_total)
-debut_msa = msa_total[1,1:7]
-debut_msa = join(string.(debut_msa))
 costmodel = AffineGapScoreModel(BLOSUM62, gap_open=-10, gap_extend=-1)
-#aln = pairalign(SemiGlobalAlignment(), join(msa_total[1,:]),seq_lines[2], costmodel)
 aln = pairalign(SemiGlobalAlignment(), join(msa_total[1,:]),seq_lines[2], costmodel)
 f2p = fasta2pir(aln)
-#println(debut_msa)
 #println(sequence)
-index_debut = findfirst(debut_msa, sequence)
 # println(index_debut.start)
 df = DataFrame(exonNumber = Int[],symbol= Char[], nbTemp = Int[], meanIdentity = Float64[], maxIdentity = Float64[],color = String[],  legend = String[], first_pos_pir = Int64[], last_pos_pir = Int64[], templatesnames = [])
 fragments_identity_mean = Float64[]
@@ -180,7 +175,7 @@ fragments_templates_names = []
 alltemplates = []
 first_pos_pir = Int64[]
 last_pos_pir = Int64[]
-fragments_templates, fragments_identity_mean, fragments_identity_max, fragments_templates_names, alltemplates, loop_end , loop_start, first_pos_pir, last_pos_pir= get_infos(exons, msa_total, index_debut.start, f2p)
+fragments_templates, fragments_identity_mean, fragments_identity_max, fragments_templates_names, alltemplates, loop_end , loop_start, first_pos_pir, last_pos_pir= get_infos(exons, msa_total, f2p)
 n = exons_filtered.symbol
 global it = 0
 for i in 1:loop_end-loop_start+1
