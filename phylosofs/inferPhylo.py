@@ -16,14 +16,14 @@ import random
 import subprocess
 import copy
 import os
+import warnings
 import networkx as nx
 import numpy as np
 import math as M
 import pickle as pk
-import warnings
 
-import drawForestTranscripts as df
-import nx_utils
+from phylosofs import drawForestTranscripts as df
+from phylosofs import nx_utils
 
 ##################################################
 
@@ -70,10 +70,12 @@ def drawForest(filename, outputDir):
             df.ForestToDot2(i, os.path.join(outputDir, filename), count)
             subprocess.call([
                 "dot", "-Tpdf", "-o",
-                os.path.join(outputDir,
-                             filename + "_config" + str(count) + "_labeled.pdf"),
-                os.path.join(outputDir,
-                             filename + "_config" + str(count) + "_labeled.dot")
+                os.path.join(
+                    outputDir,
+                    filename + "_config" + str(count) + "_labeled.pdf"),
+                os.path.join(
+                    outputDir,
+                    filename + "_config" + str(count) + "_labeled.dot")
             ])
             count = count + 1
 

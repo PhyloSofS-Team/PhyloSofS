@@ -8,15 +8,15 @@ A set of function to output a forest of transcripts, given a reconstructed
 set of trees
 """
 
-import networkx as nx
 import pydot
 # import pygraphviz as pgv
 import itertools
 import string
 import subprocess
 import os
+import networkx as nx
 
-import nx_utils
+from phylosofs import nx_utils
 
 # TODO list of features:
 # fix coloring in the exons
@@ -421,6 +421,7 @@ def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):
 #   count = count + 1
 # ForestToDot(transU[1], "test1.dot")
 # status = subprocess.call("dot" + " -Tpdf -o test1.pdf test.dot", shell=True)
+
 
 def ForestToDot2(T, fileout, iconf, leafTranscripts=False, **args):
     """

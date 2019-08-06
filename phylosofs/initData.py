@@ -11,9 +11,10 @@
 
 from __future__ import division
 
-import networkx as nx
 import re
-import nx_utils
+import networkx as nx
+
+from phylosofs import nx_utils
 
 # find where to split the string
 # or substring representing a binary tree or subtree

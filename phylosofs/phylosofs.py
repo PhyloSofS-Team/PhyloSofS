@@ -19,10 +19,12 @@ import time
 import pickle as pk
 import argparse
 import pathlib
-import initData
-import utils
-import inferPhylo as ip
-import modelIsoforms as mi
+
+from phylosofs import initData
+from phylosofs import inferPhylo as ip
+from phylosofs import modelIsoforms as mi
+# from phylosofs import utils
+
 # CB: birth cost
 # CD: death cost
 # cm: mutation cost
@@ -54,10 +56,12 @@ def check_argument_groups(parser, arg_dict, group, argument, required):
     group_name = group.replace("-", "")
     if not arg_dict[group_name]:
         if arg_dict[arg_name] is not None:
-            parser.error("phylosofs requires " + group + " if " + argument + " is used.")
+            parser.error("phylosofs requires " + group + " if " + argument +
+                         " is used.")
     else:
         if required and arg_dict[arg_name] is None:
-            parser.error("phylosofs requires " + argument + " if " + group + " is used.")
+            parser.error("phylosofs requires " + argument + " if " + group +
+                         " is used.")
     return None
 
 
@@ -95,81 +99,105 @@ def parse_command_line():
         Arguments used for modeling the tertiary structures of the isoforms.
         """)
 
-    phylo_args.add_argument('-P', '--phylo',
+    phylo_args.add_argument('-P',
+                            '--phylo',
                             help='do the phylogenetic inference',
                             action='store_true')
-    model_args.add_argument('-M', '--model',
+    model_args.add_argument('-M',
+                            '--model',
                             help='do the molecular modelling',
                             action='store_true')
-    phylo_args.add_argument('-n', '--tree',
-                            help='string representing the gene tree in Newick format')
-    phylo_args.add_argument('-t', '--transcripts',
-                            help='text file containing the list of transcripts for '
-                            'each leave (leaf_name: t1,t2,t3...)')
-    phylo_args.add_argument('-b',help='birth cost',type=int,default=5)
-    phylo_args.add_argument('-d',help='death cost',type=int,default=3)
-    model_args.add_argument('-i', '--instruct',
-                            help='text file containing input data: either a directory where '
-                            'multifasta files are located (one file per species) or a single '
-                            'fasta file with the sequence of only one transcript (in that '
-                            'case, the unique option must be set to TRUE)',
-                            default='')
-    phylo_args.add_argument('-m',help='mutation cost',type=int,default=2)
-    phylo_args.add_argument('--ni',help='number of iterations',type=int,default=1)
-    model_args.add_argument('--nt',help='number of templates to retain',type=int,default=10)
-    phylo_args.add_argument('--noprune',
-                            help='disable the removal of exons that appear in only one transcript',
-                            action='store_true')
-    parser.add_argument('-o', '--outputdir',help='output directory',default='.')
-    model_args.add_argument('--only3D',
-                            help='perform only the 3D modeling step (skip template search)',
-                            action='store_true')
-    model_args.add_argument('--onlyquality',
-                            help='perform only the 3D models quality assessment',
-                            action='store_true')
-    phylo_args.add_argument('--printonly',
-                            help='perform only the generation of the PDF file enabling to '
-                            'visualize the transcripts',
-                            action='store_true')
-    model_args.add_argument('--uniq',
-                            help='treat only one transcript whose sequence is taken from '
-                            'the fasta file indicated by the -i option',
-                            action='store_true')
-    phylo_args.add_argument('-s',
-                            help='starting score (by default: not considered), '
-                            'if no score is given, the algorithm starts the search '
-                            'by the topology corresponding to the maximum number of '
-                            'binary subnodes at each nodes (forest with the smallest '
-                            'possible number of trees), otherwise it starts from a '
-                            'randomly chosen topology')
-    phylo_args.add_argument('--suffix',
-                            help='suffix, it is _(birth)(death)(mutation)_(iterations) by '
-                            'default, e.g. _532_1')
-    phylo_args.add_argument('--topo',
-                            help="initial topology (by default: maximum or random topology), "
-                            "or transcripts' phylogeny to be printed out "
-                            "(if the -printonly option is active)")
-    phylo_args.add_argument('--withmemory',
-                            action='store_true')
-    model_args.add_argument('--hhlib',
-                            help='Path to the hh-suite',
-                            default='')
-    model_args.add_argument('--hhdb',
-                            help="Path to the sequence database for the HH-suite, "
-                            "e.g. Uniclust30",
-                            default='')
-    model_args.add_argument('--structdb',
-                            help='Path to the structure database for the HH-suite, e.g. PDB',
-                            default='')
-    model_args.add_argument('--ncpu',
-                            help='Number of CPUs',
-                            default='1')
-    model_args.add_argument('--allpdb',
-                            help='Path to all the pdb database (in cif format)',
-                            default='allpdb')
-    model_args.add_argument('--julia',
-                            help='Path to to the julia executables (julia 1.11)',
-                            default='julia')
+    phylo_args.add_argument(
+        '-n',
+        '--tree',
+        help='string representing the gene tree in Newick format')
+    phylo_args.add_argument(
+        '-t',
+        '--transcripts',
+        help='text file containing the list of transcripts for '
+        'each leave (leaf_name: t1,t2,t3...)')
+    phylo_args.add_argument('-b', help='birth cost', type=int, default=5)
+    phylo_args.add_argument('-d', help='death cost', type=int, default=3)
+    model_args.add_argument(
+        '-i',
+        '--instruct',
+        help='text file containing input data: either a directory where '
+        'multifasta files are located (one file per species) or a single '
+        'fasta file with the sequence of only one transcript (in that '
+        'case, the unique option must be set to TRUE)',
+        default='')
+    phylo_args.add_argument('-m', help='mutation cost', type=int, default=2)
+    phylo_args.add_argument('--ni',
+                            help='number of iterations',
+                            type=int,
+                            default=1)
+    model_args.add_argument('--nt',
+                            help='number of templates to retain',
+                            type=int,
+                            default=10)
+    phylo_args.add_argument(
+        '--noprune',
+        help='disable the removal of exons that appear in only one transcript',
+        action='store_true')
+    parser.add_argument('-o',
+                        '--outputdir',
+                        help='output directory',
+                        default='.')
+    model_args.add_argument(
+        '--only3D',
+        help='perform only the 3D modeling step (skip template search)',
+        action='store_true')
+    model_args.add_argument(
+        '--onlyquality',
+        help='perform only the 3D models quality assessment',
+        action='store_true')
+    phylo_args.add_argument(
+        '--printonly',
+        help='perform only the generation of the PDF file enabling to '
+        'visualize the transcripts',
+        action='store_true')
+    model_args.add_argument(
+        '--uniq',
+        help='treat only one transcript whose sequence is taken from '
+        'the fasta file indicated by the -i option',
+        action='store_true')
+    phylo_args.add_argument(
+        '-s',
+        help='starting score (by default: not considered), '
+        'if no score is given, the algorithm starts the search '
+        'by the topology corresponding to the maximum number of '
+        'binary subnodes at each nodes (forest with the smallest '
+        'possible number of trees), otherwise it starts from a '
+        'randomly chosen topology')
+    phylo_args.add_argument(
+        '--suffix',
+        help='suffix, it is _(birth)(death)(mutation)_(iterations) by '
+        'default, e.g. _532_1')
+    phylo_args.add_argument(
+        '--topo',
+        help="initial topology (by default: maximum or random topology), "
+        "or transcripts' phylogeny to be printed out "
+        "(if the -printonly option is active)")
+    phylo_args.add_argument('--withmemory', action='store_true')
+    model_args.add_argument('--hhlib', help='Path to the hh-suite', default='')
+    model_args.add_argument(
+        '--hhdb',
+        help="Path to the sequence database for the HH-suite, "
+        "e.g. Uniclust30",
+        default='')
+    model_args.add_argument(
+        '--structdb',
+        help='Path to the structure database for the HH-suite, e.g. PDB',
+        default='')
+    model_args.add_argument('--ncpu', help='Number of CPUs', default='1')
+    model_args.add_argument(
+        '--allpdb',
+        help='Path to all the pdb database (in cif format)',
+        default='allpdb')
+    model_args.add_argument(
+        '--julia',
+        help='Path to to the julia executables (julia 1.11)',
+        default='julia')
 
     args = parser.parse_args()
 
@@ -188,10 +216,10 @@ def parse_command_line():
 
     if args.model:
         if not args.instruct:
-            parser.error("phylosofs requires an input fasta file if --model is used.")
+            parser.error(
+                "phylosofs requires an input fasta file if --model is used.")
 
     return args
-
 
 
 def choose_path(hhlib, program):
@@ -199,8 +227,10 @@ def choose_path(hhlib, program):
     Return the first executable path between hhlib/build/bin/program and
     hhlib/bin/program
     """
-    paths = [os.path.join(hhlib, "build", "bin", program),
-             os.path.join(hhlib, "bin", program)]
+    paths = [
+        os.path.join(hhlib, "build", "bin", program),
+        os.path.join(hhlib, "bin", program)
+    ]
     for path in paths:
         if os.path.isfile(path) and os.access(path, os.X_OK):
             return path
@@ -208,33 +238,34 @@ def choose_path(hhlib, program):
                     "program %s" % (hhlib, paths, program))
 
 
-def doit(doPhylo,
-         doModel,
-         inputTree,
-         inputFile,
-         CB,  # birth cost
-         CD,  # death cost
-         pathTransSeqs,
-         cm,  # mutation cost
-         nbIt,  # number of iterations
-         nbTemp,
-         outputDir,
-         only3D,
-         onlyQuality,
-         starting_score,
-         SUFF,
-         topology_file,
-         uniq,
-         printOnly,
-         withMemory,
-         prune,
-         HHLIB,
-         HHDB,
-         STRUCTDB,
-         ALLPDB,
-         JULIA,
-         NCPU,
-         ):
+def doit(
+        doPhylo,
+        doModel,
+        inputTree,
+        inputFile,
+        CB,  # birth cost
+        CD,  # death cost
+        pathTransSeqs,
+        cm,  # mutation cost
+        nbIt,  # number of iterations
+        nbTemp,
+        outputDir,
+        only3D,
+        onlyQuality,
+        starting_score,
+        SUFF,
+        topology_file,
+        uniq,
+        printOnly,
+        withMemory,
+        prune,
+        HHLIB,
+        HHDB,
+        STRUCTDB,
+        ALLPDB,
+        JULIA,
+        NCPU,
+):
     """
     doit(args.phylo,
          args.model,
@@ -329,7 +360,7 @@ def doit(doPhylo,
 
         dat, AllExons = initData.initTree(inputTree, inputFile, prune)
         with open(inputFile, "r") as f:
-            alltrans = f.readlines() 
+            alltrans = f.readlines()
         print("The exons are:")
         print(AllExons)
         # nExons = range(1, len(AllExons)+1)
@@ -353,12 +384,12 @@ def doit(doPhylo,
             distTabs = ip.leafScoreTabs(dat, exSt, costMat, AllExons)
             if printOnly:
                 tree = topoStart
-                ip.writeOutput((tree, 0, 0), exSt, SUFF,costs, AllExons,
-                outputDir)
+                ip.writeOutput((tree, 0, 0), exSt, SUFF, costs, AllExons,
+                               outputDir)
             else:
                 tree = ip.leafAssign(res[0], exSt, distTabs, costMat, AllExons)
-                ip.writeOutput((tree, res[2], res[3]), exSt,SUFF, costs, AllExons,
-                outputDir)
+                ip.writeOutput((tree, res[2], res[3]), exSt, SUFF, costs,
+                               AllExons, outputDir)
         else:
             print("No suitable topology could be found.")
 
@@ -368,7 +399,7 @@ def doit(doPhylo,
         print("Running molecular modeling step...")
         print("--------------------------------------------")
         HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = mi.getProgramPath(
-        HHLIB)
+            HHLIB)
         os.chdir(outputDir)
 
         # create as many directories as fasta input files
@@ -379,12 +410,15 @@ def doit(doPhylo,
             pathlib.Path(outputDir).mkdir(parents=True, exist_ok=True)
             for root, dirs, files in os.walk(pathTransSeqs, topdown=False):
                 for name in dirs:
-                    pathlib.Path(os.path.join(outputDir, name)).mkdir(parents=True, exist_ok=True)
-                    mi.parseFromThorAxe(root+'/'+name, os.path.join(outputDir, name))
+                    pathlib.Path(os.path.join(outputDir,
+                                              name)).mkdir(parents=True,
+                                                           exist_ok=True)
+                    mi.parseFromThorAxe(root + '/' + name,
+                                        os.path.join(outputDir, name))
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
-            selTemp += str(i+1)
+            selTemp += str(i + 1)
             selTemp += " "
         # NOTE: for nbTemp == 5 this block generates '1 2 3 4 5 '
 
@@ -405,9 +439,9 @@ def doit(doPhylo,
 
                 mydir, trans = os.path.split(pathTransSeqs)
                 os.chdir(mydir)
-                mi.runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL,
-                                   HHDB, STRUCTDB, ALLPDB, NCPU, trans,
-                                   selTemp, only3D, CONTEXTLIB)
+                mi.runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB,
+                                   STRUCTDB, ALLPDB, NCPU, trans, selTemp,
+                                   only3D, CONTEXTLIB)
                 os.chdir(outputDir)
             else:
                 print("Molecular modelling in: {}".format(str(dirs[1:])))
@@ -425,14 +459,16 @@ def doit(doPhylo,
                                                CONTEXTLIB, it, JULIA)
                             stop = mi.parseFromPirAnnotated(name, it)
                             it += 1
-                            if it ==41: # stop with the infinite loop, temporary solution
+                            if it == 41:  # stop with the infinite loop, temporary solution
                                 stop = True
                         with open("number_of_loops.txt", "w") as f:
-                            f.write(str(it-1))
-                        # Plot reconstruction 
-                        mi.run_external_program([JULIA, "--inline=no",
-                            "../../reconstruc_plot.jl",name])
-                        # pir reconstruction    
+                            f.write(str(it - 1))
+                        # Plot reconstruction
+                        mi.run_external_program([
+                            JULIA, "--inline=no", "../../reconstruc_plot.jl",
+                            name
+                        ])
+                        # pir reconstruction
                         # mi.run_external_program([JULIA, "--inline=no",
                         #    "../../reconstruct_pir.jl",name])
                         # modeller
@@ -486,35 +522,14 @@ def doit(doPhylo,
 def main():
     start = time.time()
     args = parse_command_line()
-    doit(args.phylo,
-         args.model,
-         args.tree,
-         args.transcripts,
-         args.b,
-         args.d,
-         args.instruct,
-         args.m,
-         args.ni,
-         args.nt,
-         args.outputdir,
-         args.only3D,
-         args.onlyquality,
-         args.s,
-         args.suffix,
-         args.topo,
-         args.uniq,
-         args.printonly,
-         args.withmemory,
-         not args.noprune,
-         args.hhlib,
-         args.hhdb,
-         args.structdb,
-         args.allpdb,
-         args.julia,
-         args.ncpu
-    )
+    doit(args.phylo, args.model, args.tree, args.transcripts, args.b, args.d,
+         args.instruct, args.m, args.ni, args.nt, args.outputdir, args.only3D,
+         args.onlyquality, args.s, args.suffix, args.topo, args.uniq,
+         args.printonly, args.withmemory, not args.noprune, args.hhlib,
+         args.hhdb, args.structdb, args.allpdb, args.julia, args.ncpu)
     end = time.time()
     print("finished in {} seconds".format(end - start))
+
 
 if (__name__ == '__main__'):
     main()
