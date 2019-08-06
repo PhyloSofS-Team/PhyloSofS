@@ -1,17 +1,20 @@
-build: false
-
+# https://github.com/coala/coala-quickstart/blob/master/.ci/appveyor.yml
 environment:
   matrix:
-    - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda
-
-init:
-  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
 
 install:
-  - choco install graphviz
-  - pip install pytest
-  - pip install .
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "python -m pip install --upgrade setuptools pip"
+  - "choco install graphviz"
+  - "python -m pip install numpy" # is needed to install scikit-bio
+  - "python -m pip install -e ."
+
+build: false
 
 test_script:
-  - py.test --doctest-modules
+  - "python setup.py test "

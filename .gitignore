@@ -4,6 +4,7 @@ __MACOSX/
 
 # PYTHON
 __pycache__/
+.eggs
 *.py[cod]
 *$py.class
 # installation

@@ -115,7 +115,7 @@ def _get_node_attributes(pydot_dot, node):
     elif double_quote_node in node_dict:  # Sometimes there are keys like '"node"'
         return node_dict[double_quote_node][0]['attributes']
     else:
-        raise KeyError(node + " is not in " + str(node_dict.keys()))
+        raise KeyError(node + " is not in " + str(list(node_dict.keys())))
 
 
 def ForestToDot(T, fileout, iconf, leafTranscripts=False, **args):

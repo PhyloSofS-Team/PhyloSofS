@@ -1,35 +1,42 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name="phylosofs",
-    packages=["phylosofs"],
-    description="A tool to model the evolution and structural impact of "
-                "alternative splicing.",
-    version="0.1",
-    url="https://github.com/elolaine/PhyloSofS",
-    author="Adel Ait-hamlat, Lélia Polit, Diego Javier Zea, Hugues Richard "
-           "and Elodie Laine",
-    author_email="elodie.laine@upmc.fr",
-    keywords=["splicing", "evolution", "structure"],
-    license="MIT",
+    name='phylosofs',
+    description='A tool to model the evolution and structural impact of '
+    'alternative splicing.',
+    keywords=['splicing', 'evolution', 'structure'],
+    version='0.1.0',
+    url='https://github.com/PhyloSofS-Team/PhyloSofS',
+    author='Adel Ait-hamlat, Diego Javier Zea, Antoine Labeeuw, Lélia Polit, '
+    'Hugues Richard and Elodie Laine',
+    author_email='elodie.laine@upmc.fr',
     classifiers=[
-        "Programming Language :: Python :: 2",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Bio-Informatics"
-    ],
-    install_requires=[
-        "numpy",      # handle transcript tables
-        "networkx",   # handle phylogenetic trees
-        "pydot"       # visualization of the phylogenies
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English', 'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
     entry_points={
-        'console_scripts': [
-            'phylosofs=phylosofs.phylosofs:main'
-        ],
+        'console_scripts': ['phylosofs=phylosofs.phylosofs:main'],
     },
-
-)
+    packages=find_packages(include=['phylosofs']),
+    setup_requires=['pytest-runner'],
+    install_requires=[
+        'numpy',  # handle transcript tables
+        'networkx',  # handle phylogenetic trees
+        'pydot'  # visualization of the phylogenies
+    ],
+    test_suite='tests',
+    tests_require=[
+        'pytest', 'pytest-cov', 'coveralls', 'codecov', 'pytest-pylint',
+        'pylint'
+    ],
+    license='MIT license')

@@ -674,29 +674,24 @@ def run_external_program(command_list):
     """
     Use subprocess to print and run the command_list.
 
-    >>> run_external_program(["python",  "-c", "print('example')"])
-
+    >>> run_external_program(["python",  "-c", "None"])
+    <BLANKLINE>
     ┌───────────────────────────────────────────────────────────────────────────
-    │ RUNNING: python -c print('example')
-
-    example
-
+    │ RUNNING: python -c None
+    <BLANKLINE>
+    <BLANKLINE>
     │ FINISHED WITH EXIT CODE: 0
     └───────────────────────────────────────────────────────────────────────────
-
+    <BLANKLINE>
     0
     >>> run_external_program(["python",  "-c", "print(example)"])
-
+    <BLANKLINE>
     ┌───────────────────────────────────────────────────────────────────────────
     │ RUNNING: python -c print(example)
-
-    Traceback (most recent call last):
-      File "<string>", line 1, in <module>
-    NameError: name 'example' is not defined
-
+    ...
     │ FINISHED WITH EXIT CODE: 1
     └───────────────────────────────────────────────────────────────────────────
-
+    <BLANKLINE>
     1
     """
     str_command = subprocess.list2cmdline(command_list)

@@ -1,13 +1,7 @@
 language: python
-
-matrix:
-    include:
-        - os: linux
-          sudo: required
-          python: 2.7
-        - os: osx
-          sudo: required
-          language: generic
+python:
+  - "3.5"
+  - "3.6"
 
 addons:
   apt:
@@ -19,12 +13,11 @@ notifications:
 
 install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew install graphviz; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then curl -O https://bootstrap.pypa.io/get-pip.py; sudo python get-pip.py --no-setuptools --no-wheel --ignore-installed; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install pytest pytest-cov coveralls codecov --user --ignore-installed; else python -m pip install pytest pytest-cov coveralls codecov; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install . --user --ignore-installed; else python setup.py install; fi
+  - python -m pip install coveralls codecov
+  - python -m pip install -e .
 
 script:
-  - python -m pytest --doctest-modules --cov=phylosofs --cov-report term-missing
+  - python setup.py test
 
 after_success:
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coveralls; fi
