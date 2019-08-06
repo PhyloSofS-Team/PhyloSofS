@@ -67,6 +67,14 @@ def drawForest(filename, outputDir):
                 os.path.join(outputDir,
                              filename + "_config" + str(count) + ".dot")
             ])
+            df.ForestToDot2(i, os.path.join(outputDir, filename), count)
+            subprocess.call([
+                "dot", "-Tpdf", "-o",
+                os.path.join(outputDir,
+                             filename + "_config" + str(count) + "_labeled.pdf"),
+                os.path.join(outputDir,
+                             filename + "_config" + str(count) + "_labeled.dot")
+            ])
             count = count + 1
 
 
