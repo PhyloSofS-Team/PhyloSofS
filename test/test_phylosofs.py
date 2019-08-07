@@ -103,12 +103,12 @@ class Test_PhyloSofS(unittest.TestCase):
             len(
                 os.listdir(
                     os.path.abspath(os.path.join(TEMP_DIR, "tmp",
-                                                 "bestTopos"))), 0))
+                                                 "bestTopos")))), 0)
         self.assertGreater(
             len(
                 os.listdir(
                     os.path.abspath(
-                        os.path.join(TEMP_DIR, "tmp", "betterTrees"))), 0))
+                        os.path.join(TEMP_DIR, "tmp", "betterTrees")))), 0)
 
     def tearDown(self):
         phylosofs.utils.clear_folder(PATH_TMP)
