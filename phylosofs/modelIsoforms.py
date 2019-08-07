@@ -19,6 +19,7 @@ import pdb
 import configparser
 import numpy as np
 from collections import OrderedDict
+from Bio.PDB import *
 _config = configparser.ConfigParser()
 
 try:
@@ -168,7 +169,6 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
             # at the the lengths the end of the sequence
             exons_lengths.append(len(line))
             lengths[header] = exons_lengths
-    print(lengths)
     for i in sequences:
         if "ENSG0" in i:  # take only the human transcripts
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
@@ -571,6 +571,7 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
             # splitChainsPDB('pdb' + kn + pdb_extension, kn, 'pdb')
     knowns = tuple(knowns)
     a = automodel.automodel(env, alnfile=fic, knowns=knowns, sequence=seq)
+    a.max_molpdf = 1e12
     a.starting_model = 1  # index of the first model
     a.ending_model = 1  # index of the last model
     # (determines how many models to calculate)
@@ -579,6 +580,35 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
     a.make()  # do the actual homology modeling
 
     return 1
+
+
+def colorBFactor(name):
+
+    with open("./" + name + "_annotated.pir") as f:
+        lines = f.readlines()
+    exons = lines[1]
+    char = ""
+    ex = []
+    exon_color = []
+    liste= [1,4,2,5,3,7]
+
+    for i in range(len(exons)):
+        if exons[i] != char:
+            char = exons[i]
+            ex.append(char)
+    for i in range(len(exons)):
+        index = int(ex.index(exons[i]))
+        exon_color.append(liste[(index)%len(liste)])
+
+    parser = PDBParser()
+    structure = parser.get_structure('str', name+ ".B99990001.pdb")
+    for residue in structure.get_residues():
+        for atom in residue:
+            atom.bfactor = exon_color[residue.id[1]-1]
+
+    io = PDBIO()
+    io.set_structure(structure)
+    io.save(name+'_colored.pdb')
 
 
 def readRTF(filename):

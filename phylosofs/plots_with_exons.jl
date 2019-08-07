@@ -72,7 +72,7 @@ function get_infos(exons, msa_total , alignment)
 
         fin = debut+exons.length[i]-1
 #         println(fin)
-        
+
         # if returns a 0 element array, push 0 in everything
             fragment_index = [ new_f2p[i] for i in debut:fin  if i in keys(new_f2p) ]
 #                     println("fragment index = $(fragment_index)")
@@ -101,7 +101,7 @@ function get_infos(exons, msa_total , alignment)
 #                 loop_start = i+1
 #             end
 #         else
-        
+
             fragment = msa_total[2:nsequences(msa_total),index_debut:index_end]
 #             println(fragment)
             pir_positions = getcolumnmapping(fragment)
@@ -249,7 +249,7 @@ for i in first:last
     end
     global number = number + 1
 end
-                println(join(l))
+# println(join(l))
 open("$(query_name)_annotated.pir", "w") do f
     write(f, lines[1]*"\n")
     write(f, lines[2]*"\n")

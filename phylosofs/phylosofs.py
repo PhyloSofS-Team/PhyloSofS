@@ -424,7 +424,7 @@ def doit(
 
         # perform the whole 3D modelling process
 
-        # the 'if' is to perform the modelling in __pycache__
+        # the 'if' is to not perform the modelling in __pycache__
         # might add a list of forbidden names for less errors
         dirs = [x[0] for x in os.walk('.') if not '__pycache__' in x[0]]
         # NOTE: dirs is at leat ['.'] and it has subfolders,
@@ -450,7 +450,6 @@ def doit(
                     for trans in glob.glob('*.fasta') + glob.glob('*.faa'):
                         stop = False
                         name = os.path.splitext(trans)[0]
-                        print("name : {}".format(name))
                         it = 1
                         while not stop:
                             mi.runModelProcess(HHBLITS, HHMAKE, HHSEARCH,
@@ -469,14 +468,15 @@ def doit(
                             name
                         ])
                         # pir reconstruction
-                        # mi.run_external_program([JULIA, "--inline=no",
-                        #    "../../reconstruct_pir.jl",name])
-                        # modeller
-                        # try:
-                        #     mi.model3D(name + "_reconstructed.pir", ALLPDB)
-                        # except Exception as e:
-                        #     print('Error: could not build the 3D model for ' + name)
-                        #     print("reason : {}".format(e))
+                        mi.run_external_program([JULIA, "--inline=no",
+                           "../../reconstruct_pir.jl",name])
+                        # modeller b-factor coloring
+                        try:
+                            mi.model3D(name + "_reconstructed.pir", ALLPDB)
+                            mi.colorBFactor(name)
+                        except Exception as e:
+                            print('Error: could not build the 3D model for ' + name)
+                            print("reason : {}".format(e))
                     os.chdir(outputDir)
 
         # assess the quality of the models
