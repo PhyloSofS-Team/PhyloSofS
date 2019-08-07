@@ -17,10 +17,10 @@ import subprocess
 import copy
 import os
 import warnings
-import networkx as nx
-import numpy as np
 import math as M
 import pickle as pk
+import networkx as nx
+import numpy as np
 
 from phylosofs import drawForestTranscripts as df
 from phylosofs import nx_utils
@@ -55,6 +55,14 @@ def pickRead(s):
 
 
 def drawForest(filename, outputDir):
+    try:
+        subprocess.call(["dot", "-V"])
+    except FileNotFoundError:
+        warnings.warn(
+            "Please install graphviz to plot the phylogeny: "
+            "https://www.graphviz.org/", RuntimeWarning)
+        return None
+
     with open(os.path.join(outputDir, filename + ".pk"), 'rb') as f:
         transU = pk.load(f)
         count = 0

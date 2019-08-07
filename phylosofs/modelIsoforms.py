@@ -25,10 +25,10 @@ _config = configparser.ConfigParser()
 try:
     import modeller
     from modeller import automodel
-    _modeller_message = ""
+    _MODELLER_MESSAGE = ""
 except ImportError:
     warnings.warn('modeller is not installed', ImportWarning)
-    _modeller_message = "Please install modeller: " \
+    _MODELLER_MESSAGE = "Please install modeller: " \
                         "https://salilab.org/modeller/"
 
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
@@ -456,8 +456,8 @@ def splitChainsPDB(fic, code, ext):
 
 
 def assessNormalizedDopeScore(pdb):
-    if _modeller_message != "":
-        raise ImportError(_modeller_message)
+    if _MODELLER_MESSAGE != "":
+        raise ImportError(_MODELLER_MESSAGE)
 
     env = modeller.environ()
     env.libs.topology.read(file='$(LIB)/top_heav.lib')  # TODO: Test on Windows
@@ -537,8 +537,8 @@ def computeRatioSASA(NACCESS, prot, pref):
 
 
 def model3D(fic, ALLPDB, pdb_extension='.cif'):
-    if _modeller_message != "":
-        raise ImportError(_modeller_message)
+    if _MODELLER_MESSAGE != "":
+        raise ImportError(_MODELLER_MESSAGE)
 
     seqs = readFastaMul(fic)
 
@@ -590,7 +590,7 @@ def colorBFactor(name):
     char = ""
     ex = []
     exon_color = []
-    liste= [1,4,2,5,3,7]
+    liste = [1, 4, 2, 5, 3, 7]
 
     for i in range(len(exons)):
         if exons[i] != char:
@@ -598,17 +598,17 @@ def colorBFactor(name):
             ex.append(char)
     for i in range(len(exons)):
         index = int(ex.index(exons[i]))
-        exon_color.append(liste[(index)%len(liste)])
+        exon_color.append(liste[(index) % len(liste)])
 
     parser = PDBParser()
-    structure = parser.get_structure('str', name+ ".B99990001.pdb")
+    structure = parser.get_structure('str', name + ".B99990001.pdb")
     for residue in structure.get_residues():
         for atom in residue:
-            atom.bfactor = exon_color[residue.id[1]-1]
+            atom.bfactor = exon_color[residue.id[1] - 1]
 
     io = PDBIO()
     io.set_structure(structure)
-    io.save(name+'_colored.pdb')
+    io.save(name + '_colored.pdb')
 
 
 def readRTF(filename):
