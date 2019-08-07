@@ -30,6 +30,7 @@ setup(
     packages=find_packages(include=['phylosofs']),
     setup_requires=['pytest-runner'],
     install_requires=[
+        'biopython',  # change B factor
         'numpy',  # handle transcript tables
         'networkx',  # handle phylogenetic trees
         'pydot'  # visualization of the phylogenies
