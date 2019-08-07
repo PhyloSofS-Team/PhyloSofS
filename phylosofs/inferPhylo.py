@@ -2977,6 +2977,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
     # if no minimum cost is given (default case)
     # the search starts from the topology containing the maximum
     # number of binary nodes, i.e. minimum number of trees
+    initBest = float(initBest)
     if initBest == 0:
         baseTopo = maxTopo(gt)
         bestTopo = baseTopo
@@ -2988,6 +2989,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
 
         # print("tree cost for max topo\n")
         tRes, bestConf, bestSc, cutTrees = tree_cost(baseTree, 10000, costs)
+        bestSc = float(bestSc)
         baseScore = bestSc
         f.write(str(baseScore) + " " + str(bestSc) + "\n")
         print("tree cost for max topo " + str(baseScore))
@@ -3005,7 +3007,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
     else:
         bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
         betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
-        bestSc = initBest
+        bestSc = float(initBest)
         if topoStart != {}:
             baseTopo = setTopo(gt, topoStart)
             bestTopo = baseTopo
@@ -3018,6 +3020,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
             print("tree cost for start topo\n")
             tRes, bestConf, bestSc, cutTrees = tree_cost(
                 baseTree, 10000, costs)
+            bestSc = float(bestSc)
             baseScore = bestSc
             print("tree cost for start topo " + str(baseScore))
             if baseScore < initBest:
@@ -3045,6 +3048,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
     # neighbors of a base topology are counted
     # this implies that the number of assignments and evaluations
     # is not the same as the number of iterations
+    bestSc = float(bestSc)
     while i < nbIt and go:
         f.flush()
         # if no base, then jump randomly
@@ -3111,7 +3115,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
             if baseScore < bestSc:
                 print("Changing best solution\n")
                 bestTopo = baseTopo
-                bestSc = baseScore
+                bestSc = float(baseScore)
                 cutTrees = tmpCutTrees
             # print the cost for the base forest
             print("tree cost for base topo " + str(baseScore))
@@ -3179,7 +3183,7 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
                 if tmpScore < bestSc:
                     print("Changing best solution\n")
                     bestTopo = t.copy()
-                    bestSc = tmpScore
+                    bestSc = float(tmpScore)
                     cutTrees = tmpCutTrees
             if tmpScore < initBest:
                 pickPrint(
