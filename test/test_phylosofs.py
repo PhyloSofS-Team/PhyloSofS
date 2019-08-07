@@ -30,7 +30,7 @@ def path_tmp(filename):
 
 def path_dat(filename):
     "Return the path to test/data/filename using os.path.join()."
-    return os.apth.abspath(os.path.join(TEMP_DIR, "data", filename))
+    return os.path.abspath(os.path.join(TEMP_DIR, "data", filename))
 
 
 # os.path.join("test", "tmp")
