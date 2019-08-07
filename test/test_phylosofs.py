@@ -67,6 +67,9 @@ class Test_PhyloSofS(unittest.TestCase):
             compare_files(path_tmp('solution_532_1_config0.sum'),
                           path_dat('solution_532_1_config0.sum')))
 
+        with open(path_tmp('solution_532_1_config0.info'), 'r') as f:
+            print(f.read())
+
         self.assertTrue(
             compare_files(path_tmp('solution_532_1_config0.info'),
                           path_dat('solution_532_1_config0.info')))
