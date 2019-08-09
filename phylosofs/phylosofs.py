@@ -196,7 +196,7 @@ def parse_command_line():
         default='allpdb')
     model_args.add_argument(
         '--julia',
-        help='Path to to the julia executables (julia 1.11)',
+        help='Path to to the julia executables (julia 1.1.1)',
         default='julia')
 
     args = parser.parse_args()
@@ -468,14 +468,17 @@ def doit(
                             name
                         ])
                         # pir reconstruction
-                        mi.run_external_program([JULIA, "--inline=no",
-                           "../../reconstruct_pir.jl",name])
+                        mi.run_external_program([
+                            JULIA, "--inline=no", "../../reconstruct_pir.jl",
+                            name
+                        ])
                         # modeller b-factor coloring
                         try:
                             mi.model3D(name + "_reconstructed.pir", ALLPDB)
                             mi.colorBFactor(name)
                         except Exception as e:
-                            print('Error: could not build the 3D model for ' + name)
+                            print('Error: could not build the 3D model for ' +
+                                  name)
                             print("reason : {}".format(e))
                     os.chdir(outputDir)
 

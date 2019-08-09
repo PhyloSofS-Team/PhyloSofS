@@ -2,9 +2,9 @@
 
 **A tool to model the evolution and structural impact of alternative splicing**
 
-Status                     |Linux, OSX                 |Windows                    |Code Coverage
-:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) | [![Build Status](https://travis-ci.org/PhyloSofS-Team/PhyloSofS.svg?branch=master)](https://travis-ci.org/PhyloSofS-Team/PhyloSofS) | [![Build status](https://ci.appveyor.com/api/projects/status/jt1vvvawusokfx5c/branch/master?svg=true)](https://ci.appveyor.com/project/diegozea/phylosofs-fku85/branch/master) | [![codecov](https://codecov.io/gh/PhyloSofS-Team/PhyloSofS/branch/master/graph/badge.svg)](https://codecov.io/gh/PhyloSofS-Team/PhyloSofS) [![coveralls](https://coveralls.io/repos/github/PhyloSofS-Team/PhyloSofS/badge.svg?branch=master)](https://coveralls.io/github/PhyloSofS-Team/PhyloSofS?branch=master)
+Status                     |Linux, OSX                 |Windows                    
+:-------------------------:|:-------------------------:|:-------------------------
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) | [![Build Status](https://travis-ci.org/PhyloSofS-Team/PhyloSofS.svg?branch=master)](https://travis-ci.org/PhyloSofS-Team/PhyloSofS) | [![Build status](https://ci.appveyor.com/api/projects/status/jt1vvvawusokfx5c/branch/master?svg=true)](https://ci.appveyor.com/project/diegozea/phylosofs-fku85/branch/master)
 
 *PhyloSofS* (**Phylo**genies of **S**plicing is**of**orms **S**tructures) is a
 fully automated computational tool that infers plausible evolutionary scenarios
@@ -24,7 +24,8 @@ residues responsible for such modulation. It also highlighted a new ASE
 inducing a large deletion, yet conserved across several species. The resulting
 isoform is stable in solution and could play a role in the cell. More details
 about this case study, together with the algorithm description, can be found in
-the **PhyloSofS' preprint** [available at *bioRxiv*](https://www.biorxiv.org/content/early/2017/03/23/119891).  
+the **PhyloSofS' preprint**
+[available at *bioRxiv*](https://doi.org/10.1101/119891).  
 
 ## Installation
 
@@ -46,28 +47,102 @@ cd PhyloSofS
 python -m pip install .
 ```
 
-#### Optional external dependencies
+### 3. Install dependencies
 
-- For the **phylogenetic inference**:  
-  - [`PyGraphviz`](https://pygraphviz.github.io/) is needed to allow visualization of the phylogenies.
-- For the **molecular modelling**:
-  - [`HH-suite`](https://github.com/soedinglab/hh-suite) to identify homologous templates
-  - [`MODELLER`](https://salilab.org/modeller/download_installation.html) to construct the 3D models.
-  - [`NACCESS`](http://wolf.bms.umist.ac.uk/naccess/) to compute solvent accessible surface areas.
-  - [`PROCHECK`](https://www.ebi.ac.uk/thornton-srv/software/PROCHECK/) to assess the quality of the models.
+#### Phylogenetic inference
+
+To run the phylogenetic module of *PhyloSofS*, you need to have
+[*Graphviz*](https://graphviz.org/) installed.  
+The easiest way to install *Graphviz* in...
+  - **Debian/Ubuntu** is: `sudo apt-get install graphviz`
+  - **Windows** is using [*Chocolatey*](https://chocolatey.org/): `choco install graphviz`
+  - **macOS** is using [*Homebrew*](https://brew.sh/index): `brew install graphviz`
+
+#### Molecular modelling
+
+The molecular modelling pipeline depends on [*Julia*](https://julialang.org/),
+*HH-suite3* and *MODELLER*. This module can only run on *Unix* systems
+(because of the *HH-suite*). To alleviate that, we offer a *Docker* image with
+all these dependencies installed (see the *Docker* section for more details).
+
+##### Julia
+
+You can download *Julia* 1.1.1 binaries from its
+[site](https://julialang.org/downloads/). Once, *Julia* is installed, open the [REPL](https://docs.julialang.org/en/v1/stdlib/REPL/) and install the needed packages by doing:
+
+```julia
+using Pkg
+Pkg.add(["MIToS", "Combinatorics", "Printf", "Statistics", "DataFrames"])
+Pkg.add(["BioAlignments", "BioStructures", "CSV", "Plots", "StatsPlots"])
+```
+
+###### LibZ
+
+Some *BioJulia* packages can need *LibZ* to precompile. If you found a related
+error, you can install *LibZ* from its [site](http://zlib.net/).
+In *Ubuntu 18.04* you can install it by doing: `sudo apt-get install zlib1g-dev`
+
+##### HH-suite3
+
+Clone our *HH-suite* fork at
+[AntoineLabeeuw/hh-suite](https://github.com/AntoineLabeeuw/hh-suite)
+and follow the
+[*Compilation*](https://github.com/AntoineLabeeuw/hh-suite#compilation)
+instructions in its *README.md* file.
+
+##### MODELLER
+
+Follow the instructions in the
+[*MODELLER* site](https://salilab.org/modeller/download_installation.html)
+to install it and get the license key.
+
+##### Databases
+
+To run the molecular modelling module you need the sequence database for
+*HH-suite3* and the structural database (*PDB*) for *MODELLER*.
+Follow the instructions in [docs/get_databases.md](shorturl.at/byIR8)
+to set them up.
+
+## Docker
+
+To run [*PhyloSofS' Docker* image](https://cloud.docker.com/u/diegozea/repository/docker/diegozea/phylosofs)
+you need to install *Docker* from the [*Docker* website](https://www.docker.com).
+
+The following example is going to run *PhyloSofS' Docker* image using
+*Windows PowerShell*. Databases for the molecular modelling module stored in
+`D:\databases` are going to be mounted in `/databases` and the local directory
+in `/project`. The actual folder is `${PWD}` in *Windows PowerShell*, `%cd%` in
+*Windows Command Line* (*cmd*), and `$(pwd)` in *Unix*.
+
+```
+docker run -ti --rm --mount type=bind,source=d:\databases,target=/databases --mount type=bind,source=${PWD},target=/project diegozea/phylosofs
+```
+
+After this, we have access to the `bash` terminal of an *Ubuntu 18.04* image
+with *PhyloSofS* and all its dependencies installed. You only need to indicate
+your [MODELLER license key](https://salilab.org/modeller/registration.html) to
+use *PhyloSofS*. To do that, you run the following command after replacing
+`license_key` with your *MODELLER* license key:
+
+```bash
+sed -i 's/xxx/license_key/' /usr/lib/modeller9.22/modlib/modeller/config.py
+```
 
 ## Running PhyloSofS
 
+You can run `phylosofs -h` to see the help and the list of arguments.
+
 ### 1. Phylogenetic Inference
 
-TO DO: Write usage examples
-
-```
-# ... to do ...
+```bash
+phylosofs -P -s 100 --tree path_to_newick_tree --transcripts path_to_transcripts
 ```
 
 ## Licence
-The PhyloSofS package has been developed under the [MIT License](https://github.com/PhyloSofS-Team/PhyloSofS/blob/master/LICENSE.txt).
+The PhyloSofS package has been developed under the
+[MIT License](https://github.com/PhyloSofS-Team/PhyloSofS/blob/master/LICENSE.txt).
 
 ## Contact
-For questions, comments or suggestions feel free to contact [Elodie Laine](mailto:elodie.laine@upmc.fr?subject=[GitHub]PhyloSofS) or [Hugues Richard](mailto:hugues.richard@upmc.fr?subject=[GitHub]PhyloSofS)
+For questions, comments or suggestions feel free to contact
+[Elodie Laine](mailto:elodie.laine@upmc.fr?subject=[GitHub]PhyloSofS) or
+[Hugues Richard](mailto:hugues.richard@upmc.fr?subject=[GitHub]PhyloSofS)
