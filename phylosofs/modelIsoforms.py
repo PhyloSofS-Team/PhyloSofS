@@ -213,59 +213,73 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
 
 
 def parseFromPirAnnotated(name, it):
-    with open("./" + name + "_annotated.pir", "r") as f:
-        lines = f.readlines()
-    try:
-        first = next(index for index, value in enumerate(lines[3])
-                     if (value == '0' or value == '2'))
-    except:  # no 0 on 2 in the sequence, no more runs to do
-        return True
-    for i in range(first, len(lines[3])):
-        if all([lines[3][i] != '0', lines[3][i] != '2']):
-            last_contiguous_0 = i
-            break
-        last_contiguous_0 = len(lines[3])
-    a = np.array(list(lines[1][first:last_contiguous_0]))
-    header = ' '.join(lines[0].split()[0:2]) + ' ' + \
-        ''.join(OrderedDict.fromkeys(a).keys())
+    go = False
+    while go == False:
+        go = True
+        with open("./" + name + "_annotated.pir", "r") as f:
+            lines = f.readlines()
+        try:
+            first = next(index for index, value in enumerate(lines[3])
+                         if (value == '0' or value == '2'))
+        except:  # no 0 on 2 in the sequence, no more runs to do
+            return True
+        for i in range(first, len(lines[3])):
+            if all([lines[3][i] != '0', lines[3][i] != '2']):
+                last_contiguous_0 = i
+                break
+            last_contiguous_0 = len(lines[3])
+        a = np.array(list(lines[1][first:last_contiguous_0]))
+        header = ' '.join(lines[0].split()[0:2]) + ' ' + \
+            ''.join(OrderedDict.fromkeys(a).keys())
 
-    exons_lengths = []
-    character = ""
-    line = lines[1][first:last_contiguous_0]
-    for i in range(len(line)):
-        if character != line[i]:
-            exons_lengths.append(i + 1)
-            character = line[i]
-    # at the the lengths the end of the sequence
-    exons_lengths.append(len(line) + 1)
+        exons_lengths = []
+        character = ""
+        line = lines[1][first:last_contiguous_0]
+        for i in range(len(line)):
+            if character != line[i]:
+                exons_lengths.append(i + 1)
+                character = line[i]
+        # at the the lengths the end of the sequence
+        exons_lengths.append(len(line) + 1)
 
-    if name + '.fasta' in os.listdir():
-        os.remove(name + '.fasta')
-    elif name + '.exons_lengths.txt' in os.listdir():
-        os.remove(name + '.exons_lengths.txt')
+        if (len(line) < 5):
+        # modify the pir_annotated
+            with open(name + '_annotated.pir', 'w') as f:
+                f.write(lines[0])
+                f.write(lines[1])
+                f.write(lines[2])
+                f.write(lines[3][0:first]+"3"+lines[3][last_contiguous_0:])
+            go = False
 
-    # writing of the fasta
-    with open(name + '.fasta', 'w') as f:
-        f.write(header + '\n')
-        f.write(lines[2][first:last_contiguous_0])
+        if name + '.fasta' in os.listdir():
+            os.remove(name + '.fasta')
+        elif name + '.exons_lengths.txt' in os.listdir():
+            os.remove(name + '.exons_lengths.txt')
 
-    with open(name + '_' + str(it + 1) + '.fa', 'w') as f:
-        f.write(header + '\n')
-        f.write(lines[2][first:last_contiguous_0])
+        # writing of the fasta
+        with open(name + '.fasta', 'w') as f:
+            f.write(header + '\n')
+            f.write(lines[2][first:last_contiguous_0])
 
-    # writing of the exons_lengths
-    with open(name + '.exons_lengths.txt', 'w') as f:
-        f.write(header + '\n')
-        f.write(' '.join(str(j) for j in exons_lengths) + '\n')
+        with open(name + '_' + str(it + 1) + '.fa', 'w') as f:
+            f.write(header + '\n')
+            f.write(lines[2][first:last_contiguous_0])
 
-    with open(name + '_' + str(it + 1) + '.exons_lengths.txt', 'w') as f:
-        f.write(header + '\n')
-        f.write(' '.join(str(j) for j in exons_lengths) + '\n')
+        # writing of the exons_lengths
+        with open(name + '.exons_lengths.txt', 'w') as f:
+            f.write(header + '\n')
+            f.write(' '.join(str(j) for j in exons_lengths) + '\n')
 
-    if len(lines[2][first:last_contiguous_0]) < 5:
-        return True
-    else:
-        return False
+        with open(name + '_' + str(it + 1) + '.exons_lengths.txt', 'w') as f:
+            f.write(header + '\n')
+            f.write(' '.join(str(j) for j in exons_lengths) + '\n')
+        print(go)
+        if go != False:
+            if len(lines[2][first:last_contiguous_0]) < 5:
+                return True
+            else:
+                return False
+
 
 
 # a partir d'une banque de transcrit, ecrit chaque transcrit dans un fichier
