@@ -137,6 +137,12 @@ You can run `phylosofs -h` to see the help and the list of arguments.
 ```bash
 phylosofs -P -s 100 --tree path_to_newick_tree --transcripts path_to_transcripts
 ```
+### 2. Molecular modelling
+
+```bash
+phylosofs  -M -i path_to_input_files --hhlib path_to_hhsuite_folder --hhdb path_to_hblits_database(uniclust30)/basename --structdb path_to_hhpred(pdb70)/basename --allpdb path_to_the_cif_database --ncpu number_of_cpu --julia path_to_julia_executable
+```
+Please note that for the databases hhdb and structdb, you need to provide the path to the folder and also the base name of the files in it. For example, if the database uniclust30_2018_08 is located in /home, you need to write --hhdb /home/uniclust30_2018_08/uniclust30_2018_08
 
 ## Licence
 The PhyloSofS package has been developed under the
