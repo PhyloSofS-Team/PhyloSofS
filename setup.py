@@ -24,6 +24,7 @@ setup(
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
+    scripts=['phylosofs/setup_databases.jl'],
     entry_points={
         'console_scripts': ['phylosofs=phylosofs.phylosofs:main'],
     },
