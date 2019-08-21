@@ -64,6 +64,7 @@ function parse_commandline()
 end
 
 function main()
+    execution_folder = pwd()
     parsed_args = parse_commandline()
 
     output_path = joinpath(abspath(parsed_args["output"]), "databases")
@@ -90,15 +91,27 @@ function main()
             ), "uniclust.tar.gz")
         unpack("uniclust.tar.gz")
         mv("uniclust30_$uniclust_version", "uniclust")
+        cd(execution_folder)
     else
-        symlink(uniclust, uniclust_path)
+        uniclust = abspath(uniclust)
+        mkpath(uniclust_path)
+        for file in readdir(uniclust)
+            if filesize(file) > 0
+                symlink(joinpath(uniclust, file), joinpath(uniclust_path, file))
+            end
+        end
     end
 
     cd(uniclust_path)
-    to_erase = string("30_", uniclust_version)
+    to_erase = string("_", uniclust_version)
     for file in readdir()
-        symlink(file, replace(file, to_erase => ""))
+        if occursin(to_erase, file)
+            if filesize(file) > 0
+                symlink(file, replace(file, to_erase => ""))
+            end
+        end
     end
+    cd(execution_folder)
 
     if pdb70 == ""
         check_space(free, 50, "HH-suite pdb70_from_mmcif")
@@ -107,8 +120,15 @@ function main()
         download("http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
             "pdb70.tar.gz")
         unpack("pdb70.tar.gz")
+        cd(execution_folder)
     else
-        symlink(pdb70, pdb70_path)
+        pdb70 = abspath(pdb70)
+        mkpath(pdb70_path)
+        for file in readdir(pdb70)
+            if filesize(file) > 0
+                symlink(joinpath(pdb70, file), joinpath(pdb70_path, file))
+            end
+        end
     end
 
     if pdb == ""
@@ -116,6 +136,7 @@ function main()
         mkpath(pdb_path)
         downloadentirepdb(pdb_dir=pdb_path, file_format=MMCIF)
     else
+        pdb = abspath(pdb)
         symlink(pdb, pdb_path)
     end
 
