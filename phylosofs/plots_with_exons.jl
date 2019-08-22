@@ -1,15 +1,11 @@
 using BioAlignments
 using MIToS.MSA
-using MIToS.SIFTS
 using MIToS.PDB
 using StatsPlots
 using Statistics
-using Printf
 using DataFrames
 using Plots
-using Combinatorics
 using CSV
-
 
 
 function fasta2pir(aln)

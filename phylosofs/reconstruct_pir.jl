@@ -44,8 +44,8 @@ open("$(transcript_name)_reconstructed.pir", "w") do f
 # println(df)
 
 
-    open("$(transcript_name)_annotated.pir","r") do f
-        global seq_lines = readlines(f)
+    open("$(transcript_name)_annotated.pir","r") do e
+        global seq_lines = readlines(e)
     end
 
 
