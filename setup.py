@@ -25,7 +25,10 @@ setup(
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
     entry_points={
-        'console_scripts': ['phylosofs=phylosofs.phylosofs:main'],
+        'console_scripts': [
+            'phylosofs=phylosofs.phylosofs:main',
+            'setup_databases=phylosofs.setup_databases:main'
+        ],
     },
     packages=find_packages(include=['phylosofs']),
     setup_requires=['pytest-runner'],

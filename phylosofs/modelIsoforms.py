@@ -30,6 +30,13 @@ except ImportError:
     warnings.warn('modeller is not installed', ImportWarning)
     _MODELLER_MESSAGE = "Please install modeller: " \
                         "https://salilab.org/modeller/"
+except Exception as err:
+    err_message = str(err)
+    if err_message.startswith("check_lice_E"):
+        warnings.warn('invalid modeller license key', ImportWarning)
+        _MODELLER_MESSAGE = '\n'.join(err_message.split('\n')[1:])
+    else:
+        raise err
 
 # ------------------ UPLOAD INIT VALUES ----------------------------- #
 #

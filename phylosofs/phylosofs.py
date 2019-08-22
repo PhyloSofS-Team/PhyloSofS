@@ -87,7 +87,7 @@ def parse_command_line():
         conservation and structural dynamics give insights into the role of
         alternative splicing for the JNK family. bioRxiv. 2017 Jan 1:119891.
         """,
-    )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     phylo_args = parser.add_argument_group(
         'Phylogenetic reconstruction', """
@@ -189,15 +189,14 @@ def parse_command_line():
         '--structdb',
         help='Path to the structure database for the HH-suite, e.g. PDB',
         default='')
-    model_args.add_argument('--ncpu', help='Number of CPUs', default='1')
+    model_args.add_argument('--ncpu', help='Number of CPUs', default='2')
     model_args.add_argument(
         '--allpdb',
-        help='Path to all the pdb database (in cif format)',
+        help='Path to all the pdb database (in mmCIF format)',
         default='allpdb')
-    model_args.add_argument(
-        '--julia',
-        help='Path to to the julia executables (julia 1.1.1)',
-        default='julia')
+    model_args.add_argument('--julia',
+                            help='Path to to the Julia 1.1.1 executable',
+                            default='julia')
 
     args = parser.parse_args()
 
