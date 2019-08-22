@@ -72,8 +72,7 @@ You can download *Julia* 1.1.1 binaries from its
 
 ```julia
 using Pkg
-Pkg.add(["MIToS", "Combinatorics", "Printf", "Statistics", "DataFrames"])
-Pkg.add(["BioAlignments", "BioStructures", "CSV", "Plots", "StatsPlots"])
+Pkg.add(["MIToS", "Statistics", "CSV", "Plots", "StatsPlots", "DataFrames", "BioAlignments", "BioStructures"])
 ```
 
 ###### LibZ
