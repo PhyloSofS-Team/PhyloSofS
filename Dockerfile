@@ -64,6 +64,10 @@ RUN curl -O https://salilab.org/modeller/9.22/modeller_9.22-1_amd64.deb && \
     dpkg -i modeller_9.22-1_amd64.deb && \
     rm modeller_9.22-1_amd64.deb
 
+COPY docker_banner.sh docker_banner.sh
+
+RUN cat /app/docker_banner.sh >> ~/.bashrc
+
 WORKDIR /databases
 
 WORKDIR /project
