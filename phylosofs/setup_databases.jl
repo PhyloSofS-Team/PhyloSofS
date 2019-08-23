@@ -85,7 +85,7 @@ function main()
     @info "Setting up Uniclust30 (HH-suite database)"
 
     if uniclust == ""
-        check_space(free, 87, "HH-suite Uniclust30")
+        check_space(free, 14, "HH-suite Uniclust30")
         cd(output_path)
         download(string(
             "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_",
@@ -118,7 +118,7 @@ function main()
     @info "Setting up pdb70 (HH-suite database)"
 
     if pdb70 == ""
-        check_space(free, 41, "HH-suite pdb70_from_mmcif")
+        check_space(free, 42, "HH-suite pdb70_from_mmcif")
         mkpath(pdb70_path)
         cd(pdb70_path)
         download("http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",

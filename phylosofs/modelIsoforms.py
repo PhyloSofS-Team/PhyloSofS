@@ -250,12 +250,12 @@ def parseFromPirAnnotated(name, it):
         exons_lengths.append(len(line) + 1)
 
         if (len(line) < 5):
-        # modify the pir_annotated
+            # modify the pir_annotated
             with open(name + '_annotated.pir', 'w') as f:
                 f.write(lines[0])
                 f.write(lines[1])
                 f.write(lines[2])
-                f.write(lines[3][0:first]+"3"+lines[3][last_contiguous_0:])
+                f.write(lines[3][0:first] + "3" + lines[3][last_contiguous_0:])
             go = False
 
         if name + '.fasta' in os.listdir():
@@ -286,7 +286,6 @@ def parseFromPirAnnotated(name, it):
                 return True
             else:
                 return False
-
 
 
 # a partir d'une banque de transcrit, ecrit chaque transcrit dans un fichier
@@ -578,7 +577,7 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
         tmp = seqs[i][0].split('\n')[0]
         tmp = tmp.split(';')[1]
         knowns.append(tmp)
-        kn = tmp.split('_')[0].lower()
+        kn = tmp.split('_')[0].lower()  # upper ?
         base_name = kn + pdb_extension
         nam = base_name  # + '.gz'
         if not os.path.isfile(kn + pdb_extension):
