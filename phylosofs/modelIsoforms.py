@@ -149,33 +149,49 @@ def readFastaMul(fic, init=False):
     return res
 
 
+def parse_pir(file_path):
+    """
+    Parse an annotated pir file returning three dictionaries.
+
+    The dictionary contains the sequences, their lenghts and the exon sequences.
+    """
+    sequences = {}
+    lengths = {}
+    exons_seqs = {}
+    with open(file_path, encoding='utf-8') as pir:
+        line_number = 0
+        for line in pir:
+            line_number += 1
+            if line_number == 1 and not line.startswith(">"):
+                raise Exception(
+                    "{} is not a correct pir file, it should start with '>'".
+                    format(file_path))
+            if line.startswith(">"):
+                header = line
+            elif line.endswith("*\n"):
+                sequences[header] = line
+            else:
+                # we can also use the 3rd column of the header, but this seems to be easier
+                # and is fast
+                exons_seqs[header] = line
+                line = line.rstrip('\r\n')
+                exons_lengths = []
+                character = ""
+                for i, char in enumerate(line):
+                    if character != char:
+                        exons_lengths.append(i + 1)
+                        character = char
+                # at the the lengths the end of the sequence
+                exons_lengths.append(len(line))
+                lengths[header] = exons_lengths
+    return sequences, lengths, exons_seqs
+
+
 # parse a 'transcripts.pir' file form the ThoxAxe output
 # and transforms it to be usable easily by PhyloSofS
 def parseFromThorAxe(pathTransSeqs, outputDir):
-    f = open(pathTransSeqs + "/transcripts.pir")
-    sequences = {}
-    lengths = {}
-    exonsSeq = {}
-    for line in f:
-        if line.startswith(">"):
-            header = line
-            seq = ""
-        elif line.endswith("*\n"):
-            sequences[header] = line
-        else:
-            # we can also use the 3rd column of the header, but this seems to be easier
-            # and is fast
-            exonsSeq[header] = line
-            line = line[:-1]  # remove the \n at the end
-            exons_lengths = []
-            character = ""
-            for i in range(len(line)):
-                if character != line[i]:
-                    exons_lengths.append(i + 1)
-                    character = line[i]
-            # at the the lengths the end of the sequence
-            exons_lengths.append(len(line))
-            lengths[header] = exons_lengths
+    (sequences, lengths,
+     exons_seqs) = parse_pir(os.path.join(pathTransSeqs, "transcripts.pir"))
     for i in sequences:
         if "ENSG0" in i:  # take only the human transcripts
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
@@ -205,9 +221,9 @@ def parseFromThorAxe(pathTransSeqs, outputDir):
             with open(outputDir + '/' + j + '/' + j + '_annotated.pir',
                       'w+') as file:
                 file.write(i)
-                file.write(exonsSeq[i])
+                file.write(exons_seqs[i])
                 file.write(sequences[i])
-                file.write(len(exonsSeq[i][:-1]) * '0')
+                file.write(len(exons_seqs[i][:-1]) * '0')
 
 
 # Parse the sequence from the output pir with the annotations on what to take
@@ -642,7 +658,7 @@ def readRTF(filename):
     Exons = []
     count = 0
     currCol = ""
-    tmp = s.split("{\cf")
+    tmp = s.split(r"{\cf")
     for i in tmp[1:]:
         i = i.replace("\\\'46", "F")
         col = i[0]
