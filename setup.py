@@ -31,8 +31,10 @@ setup(
         ],
     },
     package_data={
-        'phylosofs':
-        ['plots_with_exons.jl', 'reconstruct_pir.jl', 'reconstruct_plot.jl']
+        'phylosofs': [
+            'src/plots_with_exons.jl', 'src/reconstruct_pir.jl',
+            'src/reconstruct_plot.jl', 'src/setup_databases.jl'
+        ]
     },
     packages=find_packages(include=['phylosofs']),
     setup_requires=['pytest-runner'],
