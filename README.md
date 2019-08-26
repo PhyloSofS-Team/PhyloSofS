@@ -143,6 +143,12 @@ phylosofs  -M -i path_to_input_files --hhlib path_to_hhsuite_folder --hhdb path_
 ```
 Please note that for the databases hhdb and structdb, you need to provide the path to the folder and also the base name of the files in it. For example, if the database uniclust30_2018_08 is located in /home, you need to write --hhdb /home/uniclust30_2018_08/uniclust30_2018_08
 
+#### Docker example
+
+```bash
+phylosofs -M -i ./MAPK8/ --hhlib /app/hh-suite/ --hhdb /databases/uniclust30_2018_08/uniclust30_2018_08 --structdb /databases/pdb70_from_mmcif_latest/pdb70 --allpdb /databases/allpdb/ --ncpu 6
+```
+
 ## Licence
 The PhyloSofS package has been developed under the
 [MIT License](https://github.com/PhyloSofS-Team/PhyloSofS/blob/master/LICENSE.txt).

@@ -886,8 +886,10 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     #borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
+    julia_script_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "plots_with_exons.jl")
     run_external_program(
-        [JULIA, "--inline=no", "../../plots_with_exons.jl", tmp,
+        [JULIA, "--inline=no", julia_script_path, tmp,
          str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
