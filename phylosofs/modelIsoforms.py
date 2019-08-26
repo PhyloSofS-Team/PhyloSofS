@@ -16,6 +16,7 @@ import subprocess
 import warnings
 import gzip
 import pdb
+import pkg_resources
 import configparser
 import numpy as np
 from collections import OrderedDict
@@ -774,6 +775,10 @@ def run_external_program(command_list):
     return exit_code
 
 
+_JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
+                                                'src/plots_with_exons.jl')
+
+
 def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
                     NCPU, trans, selTemp, only3D, CONTEXTLIB, it, JULIA):
     # try:
@@ -886,11 +891,7 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     #borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    julia_script_path = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "plots_with_exons.jl")
-    run_external_program(
-        [JULIA, "--inline=no", julia_script_path, tmp,
-         str(it)])
+    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     # run_external_program(["python",

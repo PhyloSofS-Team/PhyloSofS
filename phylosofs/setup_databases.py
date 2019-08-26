@@ -2,10 +2,12 @@
 Wrapper to Julia's setup_databases function to allow setuptools to install it.
 """
 
-import os
-import sys
 import argparse
 import subprocess
+import pkg_resources
+
+_JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
+                                                'src/reconstruct_pir.jl')
 
 
 def main():
@@ -62,12 +64,9 @@ def main():
 
     args = parser.parse_args()
 
-    path = os.path.dirname(os.path.realpath(__file__))
-
     subprocess.call([
-        args.julia,
-        os.path.join(path, 'setup_databases.jl'), "--output", args.output,
-        "--pdb", args.pdb, "--uniclust", args.uniclust, "--uniclust_version",
+        args.julia, _JULIA_SCRIPT, "--output", args.output, "--pdb", args.pdb,
+        "--uniclust", args.uniclust, "--uniclust_version",
         args.uniclust_version, "--pdb70", args.pdb70
     ])
 

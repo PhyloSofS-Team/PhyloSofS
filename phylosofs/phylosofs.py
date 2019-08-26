@@ -19,7 +19,7 @@ import time
 import pickle as pk
 import argparse
 import pathlib
-
+import pkg_resources
 from phylosofs import initData
 from phylosofs import inferPhylo as ip
 from phylosofs import modelIsoforms as mi
@@ -235,6 +235,11 @@ def choose_path(hhlib, program):
             return path
     raise Exception("hhlib is %s, but %s aren't executable paths for "
                     "program %s" % (hhlib, paths, program))
+
+
+_JULIA_PIR = pkg_resources.resource_filename('phylosofs', 'src/reconstruct_pir.jl')
+_JULIA_PLOT = pkg_resources.resource_filename('phylosofs',
+                                              'src/reconstruct_plot.jl')
 
 
 def doit(
@@ -462,15 +467,11 @@ def doit(
                         with open("number_of_loops.txt", "w") as f:
                             f.write(str(it - 1))
                         # Plot reconstruction
-                        mi.run_external_program([
-                            JULIA, "--inline=no", "../../reconstruc_plot.jl",
-                            name
-                        ])
+                        mi.run_external_program(
+                            [JULIA, "--inline=no", _JULIA_PLOT, name])
                         # pir reconstruction
-                        mi.run_external_program([
-                            JULIA, "--inline=no", "../../reconstruct_pir.jl",
-                            name
-                        ])
+                        mi.run_external_program(
+                            [JULIA, "--inline=no", _JULIA_PIR, name])
                         # modeller b-factor coloring
                         try:
                             mi.model3D(name + "_reconstructed.pir", ALLPDB)
