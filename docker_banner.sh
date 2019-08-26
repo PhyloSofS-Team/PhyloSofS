@@ -8,7 +8,7 @@ echo "         |_|     |_| |_| \__, ||_| \___/|_____/  \___/ |_|  |_____/       
 echo "                         __/ |                                               "
 echo "                        |___/                                                "
 echo "                                                                             "
-echo "          Evolution and Structural impact of Alternative Splicing            "
+echo "           Evolution and Structural impact of Alternative Splicing           "
 echo "                                                                             "
 echo "                                                                             "
 echo " You need to indicate your MODELLER license key to use PhyloSofS.            "

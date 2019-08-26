@@ -45,6 +45,11 @@ RUN git clone https://github.com/AntoineLabeeuw/hh-suite.git && \
    cmake -DCMAKE_INSTALL_PREFIX=. .. && \
    make -j 4 && make install
 
+RUN git clone https://github.com/soedinglab/pdbx.git && \
+    mkdir -p pdbx/build && cd pdbx/build && \
+    cmake -DUserInstallOption=ON ../ && \
+    make install
+
 ENV PATH="/app/hh-suite/build/bin:/app/hh-suite/build/scripts:${PATH}"
 
 COPY Manifest.toml /root/.julia/environments/v1.1/Manifest.toml
