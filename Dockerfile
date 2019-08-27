@@ -35,7 +35,16 @@ RUN apt-get update && \
     # zlib in needed to use BioAlignments.jl
     zlib1g-dev \
     # qt5 is needed to use GR.jl
-    qt5-default
+    qt5-default \
+    # X11, OpenGL and Xvfb to use GR (gr-framework.org/tutorials/docker.html)
+    libxt6 \
+    libxrender1 \
+    libxext6 \
+    libgl1-mesa-glx \
+    xvfb
+
+# Output to PNG images (gr-framework.org/tutorials/docker.html)
+ENV GKS_WSTYPE=png
 
 WORKDIR /app
 
