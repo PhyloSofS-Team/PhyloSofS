@@ -866,6 +866,7 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
         run_external_program([
             "python3",
             HHMODEL,
+            "-noduplicates",
             tmp + "_" + str(it) + ".hhr",
             ALLPDB,
             tmp + "_" + str(it) + ".pir",
