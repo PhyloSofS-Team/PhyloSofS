@@ -43,8 +43,8 @@ RUN apt-get update && \
     libgl1-mesa-glx \
     xvfb
 
-# Output to PNG images (gr-framework.org/tutorials/docker.html)
-ENV GKS_WSTYPE=png
+# Output to PDF images (gr-framework.org/tutorials/docker.html)
+ENV GKS_WSTYPE=pdf
 
 WORKDIR /app
 
