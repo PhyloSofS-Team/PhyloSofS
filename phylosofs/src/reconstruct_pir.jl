@@ -40,7 +40,7 @@ open("$(transcript_name)_reconstructed.pir", "w") do f
     df_number = -1
 
 
-    df = CSV.read("$(transcript_name)_reconstructed.csv")
+    df = CSV.read("$(transcript_name)_reconstructed.csv", copycols=true)
 # println(df)
 
 
