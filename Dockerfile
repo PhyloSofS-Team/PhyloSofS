@@ -32,8 +32,10 @@ RUN apt-get update && \
     libblacs-mpi-dev \
     # curl is needed to download MODELLER and Julia
     curl \
-    # zlib in needed to use BioAlignments
-    zlib1g-dev
+    # zlib in needed to use BioAlignments.jl
+    zlib1g-dev \
+    # qt5 is needed to use GR.jl
+    qt5-default
 
 WORKDIR /app
 
