@@ -594,7 +594,7 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
         tmp = seqs[i][0].split('\n')[0]
         tmp = tmp.split(';')[1]
         knowns.append(tmp)
-        kn = tmp.split('_')[0].lower()  # upper ?
+        kn = tmp.split('_')[0].upper()  # lower ?
         base_name = kn + pdb_extension
         nam = base_name  # + '.gz'
         if not os.path.isfile(kn + pdb_extension):
