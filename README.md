@@ -60,10 +60,10 @@ The easiest way to install *Graphviz* in...
 
 #### Molecular modelling
 
-The molecular modelling pipeline depends on [*Julia*](https://julialang.org/),
-*HH-suite3* and *MODELLER*. This module can only run on *Unix* systems
-(because of the *HH-suite*). To alleviate that, we offer a *Docker* image with
-all these dependencies installed (see the *Docker* section for more details).
+The molecular modelling pipeline depends on *Julia*, *HH-suite3* and *MODELLER*.
+This module can only run on *Unix* systems (because of the *HH-suite*). To
+alleviate that, we offer a *Docker* image with all these dependencies installed
+(see the *Docker* section for more details).
 
 ##### Julia
 
@@ -91,7 +91,7 @@ instructions in its *README.md* file.
 
 ##### MODELLER
 
-Follow the instructions in the
+PhyloSofS needs MODELLER version 9.21. Follow the instructions in the
 [*MODELLER* site](https://salilab.org/modeller/download_installation.html)
 to install it and get the license key.
 
@@ -124,7 +124,7 @@ use *PhyloSofS*. To do that, you run the following command after replacing
 `license_key` with your *MODELLER* license key:
 
 ```bash
-sed -i 's/xxx/license_key/' /usr/lib/modeller9.22/modlib/modeller/config.py
+sed -i 's/xxx/license_key/' /usr/lib/modeller9.21/modlib/modeller/config.py
 ```
 
 ## Running PhyloSofS
@@ -146,7 +146,7 @@ Please note that for the databases hhdb and structdb, you need to provide the pa
 #### Docker example
 
 ```bash
-phylosofs -M -i ./MAPK8/ --hhlib /app/hh-suite/ --hhdb /databases/uniclust30_2018_08/uniclust30_2018_08 --structdb /databases/pdb70_from_mmcif_latest/pdb70 --allpdb /databases/allpdb/ --ncpu 6
+phylosofs -M -i . --hhlib /app/hh-suite/ --hhdb /databases/uniclust30_2018_08/uniclust30_2018_08 --structdb /databases/pdb70_from_mmcif_latest/pdb70 --allpdb /databases/allpdb/ --ncpu 12
 ```
 
 ## Licence
