@@ -76,9 +76,9 @@ RUN curl -O https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-lin
 
 ENV PATH="/app/julia-1.1.1/bin:${PATH}"
 
-RUN curl -O https://salilab.org/modeller/9.22/modeller_9.22-1_amd64.deb && \
-    dpkg -i modeller_9.22-1_amd64.deb && \
-    rm modeller_9.22-1_amd64.deb
+RUN curl -O https://salilab.org/modeller/9.21/modeller_9.21-1_amd64.deb && \
+    dpkg -i modeller_9.21-1_amd64.deb && \
+    rm modeller_9.21-1_amd64.deb
 
 COPY docker_banner.sh docker_banner.sh
 
