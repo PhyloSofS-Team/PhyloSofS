@@ -104,7 +104,8 @@ function main()
         check_space(free, 42, "HH-suite pdb70_from_mmcif")
         mkpath(pdb70_path)
         cd(pdb70_path)
-        download("http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
+        retry(download, delays=ExponentialBackOff(n=2))(
+            "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
             "pdb70.tar.gz")
         unpack("pdb70.tar.gz")
         cd(execution_folder)
@@ -123,7 +124,7 @@ function main()
     if uniclust == ""
         check_space(free, 87, "HH-suite Uniclust30")
         cd(output_path)
-        download(string(
+        retry(download, delays=ExponentialBackOff(n=2))(string(
             "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30",
             uniclust_version, "_hhsuite.tar.gz"
             ), "uniclust.tar.gz")
