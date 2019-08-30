@@ -11,6 +11,8 @@ RUN apt-get update && \
     git \
     python3 \
     python3-pip \
+    # PyCall.jl needs libpython3.x
+    libpython3.6 \
     # setuptools is needed to install phylosofs
     python3-setuptools \
     # wheel is needed to install networkx
@@ -63,16 +65,11 @@ RUN git clone https://github.com/soedinglab/pdbx.git && \
 
 ENV PATH="/app/hh-suite/build/bin:/app/hh-suite/build/scripts:${PATH}"
 
-COPY Manifest.toml /root/.julia/environments/v1.1/Manifest.toml
-
-COPY Project.toml /root/.julia/environments/v1.1/Project.toml
-
 RUN curl -O https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-linux-x86_64.tar.gz && \
     tar xvzf julia-1.1.1-linux-x86_64.tar.gz && \
     rm julia-1.1.1-linux-x86_64.tar.gz && \
     /app/julia-1.1.1/bin/julia -e \
-    'using Pkg; Pkg.activate("/root/.julia/environments/v1.1/"); Pkg.instantiate();' && \
-    /app/julia-1.1.1/bin/julia -e 'using Pkg; pkg"precompile";'
+    'using Pkg; Pkg.activate("/usr/local/lib/python3.6/dist-packages/phylosofs/src/"); Pkg.instantiate(); pkg"precompile"'
 
 ENV PATH="/app/julia-1.1.1/bin:${PATH}"
 

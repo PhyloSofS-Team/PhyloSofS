@@ -81,10 +81,10 @@ uuid = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 version = "1.1.0"
 
 [[BioStructures]]
-deps = ["BioCore", "BioSequences", "BioSymbols", "CodecZlib", "Format", "LinearAlgebra", "RecipesBase", "Test"]
-git-tree-sha1 = "75470c0d825076c229ec59e60bd81f83e878bbc4"
+deps = ["BioCore", "BioSequences", "BioSymbols", "CodecZlib", "Format", "LinearAlgebra", "RecipesBase"]
+git-tree-sha1 = "ea8b81fafa3f1c3e36f6cd7089333c652af85916"
 uuid = "de9282ab-8554-53be-b2d6-f6c222edabfc"
-version = "0.4.0"
+version = "0.5.1"
 
 [[BioSymbols]]
 deps = ["Automa", "Test"]
@@ -97,6 +97,12 @@ deps = ["Compat", "Test"]
 git-tree-sha1 = "5d55b9486590fdda5905c275bb21ce1f0754020f"
 uuid = "e1450e63-4bb3-523b-b2a4-4ffa8c0fd77d"
 version = "1.0.0"
+
+[[CSTParser]]
+deps = ["Tokenize"]
+git-tree-sha1 = "c69698c3d4a7255bc1b4bc2afc09f59db910243b"
+uuid = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
+version = "0.6.2"
 
 [[CSV]]
 deps = ["CategoricalArrays", "DataFrames", "Dates", "Mmap", "Parsers", "PooledArrays", "Profile", "Tables", "Unicode", "WeakRefStrings"]
@@ -181,11 +187,17 @@ git-tree-sha1 = "8903f0219d3472543fc4b2f5ebaf675a07f817c0"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.0.1"
 
+[[DataDeps]]
+deps = ["HTTP", "Reexport", "SHA"]
+git-tree-sha1 = "c18e7b5ee4c7ff080d99ec03f553c95ad071a879"
+uuid = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
+version = "0.6.5"
+
 [[DataFrames]]
 deps = ["CategoricalArrays", "Compat", "DataAPI", "InvertedIndices", "IteratorInterfaceExtensions", "Missings", "PooledArrays", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "48ef38bd7cf0e8fd598bda981409eb6ef4b96cbd"
+git-tree-sha1 = "934b75a90b6cb315f9ea0df961768a02c1da1612"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "0.19.2"
+version = "0.19.3"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
@@ -232,9 +244,9 @@ version = "0.0.10"
 
 [[Distances]]
 deps = ["LinearAlgebra", "Statistics"]
-git-tree-sha1 = "44bd29b50552dfd0a0b674b925de2719f3b9bb0b"
+git-tree-sha1 = "23717536c81b63e250f682b0e0933769eecd1411"
 uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
-version = "0.8.1"
+version = "0.8.2"
 
 [[Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -278,9 +290,9 @@ version = "0.5.3"
 
 [[Format]]
 deps = ["Compat"]
-git-tree-sha1 = "30947620610185bb63d3102dbce4f8ba4bf48eab"
+git-tree-sha1 = "c6fff9afa5d716fefc883d449dfc954b859718b9"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
-version = "0.8.0"
+version = "1.0.0"
 
 [[Formatting]]
 deps = ["Compat"]
@@ -427,6 +439,12 @@ git-tree-sha1 = "5e16c04bb7855f9b98b6d21202a3c11d89722bfd"
 uuid = "51bafb47-8a16-5ded-8b04-24ef4eede0b5"
 version = "2.4.0"
 
+[[MacroTools]]
+deps = ["CSTParser", "Compat", "DataStructures", "Test", "Tokenize"]
+git-tree-sha1 = "d6e9dedb8c92c3465575442da456aec15a89ff76"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.1"
+
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -454,9 +472,9 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[NLSolversBase]]
 deps = ["Calculus", "DiffEqDiffTools", "DiffResults", "Distributed", "ForwardDiff"]
-git-tree-sha1 = "1c4b1d76f731dee88a0f494c59c750f3fd7d9ddd"
+git-tree-sha1 = "c430bd3f2dfcffc30688cf4a9cb61535e8d85f65"
 uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.4.0"
+version = "7.4.1"
 
 [[NaNMath]]
 deps = ["Compat"]
@@ -575,6 +593,12 @@ deps = ["Distributed", "Printf"]
 git-tree-sha1 = "0f08e0e74e5b160ca20d3962a2620038b75881c7"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "1.0.0"
+
+[[PyCall]]
+deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Pkg", "Serialization", "Statistics", "Test", "VersionParsing"]
+git-tree-sha1 = "6e5bac1b1faf3575731a6a5b76f638f2389561d3"
+uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+version = "1.91.2"
 
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra", "Test"]
@@ -713,6 +737,11 @@ deps = ["Compat", "Test"]
 git-tree-sha1 = "8355cc559e85469cd4dbe927c375f61d3750e002"
 uuid = "b718987f-49a8-5099-9789-dcd902bef87d"
 version = "0.3.0"
+
+[[Tokenize]]
+git-tree-sha1 = "dfcdbbfb2d0370716c815cbd6f8a364efb6f42cf"
+uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
+version = "0.5.6"
 
 [[TranscodingStreams]]
 deps = ["Random", "Test"]

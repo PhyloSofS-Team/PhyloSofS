@@ -237,9 +237,11 @@ def choose_path(hhlib, program):
                     "program %s" % (hhlib, paths, program))
 
 
-_JULIA_PIR = pkg_resources.resource_filename('phylosofs', 'src/reconstruct_pir.jl')
+_JULIA_PIR = pkg_resources.resource_filename('phylosofs',
+                                             'src/reconstruct_pir.jl')
 _JULIA_PLOT = pkg_resources.resource_filename('phylosofs',
                                               'src/reconstruct_plot.jl')
+_JULIA_ENV = os.path.dirname(_JULIA_PIR)
 
 
 def doit(
@@ -467,11 +469,15 @@ def doit(
                         with open("number_of_loops.txt", "w") as f:
                             f.write(str(it - 1))
                         # Plot reconstruction
-                        mi.run_external_program(
-                            [JULIA, "--inline=no", _JULIA_PLOT, name])
+                        mi.run_external_program([
+                            JULIA, "--project=" + _JULIA_ENV, "--inline=no",
+                            _JULIA_PLOT, name
+                        ])
                         # pir reconstruction
-                        mi.run_external_program(
-                            [JULIA, "--inline=no", _JULIA_PIR, name])
+                        mi.run_external_program([
+                            JULIA, "--project=" + _JULIA_ENV, "--inline=no",
+                            _JULIA_PIR, name
+                        ])
                         # modeller b-factor coloring
                         try:
                             mi.model3D(name + "_reconstructed.pir", ALLPDB)

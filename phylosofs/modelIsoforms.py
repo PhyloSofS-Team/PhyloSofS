@@ -778,6 +778,7 @@ def run_external_program(command_list):
 _JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
                                                 'src/plots_with_exons.jl')
 _GET_PDBS = pkg_resources.resource_filename('phylosofs', 'src/get_pdbs.jl')
+_JULIA_ENV = os.path.dirname(_JULIA_SCRIPT)
 
 
 def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
@@ -865,8 +866,8 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
         ])
 
         run_external_program([
-            JULIA, _GET_PDBS, "--input", tmp + "_" + str(it) + ".hhr", "--pdb",
-            ALLPDB
+            JULIA, "--project=" + _JULIA_ENV, _GET_PDBS, "--input",
+            tmp + "_" + str(it) + ".hhr", "--pdb", ALLPDB
         ])
 
         # create the alignment for MODELLER and change the query name
@@ -899,7 +900,10 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     # borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
+    run_external_program([
+        JULIA, "--project=" + _JULIA_ENV, "--inline=no", _JULIA_SCRIPT, tmp,
+        str(it)
+    ])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     # run_external_program(["python",

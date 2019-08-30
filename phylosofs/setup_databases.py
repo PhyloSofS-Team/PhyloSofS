@@ -2,12 +2,14 @@
 Wrapper to Julia's setup_databases function to allow setuptools to install it.
 """
 
+import os
 import argparse
 import subprocess
 import pkg_resources
 
 _JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
                                                 'src/setup_databases.jl')
+_JULIA_ENV = os.path.dirname(_JULIA_SCRIPT)
 
 
 def main():
@@ -65,9 +67,9 @@ def main():
     args = parser.parse_args()
 
     subprocess.call([
-        args.julia, _JULIA_SCRIPT, "--output", args.output, "--pdb", args.pdb,
-        "--uniclust", args.uniclust, "--uniclust_version",
-        args.uniclust_version, "--pdb70", args.pdb70
+        args.julia, "--project=" + _JULIA_ENV, _JULIA_SCRIPT, "--output",
+        args.output, "--pdb", args.pdb, "--uniclust", args.uniclust,
+        "--uniclust_version", args.uniclust_version, "--pdb70", args.pdb70
     ])
 
 
