@@ -899,7 +899,7 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     # borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
+    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     # run_external_program(["python",
@@ -909,11 +909,11 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     try:
         # model3D(tmp + "_"  + str(it) + '.pir', ALLPDB)
         # annotate(trans, borders)
-        res=0
+        res = 0
     except Exception as e:
         print('Error: could not build the 3D model for ' + tmp)
         print("reason : {}".format(e))
-        res=1
+        res = 1
     # res = 0
 
     return res
