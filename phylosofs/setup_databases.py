@@ -7,7 +7,7 @@ import subprocess
 import pkg_resources
 
 _JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
-                                                'src/reconstruct_pir.jl')
+                                                'src/setup_databases.jl')
 
 
 def main():
