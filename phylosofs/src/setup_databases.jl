@@ -1,24 +1,11 @@
 #!/usr/bin/env julia
 
 using ArgParse
-using BioStructures
 using DataDeps
 using PyCall
 
 const shutil = pyimport("shutil")
 
-"Free space in Gb at the given path."
-free_space(path) = shutil.disk_usage(path)[3] / 1000_000_000
-
-function check_space(free, min_space, database_name)
-    if free < min_space
-        throw(ErrorException("""
-        Free space: $free Gb
-        Please make sure to have at least $min_space Gb of free disk space
-        before downloading the $database_name database.
-        """))
-    end
-end
 
 function parse_commandline()
     settings = ArgParseSettings(description="""
@@ -63,6 +50,22 @@ function parse_commandline()
     return parse_args(settings)
 end
 
+
+"Free space in Gb at the given path."
+free_space(path) = shutil.disk_usage(path)[3] / 1000_000_000
+
+
+function check_space(free, min_space, database_name)
+    if free < min_space
+        throw(ErrorException("""
+        Free space: $free Gb
+        Please make sure to have at least $min_space Gb of free disk space
+        before downloading the $database_name database.
+        """))
+    end
+end
+
+
 function main()
     execution_folder = pwd()
     parsed_args = parse_commandline()
@@ -82,38 +85,18 @@ function main()
 
     free = free_space(output_path)
 
-    @info "Setting up Uniclust30 (HH-suite database)"
+    @info """
+    Setting up PDB database cache:
+    In each PhyloSofS run, the needed PDB files in mmCIF format are going to be
+    downloaded into $pdb_path if they aren't already there.
+    """
 
-    if uniclust == ""
-        check_space(free, 14, "HH-suite Uniclust30")
-        cd(output_path)
-        download(string(
-            "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_",
-            uniclust_version, ".tar.gz"
-            ), "uniclust.tar.gz")
-        unpack("uniclust.tar.gz")
-        mv("uniclust30_$uniclust_version", "uniclust")
-        cd(execution_folder)
+    if pdb == ""
+        mkpath(pdb_path)
     else
-        uniclust = abspath(uniclust)
-        mkpath(uniclust_path)
-        for file in readdir(uniclust)
-            if filesize(file) > 0
-                symlink(joinpath(uniclust, file), joinpath(uniclust_path, file))
-            end
-        end
+        pdb = abspath(pdb)
+        symlink(pdb, pdb_path)
     end
-
-    cd(uniclust_path)
-    to_erase = string("_", uniclust_version)
-    for file in readdir()
-        if occursin(to_erase, file)
-            if filesize(file) > 0
-                symlink(file, replace(file, to_erase => ""))
-            end
-        end
-    end
-    cd(execution_folder)
 
     @info "Setting up pdb70 (HH-suite database)"
 
@@ -135,16 +118,38 @@ function main()
         end
     end
 
-    @info "Setting up PDB (mmCIF format)"
+    @info "Setting up Uniclust30 (HH-suite database)"
 
-    if pdb == ""
-        check_space(free, 157, "PDB")
-        mkpath(pdb_path)
-        downloadentirepdb(pdb_dir=pdb_path, file_format=MMCIF)
+    if uniclust == ""
+        check_space(free, 87, "HH-suite Uniclust30")
+        cd(output_path)
+        download(string(
+            "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30",
+            uniclust_version, "_hhsuite.tar.gz"
+            ), "uniclust.tar.gz")
+        unpack("uniclust.tar.gz")
+        mv("uniclust30_$(uniclust_version)_hhsuite", "uniclust")
+        cd(execution_folder)
     else
-        pdb = abspath(pdb)
-        symlink(pdb, pdb_path)
+        uniclust = abspath(uniclust)
+        mkpath(uniclust_path)
+        for file in readdir(uniclust)
+            if filesize(file) > 0
+                symlink(joinpath(uniclust, file), joinpath(uniclust_path, file))
+            end
+        end
     end
+
+    cd(uniclust_path)
+    to_erase = string("_", uniclust_version)
+    for file in readdir()
+        if occursin(to_erase, file)
+            if filesize(file) > 0
+                symlink(file, replace(file, to_erase => ""))
+            end
+        end
+    end
+    cd(execution_folder)
 
 end
 

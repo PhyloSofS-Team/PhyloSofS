@@ -70,7 +70,7 @@ def init(configFile):
 
 
 def getProgramPath(HHLIB):
-    #HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
+    # HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
     HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ('', '', '', '', '')
     for root, dirs, files in os.walk(HHLIB, topdown=False):
         for name in files:
@@ -777,6 +777,7 @@ def run_external_program(command_list):
 
 _JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
                                                 'src/plots_with_exons.jl')
+_GET_PDBS = pkg_resources.resource_filename('phylosofs', 'src/get_pdbs.jl')
 
 
 def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
@@ -806,7 +807,7 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
             tmp + ".a3m",
             "-n",
             "3"
-            #"-maxfilt", "50000"
+            # "-maxfilt", "50000"
         ])
 
         # generate a hidden Markov model (HMM) from the MSA
@@ -862,6 +863,12 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
             "-cs",
             CONTEXTLIB
         ])
+
+        run_external_program([
+            JULIA, _GET_PDBS, "--input", tmp + "_" + str(it) + ".hhr", "--pdb",
+            ALLPDB
+        ])
+
         # create the alignment for MODELLER and change the query name
         run_external_program([
             "python3",
@@ -871,7 +878,7 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
             ALLPDB,
             tmp + "_" + str(it) + ".pir",
             "./",
-            #"-m", "1","2","3","4","5","6","7","8","9","10"
+            # "-m", "1","2","3","4","5","6","7","8","9","10"
         ])
 
         # modify the query name in the alignment file
@@ -889,10 +896,10 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
     #             ])
 
     # treat the alignment file to remove N- and C-terminal loops
-    #borders = treatAli(tmp + '.pir')
+    # borders = treatAli(tmp + '.pir')
 
     # analysis of the templates
-    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
+    run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, run_external_program([JULIA, "--inline=no", _JULIA_SCRIPT, tmp, str(it)])
 
     # Create files for secondary structures and solvent accessibility using JPred 4 API
     # run_external_program(["python",
@@ -900,13 +907,13 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
 
     # generate the 3D models with Modeller
     try:
-        #model3D(tmp + "_"  + str(it) + '.pir', ALLPDB)
-        #annotate(trans, borders)
-        res = 0
+        # model3D(tmp + "_"  + str(it) + '.pir', ALLPDB)
+        # annotate(trans, borders)
+        res=0
     except Exception as e:
         print('Error: could not build the 3D model for ' + tmp)
         print("reason : {}".format(e))
-        res = 1
-    #res = 0
+        res=1
+    # res = 0
 
     return res
