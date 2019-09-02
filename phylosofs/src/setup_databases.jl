@@ -138,8 +138,8 @@ function main()
         check_space(free, 87, "HH-suite Uniclust30")
         cd(output_path)
         retry(download, delays=ExponentialBackOff(n=2))(string(
-            "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30",
-            uniclust_version, "_hhsuite.tar.gz"
+            "http://wwwuser.gwdg.de/~compbiol/uniclust/", uniclust_version,
+            "/uniclust30_", uniclust_version, "_hhsuite.tar.gz"
             ), "uniclust.tar.gz")
         _unpack_tar_gz("uniclust")
         mv("uniclust30_$(uniclust_version)_hhsuite", "uniclust")
