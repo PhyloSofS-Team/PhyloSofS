@@ -66,6 +66,19 @@ function check_space(free, min_space, database_name)
 end
 
 
+"Try to decompress locally a basename.tr.gz file and delete the compressed files"
+function _unpack_tar_gz(basename)
+    try
+        unpack("$basename.tar.gz")
+    catch err
+        @error err
+    finally
+        isfile("$basename.tar.gz") && rm("$basename.tar.gz")
+        isfile("$basename.tar") && rm("$basename.tar")
+    end
+end
+
+
 function main()
     execution_folder = pwd()
     parsed_args = parse_commandline()
@@ -107,7 +120,7 @@ function main()
         retry(download, delays=ExponentialBackOff(n=2))(
             "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
             "pdb70.tar.gz")
-        unpack("pdb70.tar.gz")
+        _unpack_tar_gz("pdb70")
         cd(execution_folder)
     else
         pdb70 = abspath(pdb70)
@@ -128,7 +141,7 @@ function main()
             "http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30",
             uniclust_version, "_hhsuite.tar.gz"
             ), "uniclust.tar.gz")
-        unpack("uniclust.tar.gz")
+        _unpack_tar_gz("uniclust")
         mv("uniclust30_$(uniclust_version)_hhsuite", "uniclust")
         cd(execution_folder)
     else
