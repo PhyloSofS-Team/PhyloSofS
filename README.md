@@ -127,6 +127,15 @@ use *PhyloSofS*. To do that, you run the following command after replacing
 sed -i 's/xxx/license_key/' /usr/lib/modeller9.21/modlib/modeller/config.py
 ```
 
+### Installing databases with *Windows* as a host
+
+If you are using the *PhyloSofS' Docker* image, you must know that errors can
+occur when very large files are being written to bind-mounted *NTFS* file
+systems. This happens particularly when `setup_databases` is run because it
+tries to download and decompress large files. To avoid this problem, you can
+install *PhyloSofS* on *Windows* and run `setup_databases.exe` to set up the
+databases before using the docker image.  
+
 ## Running PhyloSofS
 
 You can run `phylosofs -h` to see the help and the list of arguments.
