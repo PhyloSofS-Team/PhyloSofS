@@ -141,8 +141,13 @@ function main()
             "http://wwwuser.gwdg.de/~compbiol/uniclust/", uniclust_version,
             "/uniclust30_", uniclust_version, "_hhsuite.tar.gz"
             ), "uniclust.tar.gz")
-        _unpack_tar_gz("uniclust")
-        mv("uniclust30_$(uniclust_version)", "uniclust")
+        _unpack_tar_gz("uniclust";)
+        for dir in ["uniclust30_$(uniclust_version)",
+                    "uniclust30_$(uniclust_version)_hhsuite"]
+            if isdir(dir)
+                mv(dir, "uniclust")
+            end
+        end
         cd(execution_folder)
     else
         uniclust = abspath(uniclust)
@@ -155,7 +160,7 @@ function main()
     end
 
     cd(uniclust_path)
-    to_erase = string("_", uniclust_version)
+    to_erase = string("30_", uniclust_version)
     for file in readdir()
         if occursin(to_erase, file)
             if filesize(file) > 0
