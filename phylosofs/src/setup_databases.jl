@@ -142,7 +142,7 @@ function main()
             "/uniclust30_", uniclust_version, "_hhsuite.tar.gz"
             ), "uniclust.tar.gz")
         _unpack_tar_gz("uniclust")
-        mv("uniclust30_$(uniclust_version)_hhsuite", "uniclust")
+        mv("uniclust30_$(uniclust_version)", "uniclust")
         cd(execution_folder)
     else
         uniclust = abspath(uniclust)
