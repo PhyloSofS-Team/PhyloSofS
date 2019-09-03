@@ -179,21 +179,34 @@ def parse_command_line():
         "or transcripts' phylogeny to be printed out "
         "(if the -printonly option is active)")
     phylo_args.add_argument('--withmemory', action='store_true')
-    model_args.add_argument('--hhlib', help='Path to the hh-suite', default='')
+    model_args.add_argument('--hhlib',
+                            help='Path to the hh-suite directory',
+                            default='')
+    model_args.add_argument(
+        '--databases',
+        help="Path to the databases folder created by the PhyloSofS' "
+        "setup_databases script. e.g. ~/databases",
+        default='')
     model_args.add_argument(
         '--hhdb',
-        help="Path to the sequence database for the HH-suite, "
-        "e.g. Uniclust30",
+        help="Path to the sequence database for the HH-suite, including the "
+        "database basename/prefix at the end of the path "
+        "(e.g. ~/databases/uniclust/uniclust)",
         default='')
     model_args.add_argument(
         '--structdb',
-        help='Path to the structure database for the HH-suite, e.g. PDB',
+        help="Path to the structural database for the HH-suite, including the "
+        "database basename/prefix at the end of the path "
+        "(e.g. ~/databases/pdb70/pdb70)",
         default='')
-    model_args.add_argument('--ncpu', help='Number of CPUs', default='2')
     model_args.add_argument(
         '--allpdb',
-        help='Path to all the pdb database (in mmCIF format)',
-        default='allpdb')
+        help="Path to the folder where pdbs (in mmCIF format) are store. "
+        "PhyloSofS is going to search there for the needed templates. If the "
+        "file doesn't exits, it's going to be downloaded there. "
+        "(e.g. ~/databases/pdb)",
+        default='')
+    model_args.add_argument('--ncpu', help='Number of CPUs', default='2')
     model_args.add_argument('--julia',
                             help='Path to to the Julia 1.1.1 executable',
                             default='julia')
@@ -217,6 +230,23 @@ def parse_command_line():
         if not args.instruct:
             parser.error(
                 "phylosofs requires an input fasta file if --model is used.")
+        if not args.databases:
+            if not args.hhdb:
+                parser.error("You should indicate --databases or --hhdb")
+            if not args.structdb:
+                parser.error("You should indicate --databases or --structdb")
+            if not args.allpdb:
+                parser.error("You should indicate --databases or --allpdb")
+        else:
+            if not args.hhdb:
+                args.hhdb = os.path.join(os.path.abspath(args.databases),
+                                         "uniclust", "uniclust")
+            if not args.structdb:
+                args.structdb = os.path.join(os.path.abspath(args.databases),
+                                             "pdb70", "pdb70")
+            if not args.allpdb:
+                args.allpdb = os.path.join(os.path.abspath(args.databases),
+                                           "pdb")
 
     return args
 
