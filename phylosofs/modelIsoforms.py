@@ -72,6 +72,15 @@ def init(configFile):
 def getProgramPath(HHLIB):
     # HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
     HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ('', '', '', '', '')
+    if not HHLIB:
+        return ('hhblits', 'hhmake', 'hhsearch', 'hhmakemodel.py', '')
+
+    if ((HHBLITS == '') or (HHMAKE == '') or (HHSEARCH == '')
+            or (HHMODEL == '') or (CONTEXTLIB == '')):
+        raise Exception(
+            'Could not locate the HHSUITE directory, please check your --hhlib argument'
+        )
+
     for root, dirs, files in os.walk(HHLIB, topdown=False):
         for name in files:
             program = os.path.join(root, name)
@@ -86,12 +95,7 @@ def getProgramPath(HHLIB):
                 HHMODEL = program
             elif (program.split("/")[-1] == 'context_data.lib'):
                 CONTEXTLIB = program
-    if ((HHBLITS == '') or (HHMAKE == '') or (HHSEARCH == '')
-            or (HHMODEL == '') or (CONTEXTLIB == '')):
-        print(
-            'Could not locate the HHSUITE directory, please check your --hhlib argument'
-        )
-        sys.exit(1)
+
     return (HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB)
 
 
@@ -860,9 +864,9 @@ def runModelProcess(HHBLITS, HHMAKE, HHSEARCH, HHMODEL, HHDB, STRUCTDB, ALLPDB,
             "80",  # minimum coverage with master sequence (%)
             "-all",  # show all sequences in result MSA; do not filter result MSA
             "-id",
-            "100",  # maximum pairwise sequence identity
-            "-cs",
-            CONTEXTLIB
+            "100"  # maximum pairwise sequence identity
+            # "-cs",  # 03/09/19: Do not use -contxt
+            # CONTEXTLIB
         ])
 
         run_external_program([
