@@ -125,7 +125,7 @@ def parse_command_line():
         'multifasta files are located (one file per species) or a single '
         'fasta file with the sequence of only one transcript (in that '
         'case, the unique option must be set to TRUE)',
-        default='')
+        default='.')
     phylo_args.add_argument('-m', help='mutation cost', type=int, default=2)
     phylo_args.add_argument('--ni',
                             help='number of iterations',
@@ -442,15 +442,20 @@ def doit(
         # and inside as many fasta files as transcripts
         if not uniq and not onlyQuality:
             print("prepare intputs...")
+            pathTransSeqs = os.path.abspath(pathTransSeqs)
+            outputDir = os.path.abspath(outputDir)
             print(pathTransSeqs, outputDir)
             pathlib.Path(outputDir).mkdir(parents=True, exist_ok=True)
             for root, dirs, files in os.walk(pathTransSeqs, topdown=False):
-                for name in dirs:
-                    pathlib.Path(os.path.join(outputDir,
-                                              name)).mkdir(parents=True,
-                                                           exist_ok=True)
-                    mi.parseFromThorAxe(root + '/' + name,
-                                        os.path.join(outputDir, name))
+                print("    ...looking for transcripts.pir in {}".format(root))
+                if 'transcripts.pir' in files:
+                    print("    transcripts.pir found in {}".format(root))
+                    for name in dirs:
+                        pathlib.Path(os.path.join(outputDir,
+                                                  name)).mkdir(parents=True,
+                                                               exist_ok=True)
+                        mi.parseFromThorAxe(root + '/' + name,
+                                            os.path.join(outputDir, name))
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
