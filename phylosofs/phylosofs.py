@@ -272,10 +272,10 @@ def choose_path(hhlib, program):
                     "program %s" % (hhlib, paths, program))
 
 
-_JULIA_PIR = pkg_resources.resource_filename('phylosofs',
-                                             'src/reconstruct_pir.jl')
-_JULIA_PLOT = pkg_resources.resource_filename('phylosofs',
-                                              'src/reconstruct_plot.jl')
+_JULIA_PIR = pkg_resources.resource_filename(
+    'phylosofs', os.path.join('src', 'reconstruct_pir.jl'))
+_JULIA_PLOT = pkg_resources.resource_filename(
+    'phylosofs', os.path.join('src', 'reconstruct_plot.jl'))
 _JULIA_ENV = os.path.dirname(_JULIA_PIR)
 
 

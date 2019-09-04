@@ -7,8 +7,8 @@ import argparse
 import subprocess
 import pkg_resources
 
-_JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
-                                                'src/setup_databases.jl')
+_JULIA_SCRIPT = pkg_resources.resource_filename(
+    'phylosofs', os.path.join('src', 'setup_databases.jl'))
 _JULIA_ENV = os.path.dirname(_JULIA_SCRIPT)
 
 

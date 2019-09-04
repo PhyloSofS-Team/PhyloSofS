@@ -237,30 +237,30 @@ def parseFromThorAxe(pathTransSeqs, outputDir, onlyhuman):
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
             print("    Using sequence {}".format(j))
 
-            pathlib.Path(outputDir + '/' + j).mkdir(parents=True,
-                                                    exist_ok=True)
+            pathlib.Path(os.path.join(outputDir, j)).mkdir(parents=True,
+                                                           exist_ok=True)
 
-            with open(outputDir + '/' + j + '/' + j + '.fasta', 'w+') as file:
+            with open(os.path.join(outputDir, j, j + '.fasta'), 'w+') as file:
                 file.write(i)
                 # remove the "*\n" at the end
                 file.write(sequences[i][:-2] + '\n')
 
-            with open(outputDir + '/' + j + '/' + j + '_1.fa', 'w+') as file:
+            with open(os.path.join(outputDir, j, j + '_1.fa'), 'w+') as file:
                 file.write(i)
                 # remove the "*\n" at the end
                 file.write(sequences[i][:-2] + '\n')
 
-            with open(outputDir + '/' + j + '/' + j + '.exons_lengths.txt',
+            with open(os.path.join(outputDir, j, j + '.exons_lengths.txt'),
                       'w+') as file:
                 file.write(i)
                 file.write(' '.join(str(j) for j in lengths[i]) + '\n')
 
-            with open(outputDir + '/' + j + '/' + j + '_1.exons_lengths.txt',
+            with open(os.path.join(outputDir, j, j + '_1.exons_lengths.txt'),
                       'w+') as file:
                 file.write(i)
                 file.write(' '.join(str(j) for j in lengths[i]) + '\n')
 
-            with open(outputDir + '/' + j + '/' + j + '_annotated.pir',
+            with open(os.path.join(outputDir, j, j + '_annotated.pir'),
                       'w+') as file:
                 file.write(i)
                 file.write(exons_seqs[i])
@@ -281,7 +281,8 @@ def parseFromPirAnnotated(name, it):
     go = False
     while go == False:
         go = True
-        with open("./" + name + "_annotated.pir", "r") as f:
+        with open(os.path.join(os.path.abspath("."), name + "_annotated.pir"),
+                  "r") as f:
             lines = f.readlines()
         try:
             first = next(index for index, value in enumerate(lines[3])
@@ -662,7 +663,8 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
 
 def colorBFactor(name):
 
-    with open("./" + name + "_annotated.pir") as f:
+    with open(os.path.join(os.path.abspath("."),
+                           name + "_annotated.pir")) as f:
         lines = f.readlines()
     exons = lines[1]
     char = ""
@@ -816,9 +818,10 @@ def run_external_program(command_list):
     return exit_code
 
 
-_JULIA_SCRIPT = pkg_resources.resource_filename('phylosofs',
-                                                'src/plots_with_exons.jl')
-_GET_PDBS = pkg_resources.resource_filename('phylosofs', 'src/get_pdbs.jl')
+_JULIA_SCRIPT = pkg_resources.resource_filename(
+    'phylosofs', os.path.join('src', 'plots_with_exons.jl'))
+_GET_PDBS = pkg_resources.resource_filename('phylosofs',
+                                            os.path.join('src', 'get_pdbs.jl'))
 _JULIA_ENV = os.path.dirname(_JULIA_SCRIPT)
 
 
