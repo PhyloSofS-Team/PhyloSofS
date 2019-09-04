@@ -499,8 +499,12 @@ def doit(
             else:
                 print("Molecular modelling in: {}".format(str(dirs)))
                 for mydir in dirs:
+                    print("        Enter into {}\n".format(mydir))
                     os.chdir(mydir)
                     for trans in glob.glob('*.fasta') + glob.glob('*.faa'):
+                        trans = os.path.abspath(trans)
+                        print(
+                            "            Using fasta file: {}\n".format(trans))
                         stop = False
                         name = os.path.splitext(trans)[0]
                         it = 1

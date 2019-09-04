@@ -226,8 +226,9 @@ def _is_human_gene(gene_name):
 
 
 def parseFromThorAxe(pathTransSeqs, outputDir, onlyhuman):
-    (sequences, lengths,
-     exons_seqs) = parse_pir(os.path.join(pathTransSeqs, "transcripts.pir"))
+    pir_file = os.path.join(pathTransSeqs, "transcripts.pir")
+    print("Reading pir file: {}\n".format(pir_file))
+    (sequences, lengths, exons_seqs) = parse_pir(pir_file)
     for i in sequences:
         j = '_'.join(i.split()[0:2]).replace('>P1;', '')
         if (onlyhuman and _is_human_gene(j)) or not onlyhuman:
