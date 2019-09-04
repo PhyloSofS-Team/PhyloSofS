@@ -444,6 +444,11 @@ def doit(
             HHLIB)
         os.chdir(outputDir)
 
+        mi.run_external_program([
+            JULIA, "--project=" + _JULIA_ENV, "-e",
+            "using Pkg; Pkg.instantiate()"
+        ])
+
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
         root_dirs = []

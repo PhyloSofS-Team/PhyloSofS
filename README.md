@@ -68,12 +68,7 @@ alleviate that, we offer a *Docker* image with all these dependencies installed
 ##### Julia
 
 You can download *Julia* 1.1.1 binaries from its
-[site](https://julialang.org/downloads/). Once, *Julia* is installed, open the [REPL](https://docs.julialang.org/en/v1/stdlib/REPL/) and install the needed packages by doing:
-
-```julia
-using Pkg
-Pkg.add(["MIToS", "Statistics", "CSV", "Plots", "StatsPlots", "DataFrames", "BioAlignments", "BioStructures"])
-```
+[site](https://julialang.org/downloads/).
 
 ###### LibZ
 

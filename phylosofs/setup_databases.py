@@ -67,6 +67,11 @@ def main():
     args = parser.parse_args()
 
     subprocess.call([
+        args.julia, "--project=" + _JULIA_ENV, "-e",
+        "using Pkg; Pkg.instantiate()"
+    ])
+
+    subprocess.call([
         args.julia, "--project=" + _JULIA_ENV, _JULIA_SCRIPT, "--output",
         args.output, "--pdb", args.pdb, "--uniclust", args.uniclust,
         "--uniclust_version", args.uniclust_version, "--pdb70", args.pdb70
