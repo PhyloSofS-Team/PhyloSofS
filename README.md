@@ -92,10 +92,33 @@ to install it and get the license key.
 
 ##### Databases
 
-To run the molecular modelling module you need the sequence database for
-*HH-suite3* and the structural database (*PDB*) for *MODELLER*.
-Follow the instructions in [docs/get_databases.md](shorturl.at/byIR8)
-to set them up.
+To run the molecular modelling module you need the
+[*HH-suite* databases](http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/):
+  - Sequence database: `uniclust30_yyyy_mm_hhsuite.tar.gz`
+  (we have tested PhyloSofS using `20180_08` as `yyyy_mm`)
+  - Structural database: `pdb70_from_mmcif_latest.tar.gz`
+
+The needed *mmCIF* *PDB* files for *MODELLER* are downloaded on demand, if
+there are not present, in an indicated folder.
+
+To set up the databases, you can use the script `setup_databases` (recommended).
+Alternatively, a manual installation can be performed following the instructions
+in [docs/get_databases.md](https://github.com/PhyloSofS-Team/PhyloSofS/blob/master/doc/get_databases.md).
+
+###### Using the `setup_databases` script
+
+The `setup_databases` downloads and decompress the needed databases. It creates
+the following folder structure that can be easily used by *PhyloSofS* with the
+`--databases` argument:
+
+```
+databases
+ ├── pdb
+ ├── pdb70
+ └── uniclust
+```
+
+You can do `setup_databases -h` to know more about the script and its arguments.
 
 ## Docker
 
@@ -142,16 +165,48 @@ phylosofs -P -s 100 --tree path_to_newick_tree --transcripts path_to_transcripts
 ```
 ### 2. Molecular modelling
 
+If databases where installed using `setup_databases` and the *HH-Suite3*
+scripts and programs are in the executable paths, then you can run:
+
 ```bash
-phylosofs  -M -i path_to_input_files --hhlib path_to_hhsuite_folder --hhdb path_to_hblits_database(uniclust30)/basename --structdb path_to_hhpred(pdb70)/basename --allpdb path_to_the_cif_database --ncpu number_of_cpu --julia path_to_julia_executable
+phylosofs -M -i path_to_input_dir --databases path_to_databases_folder
 ```
-Please note that for the databases hhdb and structdb, you need to provide the path to the folder and also the base name of the files in it. For example, if the database uniclust30_2018_08 is located in /home, you need to write --hhdb /home/uniclust30_2018_08/uniclust30_2018_08
+
+*PhyloSofS* is going to look for `transcripts.pir` files in the folder and
+sub-folders of `path_to_input_dir` to perform the homology modelling of each
+sequence in those files.
+
+If you have a more manual installation of the databases and/or the *HH-Suite3*
+scripts and programs are not in the path:
+
+```bash
+phylosofs -M -i path_to_input_dir --hhlib path_to_hhsuite_folder --hhdb path_to_uniclust_database/uniclust_basename --structdb path_to_pdb70/pdb70 --allpdb path_mmcif_pdb_cache_folder
+```
+
+Please note that for the databases `--hhdb` and `--structdb`, you need to
+provide the path to the folder and also the basename of the files in it.
+For example, if the database `uniclust30_2018_08` is located in `/home`, you
+need to write:  
+
+```
+--hhdb /home/uniclust30_2018_08/uniclust30_2018_08
+```
+
+You can also find useful the arguments:
+ - `--ncpu number_of_cpu`
+ - `--julia path_to_julia_executable`
 
 #### Docker example
 
+If you installed the databases using `setup_databases` in a folder that you
+have bind-mounted to `/databases`, then you only need to run:
+
 ```bash
-phylosofs -M -i . --hhlib /app/hh-suite/ --hhdb /databases/uniclust30_2018_08/uniclust30_2018_08 --structdb /databases/pdb70_from_mmcif_latest/pdb70 --allpdb /databases/allpdb/ --ncpu 12
+phylosofs -M --databases /databases
 ```
+
+Because the *Docker* image has *HH-Suite3* installed with its programs and
+scripts in the executable paths.
 
 ## Licence
 The PhyloSofS package has been developed under the
