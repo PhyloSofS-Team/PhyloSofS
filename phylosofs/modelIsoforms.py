@@ -65,6 +65,16 @@ def init(configFile):
             STRUCTDB, ALLPDB, NCPU, CONTEXTLIB)
 
 
+def _get_executable_path(program, message):
+    "Return path to the program or an error if the program is not found."
+    path = shutil.which(program)
+    if path:
+        return path
+
+    raise Exception("{} was not found in the executable paths. {}".format(
+        program, message))
+
+
 # This function takes as an argument a directory path to the hh-suite
 # and gets every executable paths
 
@@ -73,7 +83,15 @@ def getProgramPath(HHLIB):
     # HHBLITS, ADDSS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ''
     HHBLITS, HHMAKE, HHSEARCH, HHMODEL, CONTEXTLIB = ('', '', '', '', '')
     if not HHLIB:
-        return ('hhblits', 'hhmake', 'hhsearch', 'hhmakemodel.py', '')
+        return (
+            'hhblits',
+            'hhmake',
+            'hhsearch',
+            # Full path is needed for running hhmakemodel.py with python3
+            _get_executable_path(
+                'hhmakemodel.py',
+                'Use --hhlib or put hh-suite/build/scripts/ in the path.'),
+            '')
 
     if ((HHBLITS == '') or (HHMAKE == '') or (HHSEARCH == '')
             or (HHMODEL == '') or (CONTEXTLIB == '')):
