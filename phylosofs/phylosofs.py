@@ -446,6 +446,7 @@ def doit(
 
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
+        dirs = []
         if not uniq and not onlyQuality:
             print("prepare intputs...")
             pathTransSeqs = os.path.abspath(pathTransSeqs)
@@ -461,6 +462,7 @@ def doit(
                                                            exist_ok=True)
                     mi.parseFromThorAxe(root, os.path.join(outputDir, root),
                                         onlyhuman)
+                    dirs.append(root)
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
@@ -472,7 +474,7 @@ def doit(
 
         # the 'if' is to not perform the modelling in __pycache__
         # might add a list of forbidden names for less errors
-        dirs = [x[0] for x in os.walk('.') if not '__pycache__' in x[0]]
+        # dirs = [x[0] for x in os.walk('.') if not '__pycache__' in x[0]]
         # NOTE: dirs is at leat ['.'] and it has subfolders,
         # e.g. ['.', './folder', './folder/subfolder']
 
@@ -490,8 +492,8 @@ def doit(
                                    only3D, CONTEXTLIB)
                 os.chdir(outputDir)
             else:
-                print("Molecular modelling in: {}".format(str(dirs[1:])))
-                for mydir in dirs[1:]:
+                print("Molecular modelling in: {}".format(str(dirs)))
+                for mydir in dirs:
                     os.chdir(mydir)
                     for trans in glob.glob('*.fasta') + glob.glob('*.faa'):
                         stop = False
