@@ -126,6 +126,11 @@ def parse_command_line():
         'fasta file with the sequence of only one transcript (in that '
         'case, the unique option must be set to TRUE)',
         default='.')
+    model_args.add_argument(
+        '--human',
+        help='Only perform structural modelling for human protein isoforms, '
+        'i.e. gene name should start with ENSG',
+        action='store_true')
     phylo_args.add_argument('-m', help='mutation cost', type=int, default=2)
     phylo_args.add_argument('--ni',
                             help='number of iterations',
@@ -301,7 +306,7 @@ def doit(
         ALLPDB,
         JULIA,
         NCPU,
-):
+        onlyhuman):
     """
     doit(args.phylo,
          args.model,
@@ -330,6 +335,7 @@ def doit(
          args.structdb,
          args.allpdb,
          args.ncpu,
+         args.human
          )
     """
     random.seed()
@@ -454,7 +460,8 @@ def doit(
                                               root)).mkdir(parents=True,
                                                            exist_ok=True)
                     mi.parseFromThorAxe(root + '/' + root,
-                                        os.path.join(outputDir, root))
+                                        os.path.join(outputDir, root),
+                                        onlyhuman)
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
@@ -569,7 +576,8 @@ def main():
          args.instruct, args.m, args.ni, args.nt, args.outputdir, args.only3D,
          args.onlyquality, args.s, args.suffix, args.topo, args.uniq,
          args.printonly, args.withmemory, not args.noprune, args.hhlib,
-         args.hhdb, args.structdb, args.allpdb, args.julia, args.ncpu)
+         args.hhdb, args.structdb, args.allpdb, args.julia, args.ncpu,
+         args.human)
     end = time.time()
     print("finished in {} seconds".format(end - start))
 

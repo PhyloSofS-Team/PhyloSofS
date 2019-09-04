@@ -9,6 +9,7 @@
 
 import glob
 import os
+import re
 import sys
 import pathlib
 import shutil
@@ -210,14 +211,26 @@ def parse_pir(file_path):
     return sequences, lengths, exons_seqs
 
 
+def _is_human_gene(gene_name):
+    """
+    Follow the rules in:
+    - https://www.ensembl.org/Help/Faq?id=488
+    - https://www.ensembl.org/info/genome/stable_ids/index.html
+    """
+    match = re.match(r"^ENSG[0-9]{11}(\.[0-9]+)?$", gene_name)
+    return match is not None
+
+
 # parse a 'transcripts.pir' file form the ThoxAxe output
 # and transforms it to be usable easily by PhyloSofS
-def parseFromThorAxe(pathTransSeqs, outputDir):
+
+
+def parseFromThorAxe(pathTransSeqs, outputDir, onlyhuman):
     (sequences, lengths,
      exons_seqs) = parse_pir(os.path.join(pathTransSeqs, "transcripts.pir"))
     for i in sequences:
-        if "ENSG0" in i:  # take only the human transcripts
-            j = '_'.join(i.split()[0:2]).replace('>P1;', '')
+        j = '_'.join(i.split()[0:2]).replace('>P1;', '')
+        if (onlyhuman and _is_human_gene(j)) or not onlyhuman:
             pathlib.Path(outputDir + '/' + j).mkdir(parents=True,
                                                     exist_ok=True)
 
