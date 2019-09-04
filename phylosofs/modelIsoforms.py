@@ -281,8 +281,10 @@ def parseFromPirAnnotated(name, it):
     go = False
     while go == False:
         go = True
-        with open(os.path.join(os.path.abspath("."), name + "_annotated.pir"),
-                  "r") as f:
+        with open(
+                os.path.join(  # os.path.abspath("."),
+                    name + "_annotated.pir"),
+                "r") as f:
             lines = f.readlines()
         try:
             first = next(index for index, value in enumerate(lines[3])
@@ -663,8 +665,8 @@ def model3D(fic, ALLPDB, pdb_extension='.cif'):
 
 def colorBFactor(name):
 
-    with open(os.path.join(os.path.abspath("."),
-                           name + "_annotated.pir")) as f:
+    with open(os.path.join(  # os.path.abspath("."),
+            name + "_annotated.pir")) as f:
         lines = f.readlines()
     exons = lines[1]
     char = ""
