@@ -233,7 +233,7 @@ def parseFromThorAxe(pathTransSeqs, outputDir, onlyhuman):
     print("Reading pir file: {}\n".format(pir_file))
     (sequences, lengths, exons_seqs) = parse_pir(pir_file)
     for i in sequences:
-        if (onlyhuman and _is_human_gene(j)) or not onlyhuman:
+        if (onlyhuman and _is_human_gene(i)) or not onlyhuman:
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
             pathlib.Path(outputDir + '/' + j).mkdir(parents=True,
                                                     exist_ok=True)
