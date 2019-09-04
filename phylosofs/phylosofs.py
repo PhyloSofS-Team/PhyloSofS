@@ -462,7 +462,7 @@ def doit(
                                                            exist_ok=True)
                     mi.parseFromThorAxe(root, os.path.join(outputDir, root),
                                         onlyhuman)
-                    dirs.append(os.path.abspath(root))
+                    root_dirs.append(os.path.abspath(root))
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
