@@ -450,12 +450,11 @@ def doit(
                 print("    ...looking for transcripts.pir in {}".format(root))
                 if 'transcripts.pir' in files:
                     print("    transcripts.pir found in {}".format(root))
-                    for name in dirs:
-                        pathlib.Path(os.path.join(outputDir,
-                                                  name)).mkdir(parents=True,
-                                                               exist_ok=True)
-                        mi.parseFromThorAxe(root + '/' + name,
-                                            os.path.join(outputDir, name))
+                    pathlib.Path(os.path.join(outputDir,
+                                              root)).mkdir(parents=True,
+                                                           exist_ok=True)
+                    mi.parseFromThorAxe(root + '/' + root,
+                                        os.path.join(outputDir, root))
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
