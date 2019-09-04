@@ -459,8 +459,7 @@ def doit(
                     pathlib.Path(os.path.join(outputDir,
                                               root)).mkdir(parents=True,
                                                            exist_ok=True)
-                    mi.parseFromThorAxe(root + '/' + root,
-                                        os.path.join(outputDir, root),
+                    mi.parseFromThorAxe(root, os.path.join(outputDir, root),
                                         onlyhuman)
         # determine the number of templates that will be retained
         selTemp = ""
