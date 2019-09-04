@@ -217,7 +217,7 @@ def _is_human_gene(gene_name):
     - https://www.ensembl.org/Help/Faq?id=488
     - https://www.ensembl.org/info/genome/stable_ids/index.html
 
-    >>> _is_human_gene(">P1;ENSMUSG00000014932 ENSMUST00000202543 %()+0123456789")
+    >>> _is_human_gene(">P1;ENSG00000014932 ENST00000202543 %()+0123456789")
     True
     """
     match = re.match(r"ENSG[0-9]{11}(\.[0-9]+)?", gene_name)
@@ -233,8 +233,10 @@ def parseFromThorAxe(pathTransSeqs, outputDir, onlyhuman):
     print("Reading pir file: {}\n".format(pir_file))
     (sequences, lengths, exons_seqs) = parse_pir(pir_file)
     for i in sequences:
-        if (onlyhuman and _is_human_gene(i)) or not onlyhuman:
+        if (onlyhuman and _is_human_gene(i)) or (not onlyhuman):
             j = '_'.join(i.split()[0:2]).replace('>P1;', '')
+            print("    Using sequence {}".format(j))
+
             pathlib.Path(outputDir + '/' + j).mkdir(parents=True,
                                                     exist_ok=True)
 
