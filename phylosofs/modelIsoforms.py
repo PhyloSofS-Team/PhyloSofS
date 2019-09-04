@@ -220,7 +220,7 @@ def _is_human_gene(gene_name):
     >>> _is_human_gene(">P1;ENSG00000014932 ENST00000202543 %()+0123456789")
     True
     """
-    match = re.match(r"ENSG[0-9]{11}(\.[0-9]+)?", gene_name)
+    match = re.search(r"ENSG[0-9]{11}(\.[0-9]+)?", gene_name)
     return match is not None
 
 
