@@ -446,7 +446,7 @@ def doit(
 
         # create as many directories as fasta input files
         # and inside as many fasta files as transcripts
-        dirs = []
+        root_dirs = []
         if not uniq and not onlyQuality:
             print("prepare intputs...")
             pathTransSeqs = os.path.abspath(pathTransSeqs)
@@ -462,7 +462,7 @@ def doit(
                                                            exist_ok=True)
                     mi.parseFromThorAxe(root, os.path.join(outputDir, root),
                                         onlyhuman)
-                    dirs.append(root)
+                    dirs.append(os.path.abspath(root))
         # determine the number of templates that will be retained
         selTemp = ""
         for i in range(nbTemp):
@@ -474,7 +474,12 @@ def doit(
 
         # the 'if' is to not perform the modelling in __pycache__
         # might add a list of forbidden names for less errors
-        # dirs = [x[0] for x in os.walk('.') if not '__pycache__' in x[0]]
+        dirs = []
+        for rootdir in root_dirs:
+            dirs.extend([
+                os.path.abspath(x[0]) for x in os.walk(rootdir)
+                if not '__pycache__' in x[0]
+            ])
         # NOTE: dirs is at leat ['.'] and it has subfolders,
         # e.g. ['.', './folder', './folder/subfolder']
 
