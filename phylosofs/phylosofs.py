@@ -464,6 +464,7 @@ def doit(
                                         onlyhuman)
                     root_dirs.append(os.path.abspath(root))
         # determine the number of templates that will be retained
+        print("root_dirs: {}\n".format(root_dirs))
         selTemp = ""
         for i in range(nbTemp):
             selTemp += str(i + 1)
@@ -480,6 +481,7 @@ def doit(
                 os.path.abspath(x[0]) for x in os.walk(rootdir)
                 if not '__pycache__' in x[0]
             ])
+        print("dirs: {}\n".format(dirs))
         # NOTE: dirs is at leat ['.'] and it has subfolders,
         # e.g. ['.', './folder', './folder/subfolder']
 
