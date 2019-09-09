@@ -145,7 +145,58 @@ use *PhyloSofS*. To do that, you run the following command after replacing
 sed -i 's/xxx/license_key/' /usr/lib/modeller9.21/modlib/modeller/config.py
 ```
 
-### Installing databases with *Windows* as a host
+### Homology modelling example using *Docker CE* in *Ubuntu*
+
+After installing *Docker CE* following 
+[these instructions](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/), 
+you can create a folder to work with the app, e.g.:
+
+```bash
+mkdir phylosofs
+```
+
+And then enter that folder and run the *PhyloSofS Docker* image bind-mounting 
+the local folder into `/project`:
+
+```bash
+cd phylosofs
+sudo docker run -ti --rm --mount type=bind,source=$(pwd),target=/project diegozea/phylosofs
+```
+
+This starts a *bash* console with *PhyloSofS* and all its dependencies installed. 
+First, change `xxx` by your *MODELLER* license key using `sed` as indicated in the banner. 
+Then, you can use the `setup_databases` script the first time to install the needed 
+databases into the project folder. The databases are going to need some time to 
+download and decompress depending on your internet connection and disk speed. 
+You need almost *129 Gb* in your disk before download and decompress them:
+
+```bash
+setup_databases
+```
+
+This has created a `databases` folder in `/project` 
+(and therefore in the `phylosofs` folder of your system) with the needed sequence 
+and structure databases for the homology modelling step.
+
+To test the molecular modelling suite, we are going to create an example input 
+[*pir* file](https://salilab.org/modeller/9v7/manual/node445.html) in a `GeneName` folder. *PhyloSofS* is going to look for `transcripts.pir` files 
+in the indicated folder and its subfolders:
+
+```bash
+mkdir GeneName
+echo ">P1;gene transcript ABCDE" >> ./GeneName/transcripts.pir
+echo "AAAAAABBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCDDDDDDDDDEEEEEEEEE" >> ./GeneName/transcripts.pir
+echo "ACTNEFCASCPTFLRMDNNAAAIKALELYKINAKLCDPHPSKKGASSAYLENSKGAPNNS*" >> ./GeneName/transcripts.pir
+```
+
+Where the *pir* annotation below the *id* is used to indicate the exon (`A`, `B`, `C`...) 
+to which belong each residue of the protein isoform.
+
+```bash
+phylosofs -M -i GeneName --databases databases
+```
+
+### Note: Installing databases with *Windows* as a host
 
 If you are using the *PhyloSofS' Docker* image, you must know that errors can
 occur when very large files are being written to bind-mounted *NTFS* file
