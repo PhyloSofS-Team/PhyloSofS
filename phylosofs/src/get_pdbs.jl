@@ -71,12 +71,19 @@ end
 """
 Download each pdb in pdb_list into the output_path in mmCIF format.
 It will retry each pdb until 5 times if errors occur.
+If the filesystem is case-sensitive, a lowercase symbolic link to
+the uppercase file is created.
 """
 function download_pdbs(pdb_list, output_path)
     for pdb in pdb_list
-        retry(downloadpdb, delays=ExponentialBackOff(n=5))(
+        path_upper = retry(downloadpdb, delays=ExponentialBackOff(n=5))(
             pdb, file_format=MMCIF, pdb_dir=output_path
         )
+        path_lower = joinpath(
+            (endswith(x, ".cif") ? lowercase(x) : x for x in splitpath(path_upper))...)
+        if !isfile(path_lower)
+            symlink(path_upper, path_lower)
+        end
     end
 end
 
