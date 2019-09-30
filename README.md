@@ -122,7 +122,7 @@ You can do `setup_databases -h` to know more about the script and its arguments.
 
 ## Docker
 
-To run [*PhyloSofS' Docker* image](https://cloud.docker.com/u/diegozea/repository/docker/diegozea/phylosofs)
+To run [*PhyloSofS' Docker* image](https://hub.docker.com/r/diegozea/phylosofs)
 you need to install [*Docker*](https://www.docker.com) following [these instructions](https://docs.docker.com/v17.09/engine/installation/).
 
 The following example is going to run *PhyloSofS' Docker* image using
