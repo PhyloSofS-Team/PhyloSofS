@@ -120,9 +120,9 @@ databases
 
 You can do `setup_databases -h` to know more about the script and its arguments.
 
-## Docker
+## Docker (without installation)
 
-To run [*PhyloSofS' Docker* image](https://hub.docker.com/r/diegozea/phylosofs)
+You can directly use *PhyloSofS* via Docker without cloning this GitHub repository. To run [*PhyloSofS' Docker* image](https://hub.docker.com/r/diegozea/phylosofs)
 you need to install [*Docker*](https://www.docker.com) following [these instructions](https://docs.docker.com/v17.09/engine/installation/).
 
 The following example is going to run *PhyloSofS' Docker* image using
@@ -155,7 +155,7 @@ you can create a folder to work with the app, e.g.:
 mkdir phylosofs
 ```
 
-And then enter that folder and run the *PhyloSofS Docker* image bind-mounting 
+And then go into that folder and run the *PhyloSofS Docker* image bind-mounting 
 the local folder into `/project`:
 
 ```bash
@@ -163,7 +163,7 @@ cd phylosofs
 sudo docker run -ti --rm --mount type=bind,source=$(pwd),target=/project diegozea/phylosofs
 ```
 
-This starts a *bash* console with *PhyloSofS* and all its dependencies installed. 
+This starts a *bash* console with *PhyloSofS* and all its dependencies installed. The sources are taken from diegozea/phylosofs.
 First, change `xxx` by your *MODELLER* license key using `sed` as indicated in the banner. 
 Then, you can use the `setup_databases` script the first time to install the needed 
 databases into the project folder. The databases are going to need some time to 
