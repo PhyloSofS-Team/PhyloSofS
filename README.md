@@ -163,7 +163,7 @@ cd phylosofs
 sudo docker run -ti --rm --mount type=bind,source=$(pwd),target=/project diegozea/phylosofs
 ```
 
-This starts a *bash* console with *PhyloSofS* and all its dependencies installed. The sources are taken from diegozea/phylosofs.
+This starts a *bash* console with *PhyloSofS* and all its dependencies installed. The sources are taken from `diegozea/phylosofs`.
 First, change `xxx` by your *MODELLER* license key using `sed` as indicated in the banner. 
 Then, you can use the `setup_databases` script the first time to install the needed 
 databases into the project folder. The databases are going to need some time to 
