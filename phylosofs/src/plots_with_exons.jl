@@ -61,10 +61,10 @@ function get_infos(exons, msa_total, alignment)
     last_pos_pir = Int64[]
     index = 1
     loop_end = 0
-    global i = 1
+    i = 1
     loop_start = i
     goon = true
-    global debut = 1
+    debut = 1
     while goon && i <= size(exons, 1)
 #         println(i)
         identityliste = Float64[]
@@ -105,7 +105,8 @@ function get_infos(exons, msa_total, alignment)
 #             end
 #         else
 
-            fragment = msa_total[2:nsequences(msa_total), index_debut:index_end]
+            #fragment = msa_total[2:nsequences(msa_total), index_debut:index_end]
+            fragment = msa_total[:, index_debut:index_end]
 #             println(fragment)
             pir_positions = getcolumnmapping(fragment)
 #             println("pir pos")
@@ -117,7 +118,7 @@ function get_infos(exons, msa_total, alignment)
             cov = 100 .* coverage(fragment) * size(fragment, 2) /
                   exons.length[i]
 #             println(cov)
-            for k = 1:length(cov)
+            for k = 2:length(cov)
                 if cov[k] >= 50
                     templateWellAligned += 1
                     push!(templatesIndex, names(cov)[1][k])
@@ -127,6 +128,9 @@ function get_infos(exons, msa_total, alignment)
             push!(fragment_templates_names, templatesIndex)
             push!(fragment_templates, length(templatesIndex))
             for l in templatesIndex
+                # @show l
+                # @show fragment[[1, l], :]
+                # @show percentidentity(fragment[1, :], fragment[l, :])
                 push!(
                     identityliste,
                     percentidentity(fragment[1, :], fragment[l, :]),
@@ -136,13 +140,15 @@ function get_infos(exons, msa_total, alignment)
                 push!(fragment_identity_mean, 0)
                 push!(fragment_identity_max, 0)
             else
+                max_pid = maximum(identityliste)
+                # @show max_pid
                 push!(fragment_identity_mean, mean(identityliste))
-                push!(fragment_identity_max, maximum(identityliste))
+                push!(fragment_identity_max, max_pid)
             end
         end
         loop_end = i
-        global debut = debut + exons.length[i]
-        global i = i + 1
+        debut = debut + exons.length[i]
+        i = i + 1
     end
     return fragment_templates,
         fragment_identity_mean,
