@@ -1,5 +1,7 @@
 # PhyloSofS
 
+**We are looking for interns! Please take a look at the Wiki pages! 
+
 **A tool to model the evolution and structural impact of alternative splicing**
 
 Status                     |Linux, OSX                 |Windows                    
