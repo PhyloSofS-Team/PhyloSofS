@@ -2973,6 +2973,8 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
     i = 0
     go = True
     f = open(os.path.join(outputDir, 'treeSearch' + SUFF + '.txt'), 'w')
+    bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
+    betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
 
     # if no minimum cost is given (default case)
     # the search starts from the topology containing the maximum
@@ -3005,8 +3007,8 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
 
     # otherwise the search starts from a random jump
     else:
-        bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
-        betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
+        #bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
+        #betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
         bestSc = float(initBest)
         if topoStart != {}:
             baseTopo = setTopo(gt, topoStart)
