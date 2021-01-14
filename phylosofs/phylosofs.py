@@ -184,6 +184,7 @@ def parse_command_line():
         "or transcripts' phylogeny to be printed out "
         "(if the -printonly option is active)")
     phylo_args.add_argument('--withmemory', action='store_true')
+    phylo_args.add_argument('--nomax', action='store_true')
     model_args.add_argument('--hhlib',
                             help='Path to the hh-suite directory',
                             default='')
@@ -299,6 +300,7 @@ def doit(
         uniq,
         printOnly,
         withMemory,
+        noMax,
         prune,
         HHLIB,
         HHDB,
@@ -327,6 +329,7 @@ def doit(
          args.uniq,
          args.printonly,
          args.withmemory,
+         args.nomax,
          not args.noprune,
          args.hhlib,
          args.procheck,
@@ -413,7 +416,7 @@ def doit(
         if topoStart == {}:
             res = ip.bestTopology(dat, AllExons, nbIt, costs, costMat,
                                   priority, SUFF, initBest, slowMode,
-                                  topoStart, withMemory, outputDir)
+                                  topoStart, withMemory, noMax, outputDir)
         else:
             if printOnly:
                 res = [topoStart]
@@ -593,7 +596,7 @@ def main():
     doit(args.phylo, args.model, args.tree, args.transcripts, args.b, args.d,
          args.instruct, args.m, args.ni, args.nt, args.outputdir, args.only3D,
          args.onlyquality, args.s, args.suffix, args.topo, args.uniq,
-         args.printonly, args.withmemory, not args.noprune, args.hhlib,
+         args.printonly, args.withmemory, args.nomax, not args.noprune, args.hhlib,
          args.hhdb, args.structdb, args.allpdb, args.julia, args.ncpu,
          args.human)
     end = time.time()

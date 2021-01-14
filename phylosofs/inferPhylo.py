@@ -582,22 +582,42 @@ def ex_state(t, priority):
 # Scores : #
 ############
 
-
+# returns the full scoring table for a list of transcripts
+# trans: list of transcripts
+# exS: genomic states of the s-exons
+# AllExons: list of s-exons
 def toScore(trans, exS, AllExons):
+    # get the s-exons indices (why list???)
     nExons = list(range(len(AllExons)))
     res = []
+    # for each transcript
     for i in trans:
         tmp = []
+        # for each s-exon
         for e in nExons:
+            # initialize its cost table
+            # 0: absent, 1: alternative present, 2: constitutive
             tmpp = [10000, 10000, 10000]
+            # if the s-exon state is alternative
             if exS[e] == 1:
+                # if the s-exon is in the transcript
                 if AllExons[e] in i:
+                    # set the cost of alternative present to zero
                     tmpp[1] = 0
+                # otherwise
                 else:
+                    # set the cost of absent to zero
                     tmpp[0] = 0
+            # if the s-exon state in constitutive (2) or absent (0)
             else:
+                # set the corresponding cost to zero
                 tmpp[exS[e]] = 0
+            # add to the transcript-specific list
             tmp.append(tmpp)
+        # add to the full list, such that in this list 
+        # each transcript is represented by a list of 
+        # triplets (list of 3 actually) of costs 
+        # each triplet correspond to an s-exon
         res.append(tmp)
     return (res)
 
@@ -1469,7 +1489,7 @@ def max0Rec(l, res):
         enrichPath(res, tmp)
         max0Rec(l, res)
 
-
+# procedure that modifies the input res 
 def max0(t, res):
     l = list(np.transpose(np.where(t == 0)))
     # print(l)
@@ -1509,40 +1529,65 @@ def enrichPath(l, ind):
                 l.append(Tmp)
 
 
-# g arbre de gene, est arbre d'etats des exons,
+# g: arbre de gene, est: arbre d'etats des exons,
 # remonte les 0 le plus haut possible a partir des feuilles
-
-
+# in other words, pair up transcript that have zero distance
+# (identical ones) such that each node has a maximum number  
+# of binary subnodes
+# the output is a tree with these zero-cost transcripts
+# at each level. Moreover, it provides estimates
+# of the maximum number of binary subnodes one can expect  
+# in the parent of each node based on the number of transcripts
+# this is useful to construct possible/valid topologies
 def remonte0(g, est, costMat, AllExons):
+    # get the leaves of the gene tree
     f = leaves(g)
+    # create a new graph
     res = nx.DiGraph()
+    # transfer the edges from the gene tree
     res.add_edges_from(g.edges())
+    # for each leaf
     for e in f:
+        # get the s-exon states from the gene tree and set it into the s-exon state tree
         est.node[e]['est'] = exonState(g.node[e]['trans'], AllExons)
+        # compute the scoring table for the list of transcripts in the leaf
         res.node[e]['trans'] = [
             toScore(g.node[e]['trans'], est.node[e]['est'], AllExons)
         ]
+        # get the number of transcripts for the leaf
+        # this indicates the max number of binary subnodes one can expect in the ancestor
         res.node[e]['minBN'] = len(g.node[e]['trans'])
         # print(e,res.node[e]['minBN'])
 
+    # get the parents
     ens = parents(g, [f, f])
+    # until we reach the root
     while ens[0] != set([]):
+        # for each parent node
         for e in ens[0]:
             # print(e,ens[0])
+            # get its children
             l, r = g.successors(e)
+            # get the s-exon states for the node and its children
             exSe = est.node[e]['est']
             exSe_l = est.node[l]['est']
             exSe_r = est.node[r]['est']
             tmp = [[]]
             trans = [[]]
+            # if we can make some binary subnodes in both children
             if res.node[l]['minBN'] > 0 and res.node[r]['minBN'] > 0:
                 # print("both positive")
+                # for each left transcript
                 for i in res.node[l]['trans']:
+                    # and each right transcript
                     for j in res.node[r]['trans']:
                         tmpp = []
+                        # for each s-exon in left transcript
                         for ii in i:
                             tmppp = []
+                            # and each s-exon in right transcript
                             for jj in j:
+                                # compute and add the s-exon distance
                                 tmppp.append(
                                     transDist(ii, jj, exSe, exSe_l, exSe_r,
                                               costMat, AllExons))
@@ -1551,6 +1596,10 @@ def remonte0(g, est, costMat, AllExons):
                         # max number of zeros on different lines or columns
                         # print(tmpp)
                         # print(np.array(tmpp))
+                        # compute the maximum number of zeros with different
+                        # lines and columns in the pariwise s-exon distance table
+                        # for a given pair of transcripts, and stores it in 
+                        # the transcript distance table
                         max0(np.array(tmpp), tmp)
                         # print(tmp)
                         # print(trans)
@@ -1570,7 +1619,9 @@ def remonte0(g, est, costMat, AllExons):
                                                    exSe_r, costMat, AllExons)
                                 trans.append(TMP)
                 # print(trans)
+                # set the transcript in the parent 
                 res.node[e]['trans'] = trans
+                # set the max number of binary in its parent as its number of transcript
                 res.node[e]['minBN'] = len(trans[0])
                 if e == 1000:
                     print("e values 1000")
@@ -2339,8 +2390,10 @@ def treeMoves(t, minBNTree):
 
 
 # moves must not be empty
-
-
+# returns a new topology by performing one 
+# elementary move, starting from a given topology 
+# (baseTopo). The move is chosen (randomly) in 
+# a list of possible moves (treeMoves) to reach neighbours
 def moveTopo(baseTopo, nodes, treeMoves):
 
     t = baseTopo.copy()
@@ -2925,9 +2978,7 @@ def leafAssignRec(t, res, est, e, distTabs, costMat, AllExons):
         leafAssignRec(t, res, est, par, distTabs, costMat, AllExons)
 
 
-# get an integer that represents the topology
-
-
+# computes an integer that represents the given topology
 def getCodeTopo(topo):
 
     code = ""
@@ -2954,104 +3005,92 @@ def mkdir_subfolder(folder_path, subfolder):
 
 
 def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
-                 slowMode, topoStart, withMemory, outputDir):
+                 slowMode, topoStart, withMemory, noMax, outputDir):
+    # initialize time
     t0 = time.time()
+    # initialize list of nodes
     nodes = []
+    # initialize lower bound
     borInf = 0
-    est = ex_state(exState(gt, costMat, AllExons), priority)
-    # we start with the biggest possible forest(max number of bn)
+    # initialize the number of cuts
     coupes = 0
+    # get the ancestral states of the s-exons using Dollo parsimony
+    est = ex_state(exState(gt, costMat, AllExons), priority)
+    # if the memory option is set to True,
+    # then we initialize the ensemble of visited forest structures
+    # the idea is that topologies that PASS the lower bound filter
+    # will be recorded in this set
+    if withMemory:
+        visited = set()
+    found = False
+    # compute the max number of binary subnodes expected at each level 
+    # this will be used thoughout the function to generate new 
+    # valid topologies
     minBNTree = remonte0(gt, est, costMat, AllExons)
     # print("minBNTree",minBNTree.nodes())
     # for n in minBNTree.nodes() :
     #     print(str(n)+": "+str(minBNTree.node[n]["minBN"]))
+    # compute the pairwise distances between the leafs
     distTabs = leafScoreTabs(gt, est, costMat, AllExons)
+    # create a new graph/tree
     bestTopo = nx.DiGraph()
     cutTrees = []
     countBest = 0
     countTrees = 0
+    # initialize number of iterations
     i = 0
-    go = True
+   # go = True
     f = open(os.path.join(outputDir, 'treeSearch' + SUFF + '.txt'), 'w')
     bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
     betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
 
     # if no minimum cost is given (default case)
+    # and the noMax option is disabled (default case)
     # the search starts from the topology containing the maximum
     # number of binary nodes, i.e. minimum number of trees
     initBest = float(initBest)
-    if initBest == 0:
+    if initBest == 0 and not noMax:
         baseTopo = maxTopo(gt)
-        bestTopo = baseTopo
-
-        i = i + 1
-        print(">>> " + str(i) + "\n")
+        print(">>> " + str(i+1) + "\n")
         print("leaf assign for max topo\n")
+        # determines the most parsimonious phylogeny
+        # Sankoff first pass
         baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
-
-        # print("tree cost for max topo\n")
+        # computes the corst of the phylogeny 
+        # Sankoff second pass
         tRes, bestConf, bestSc, cutTrees = tree_cost(baseTree, 10000, costs)
         bestSc = float(bestSc)
         baseScore = bestSc
         f.write(str(baseScore) + " " + str(bestSc) + "\n")
         print("tree cost for max topo " + str(baseScore))
-
+        # update bestTopo
+        bestTopo = baseTopo
+        # increment number of iterations
+        i = i + 1
+        # get the neighbours of the topology (forest structure)
         tM = treeMoves(baseTopo, minBNTree)
-
+        # get the nodes that can change
         for n in tM.nodes():
             if tM.node[n]['nMoves'] > 0:
                 nodes.append(n)
         if nodes == []:
             print("\n~}~}~}~}~} no neighbors")
-            go = False
-
-    # otherwise the search starts from a random jump
     else:
-        #bestTopos_path = mkdir_subfolder(outputDir, "bestTopos")
-        #betterTrees_path = mkdir_subfolder(outputDir, "betterTrees")
-        bestSc = float(initBest)
-        if topoStart != {}:
-            baseTopo = setTopo(gt, topoStart)
-            bestTopo = baseTopo
-
-            i = i + 1
-            print(">>> " + str(i) + "\n")
-            print("leaf assign for start topo\n")
-            baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
-
-            print("tree cost for start topo\n")
-            tRes, bestConf, bestSc, cutTrees = tree_cost(
-                baseTree, 10000, costs)
-            bestSc = float(bestSc)
-            baseScore = bestSc
-            print("tree cost for start topo " + str(baseScore))
-            if baseScore < initBest:
-                pickPrint(
-                    baseTree,
-                    os.path.join(
-                        bestTopos_path, "topo" + str(countTrees) + "_" +
-                        str(baseScore) + ".pk"))
-                countTrees = countTrees + 1
-
-            tM = treeMoves(baseTopo, minBNTree)
-
-            for n in tM.nodes():
-                if tM.node[n]['nMoves'] > 0:
-                    nodes.append(n)
-            if nodes == []:
-                print("\n~}~}~}~}~} no neighbors")
-                go = False
-
-    if withMemory:
-        visited = []
+        # initBest is used to perform a more efficient search 
+        # by already starting with a pre-defined lower bound
+        if initBest > 0:
+            bestSc = initBest
+        # otherwise set the best score to infinity
+        else:
+            bestSc = float(1000000) 
 
     # be aware that: (1) base topologies issued by random jumps
     # are not counted in the number of iterations, and(2) cut
     # neighbors of a base topology are counted
     # this implies that the number of assignments and evaluations
     # is not the same as the number of iterations
-    bestSc = float(bestSc)
-    while i < nbIt and go:
+    # if I'm not out of iterations and I have some neighbours (!)
+    while i < nbIt:# and go:
         f.flush()
         # if no base, then jump randomly
         # until a suitable base is found
@@ -3062,7 +3101,10 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
             print(">>>>> random jump(s) \n")
             # jumps will accumulate until a suitable base topology is found
             # they are not counted as iterations
-            while borInf > bestSc or nodes == []:
+            # we want to force the first jump 
+            # (as we do not rely on the number of neighbours anymore)
+            borInf = 2* bestSc 
+            while borInf > bestSc:# or nodes == []:
                 # create a new base topology
                 baseTopo = aleaTopo(gt, minBNTree)
                 borInf = evalTopo(baseTopo, costs)
@@ -3072,10 +3114,10 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
                 if borInf <= bestSc:
                     print(">>>>> looking for neighbors... \n")
                     tM = treeMoves(baseTopo, minBNTree)
-
                     for n in tM.nodes():
                         if tM.node[n]['nMoves'] > 0:
                             nodes.append(n)
+                    print(">>>>> Neighbor search ended \n")
 
             # print the topology in the standard output
             # for uu in baseTopo.nodes():
@@ -3090,51 +3132,66 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
             # print(">>>>> node_"+str(uu)+": bn="+str(uuBN)+";
             #       ln="+str(uuLN)+"; rn="+str(uuRN)+"\n")
 
-            # generate base forest by assignment algorithm
-            baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
-            # print(baseTree.nodes())
-            # evaluate the cost of the forest
-            tRes, baseConf, baseScore, tmpCutTrees = tree_cost(
-                baseTree, 10000, costs)
-            # print("baseScore",baseScore)
-            # if the cost is lower than the best solution, record it
+            # here I know that the topology has passed the lower bound
+            # filter and that it does have some neighbours!!
+            # so I should check whether it's been visited 
+            if withMemory:
+                code = getCodeTopo(baseTopo)
+                found = code in visited
+            # if it has not been visited I go for assignment
+            if not found:
+                # determine thhe most parsimonious phylogeny
+                # for this base topology by assignment algorithm
+                baseTree = leafAssign(baseTopo, est, distTabs, costMat, AllExons)
+                # print(baseTree.nodes())
+                # evaluate the cost of the forest
+                tRes, baseConf, baseScore, tmpCutTrees = tree_cost(baseTree, 10000, costs)
+                # print("baseScore",baseScore)
+                # if the cost is lower than the best solution, record it
+                if baseScore <= bestSc:
+                    pickPrint(baseTopo,os.path.join(bestTopos_path, "topo" + str(countBest) + "_" +str(baseScore) + ".pk"))
+                    countBest = countBest + 1
+                if baseScore < initBest:
+                    pickPrint(baseTree,os.path.join(betterTrees_path, "tree" + str(countTrees) + "_" +str(baseScore) + ".pk"))
+                    countTrees = countTrees + 1
+                if baseScore < bestSc:
+                    print("Changing best solution\n")
+                    bestTopo = baseTopo
+                    bestSc = float(baseScore)
+                    cutTrees = tmpCutTrees
+                # print the cost for the phylogeny
+                print("tree cost for base topo " + str(baseScore))
+                f.write(str(baseScore) + " " + str(bestSc) + "\n")
+                # add it to the set of visited topologies
+                if withMemory:
+                    visited.add(code)
+            # here we used a else! if the topology was already visited
+            # it means that it either served previously as a base and hence
+            # its neighbours have been already visited (up to a certain point)
+            # or that it was a neighbour of a base and either its mates were visited
+            # also or it was good and thus chosen as a base, and thus its neihgbourhood 
+            # was visited. Hence, it makes sense to bypass all the neighborhood sampling
+            else:
+                print("~}~}~}~}~} already visited topology \n")
+                nodes = []
 
-            if baseScore <= bestSc:
-                pickPrint(
-                    baseTopo,
-                    os.path.join(
-                        bestTopos_path, "topo" + str(countBest) + "_" +
-                        str(baseScore) + ".pk"))
-                countBest = countBest + 1
-            if baseScore < initBest:
-                pickPrint(
-                    baseTree,
-                    os.path.join(
-                        betterTrees_path, "tree" + str(countTrees) + "_" +
-                        str(baseScore) + ".pk"))
-                countTrees = countTrees + 1
+        # if no neighbours, or else the 
+        # topology had been visited previously, then
+        # go on for a next tour
+        if nodes == []:
+                continue
 
-            if baseScore < bestSc:
-                print("Changing best solution\n")
-                bestTopo = baseTopo
-                bestSc = float(baseScore)
-                cutTrees = tmpCutTrees
-            # print the cost for the base forest
-            print("tree cost for base topo " + str(baseScore))
-            f.write(str(baseScore) + " " + str(bestSc) + "\n")
-
-            print(">>>>> Neighbor search ended \n")
-
-        # be aware that this is not a else!!
         # at this point, nodes is necessarily not empty
+        # I have found a topo with good bound and some neighbours
         # evaluate a neighbor of the base topology
         t, nn = moveTopo(baseTopo, nodes, tM)
         borInf = evalTopo(t, costs)
+        # determine whether it has been visited already
         if withMemory:
             code = getCodeTopo(t)
             found = code in visited
-        else:
-            found = False
+            if found:
+                print("~}~}~}~}~} already visited topology \n")
         # whether the topology is suitable or not
         # this counts as an iteration
         i = i + 1
@@ -3155,13 +3212,13 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
             print(">>>>>> tree cost ended \n")
             # f.write("~~~~~~~~~ score for this topo : " +
             #     str(tmpScore) + "\n\n")
-
             if withMemory:
-                visited.append(code)
+                visited.add(code)
                 # print(len(visited))
 
             # if the score of the forest is better than the base forest score,
             # change for it and generate a new neighborhood
+            # in that case all the neighbours of the base will not be visited
             if tmpScore < baseScore:
                 print("Changing base\n")
                 baseTopo = t.copy()
@@ -3188,23 +3245,22 @@ def bestTopology(gt, AllExons, nbIt, costs, costMat, priority, SUFF, initBest,
                     bestSc = float(tmpScore)
                     cutTrees = tmpCutTrees
             if tmpScore < initBest:
-                pickPrint(
-                    tmpTree,
-                    os.path.join(
-                        betterTrees_path, "tree" + str(countTrees) + "_" +
-                        str(tmpScore) + ".pk"))
+                pickPrint(tmpTree,os.path.join(betterTrees_path, "tree" + str(countTrees) + "_" +str(tmpScore) + ".pk"))
                 countTrees = countTrees + 1
 
             # write the score to the output file
             f.write(str(tmpScore) + " " + str(bestSc) + "\n")
 
         # if the topology is not suitable, it is still counted as an iteration
+        # I'm going for the next tour in the loop with the neighbours I have
+        # meaning that if the current neighbour had alreay been visited, then
+        # I do not jump, I simply go for the other neighbours
         else:
             print("~}~}~}~}~} unsuitable topology \n")
             coupes = coupes + 1
 
     ti = (time.time() - t0) / 60
-    # print(" execution time = " + str(ti) + " minuts\n")
+    #print(" execution time = " + str(ti) + " minuts\n")
 
     f.close()
     return (bestTopo, bestSc, coupes, ti, cutTrees)
