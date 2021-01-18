@@ -42,7 +42,7 @@ setup(
     install_requires=[
         'biopython',  # change B factor
         'numpy',  # handle transcript tables
-        'networkx',  # handle phylogenetic trees
+        'networkx==2.3.0',  # handle phylogenetic trees
         'pydot'  # visualization of the phylogenies
     ],
     test_suite='tests',
