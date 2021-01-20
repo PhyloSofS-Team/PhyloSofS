@@ -31,6 +31,12 @@ from phylosofs import nx_utils
 
 ##################################################
 
+def faster_deepcopy(thing):
+    """
+    Trick from https://stackoverflow.com/questions/24756712/deepcopy-is-extremely-slow
+    """
+    return pk.loads(pk.dumps(thing, -1))
+
 
 # fonction prend en parametre un object python o et un nom de fichier s
 # et va creer ou ecraser le fichier de nom s avec l'objet ecrit en binaire
@@ -1378,13 +1384,13 @@ def BandB_assign(n, t, dim, pathScore, path, misRows, misCols, forVals, lParaT,
                 bestAssign[:] = [[path, misRows, misCols]]
                 bestScore = tmp
                 # print("bestAssign", bestAssign)
-                # mR = copy.deepcopy(misRows)
-                # mC = copy.deepcopy(misCols)
+                # mR = faster_deepcopy(misRows)
+                # mC = faster_deepcopy(misCols)
                 # bestAssign[:] = [[newPath, mR, mC]]
             # or we add it to the list of best solutions
             elif tmp == bestScore:
-                # mR = copy.deepcopy(misRows)
-                # mC = copy.deepcopy(misCols)
+                # mR = faster_deepcopy(misRows)
+                # mC = faster_deepcopy(misCols)
                 # bestAssign.append([newPath, mR, mC])
                 bestAssign.append([path, misRows, misCols])
             # or else we do not care
@@ -2089,7 +2095,7 @@ def leafAssign(t, est, distTabs, costMat, AllExons):
                             dicTmp = {}
                             dicTmp['lConf'] = i
                             dicTmp['rConf'] = j
-                            dicTmp['Lbn'] = a[0]  # copy.deepcopy(a[0])
+                            dicTmp['Lbn'] = a[0]  # faster_deepcopy(a[0])
                             dicTmp['Bt'] = []
                             dicTmp['scoreBt'] = a[3]
                             countBt = 0
@@ -2217,7 +2223,7 @@ def generateTreeRec(t, tt, conf, n):
     tt.node[n]['rn'] = t.node[n]['rn']
     tmp = len(t.node[n]['configurations'])
     tt.node[n]['configurations'] = [{}] * tmp
-    tt.node[n]['configurations'][conf] = copy.deepcopy(
+    tt.node[n]['configurations'][conf] = faster_deepcopy(
         t.node[n]['configurations'][conf])
 
     if nx_utils.successors(t, n) != []:
